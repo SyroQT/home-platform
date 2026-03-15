@@ -1,0 +1,16 @@
+---
+timezone: Europe/Amsterdam
+
+admin_user: deployer
+admin_group: deployer
+
+disable_root_ssh_after_setup: true
+disable_password_auth: true
+
+data_filesystem: ext4
+
+ufw_allowed_tcp_ports:
+  - 22
+  - 80
+  - 443
+# keep 6443 closed for now unless you specifically want host-level access later

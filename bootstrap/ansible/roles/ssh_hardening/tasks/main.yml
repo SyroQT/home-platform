@@ -1,0 +1,35 @@
+---
+- name: Disable root SSH login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: "PermitRootLogin prohibit-password"
+    state: present
+  when: disable_root_ssh_after_setup
+
+- name: Disable SSH password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: "PasswordAuthentication no"
+    state: present
+  when: disable_password_auth
+
+- name: Disable keyboard interactive auth
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?KbdInteractiveAuthentication'
+    line: "KbdInteractiveAuthentication no"
+    state: present
+
+- name: Ensure pubkey auth is enabled
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PubkeyAuthentication'
+    line: "PubkeyAuthentication yes"
+    state: present
+
+- name: Restart SSH
+  ansible.builtin.service:
+    name: ssh
+    state: restarted

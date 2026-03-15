@@ -1,0 +1,31 @@
+---
+- name: Ensure mount point exists
+  ansible.builtin.file:
+    path: "{{ data_mount_point }}"
+    state: directory
+    mode: "0755"
+
+- name: Check if filesystem exists
+  ansible.builtin.command: "blkid {{ data_device }}"
+  register: blkid_result
+  failed_when: false
+  changed_when: false
+
+- name: Create filesystem if missing
+  ansible.builtin.filesystem:
+    fstype: "{{ data_filesystem }}"
+    dev: "{{ data_device }}"
+  when: blkid_result.rc != 0
+
+- name: Get UUID of data device
+  ansible.builtin.command: "blkid -s UUID -o value {{ data_device }}"
+  register: data_uuid
+  changed_when: false
+
+- name: Mount data volume
+  ansible.posix.mount:
+    path: "{{ data_mount_point }}"
+    src: "UUID={{ data_uuid.stdout }}"
+    fstype: "{{ data_filesystem }}"
+    opts: defaults,nofail
+    state: mounted

@@ -1,0 +1,9 @@
+---
+- name: Harden and prepare VPS
+  hosts: vps
+  become: true
+  roles:
+    - common
+    - ssh_hardening
+    - firewall
+    - mount_data_volume

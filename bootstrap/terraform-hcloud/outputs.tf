@@ -11,7 +11,15 @@ output "server_ipv6" {
 }
 
 output "volume_linux_device" {
-  value = hcloud_volume.data.linux_device
+  value = "/dev/disk/by-id/scsi-0HC_Volume_${hcloud_volume.data.id}"
+}
+
+output "volume_id" {
+  value = hcloud_volume.data.id
+}
+
+output "data_mount_point" {
+  value = "/srv/data"
 }
 
 output "firewall_name" {

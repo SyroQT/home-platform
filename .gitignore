@@ -8,3 +8,6 @@
 crash.log
 *.tfvars
 .terraform.lock.hcl
+
+# Ansible
+**/group_vars/vps/generated.yml
