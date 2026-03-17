@@ -12,6 +12,7 @@ resource "hcloud_ssh_key" "default" {
 }
 
 resource "hcloud_firewall" "vps" {
+  # allow only the needed ports
   name = "${var.server_name}-fw"
 
   rule {
@@ -55,10 +56,15 @@ resource "hcloud_firewall_attachment" "vps" {
 }
 
 resource "hcloud_volume" "data" {
+  # extra volume for persistent data  
   name     = "${var.server_name}-data"
   size     = var.volume_size_gb
   location = var.location
   format   = "ext4"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "hcloud_volume_attachment" "data" {
