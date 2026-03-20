@@ -19,42 +19,63 @@ ansible-playbook -i bootstrap/ansible/inventories/prod/hosts.ini bootstrap/ansib
 
 - Inspect terraform plan
 
-  `terraform -chdir=bootstrap/terraform-hcloud plan`
+  ```bash
+  terraform -chdir=bootstrap/terraform-hcloud plan
+  ```
 
 - Apply terraform plan. This will deploy the infrastructure
 
-  `terraform -chdir=bootstrap/terraform-hcloud plan`
+  ```bash
+  terraform -chdir=bootstrap/terraform-hcloud apply
+  ```
 
 #### Ansible
 
 - Generate ansible variables from terraform
 
-  `sh bootstrap/scripts/render-ansible-vars.sh`
+  ```bash
+  sh bootstrap/scripts/render-ansible-vars.sh
+  ```
 
 - Cd into `bootstrap/ansible` and ensure that file `inventories/prod/hosts.ini` has `ansible_user=root`
 
 - Check if ansible sees the generated variables
 
-  `ansible-inventory -i inventories/prod/hosts.ini --host vps-prod`
+  ```bash
+  ansible-inventory -i inventories/prod/hosts.ini --host vps-prod
+  ```
 
 - Check if ansible can access the VPS
 
-  `ansible -i inventories/prod/hosts.ini vps -m ping`
+  ```bash
+  ansible -i inventories/prod/hosts.ini vps -m ping -e ansible_user=root
+  ```
 
-  To remove old old key from local known_hosts: `ssh-keygen -R <VPS_IP_ADDRESS>`, then `ssh` into to add to the list of known host
-  `
+  To remove an old key from local `known_hosts`, run:
 
-- Run the playbook as root
+  ```bash
+  ssh-keygen -R <VPS_IP_ADDRESS>
+  ssh-keygen -R vps-prod
+  ```
 
-  `ansible-playbook -i inventories/prod/hosts.ini playbooks/harden.yml -u root`
+  Then `ssh` into the VPS once to add the new host key.
+
+- Run the playbook as root to set it up
+
+  ```bash
+  ansible-playbook -i inventories/prod/hosts.ini playbooks/harden.yml -e ansible_user=root
+  ```
 
 - Rerun with new user
 
-  `ansible-playbook -i inventories/prod/hosts.ini playbooks/harden.yml`
+  ```bash
+  ansible-playbook -i inventories/prod/hosts.ini playbooks/harden.yml
+  ```
 
 - In a new terminal connect to VPS as `deployer`. Confirm the configuration:
 
   ```bash
+  ssh deployer@<VPS_IP_ADDRESS>
   whoami
   timedatectl
   mount | grep /srv/data
@@ -65,4 +86,6 @@ ansible-playbook -i bootstrap/ansible/inventories/prod/hosts.ini bootstrap/ansib
 
 ## Destroy infra
 
-`terraform -chdir=bootstrap/terraform-hcloud destroy`
+```bash
+terraform -chdir=bootstrap/terraform-hcloud destroy
+```
