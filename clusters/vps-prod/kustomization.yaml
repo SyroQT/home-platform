@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
   - ./flux-system
   - ./kustomizations/platform.yaml
+  - ./kustomizations/cert-issuers.yaml
   - ./kustomizations/apps.yaml
   - kustomizations/secrets.yaml
