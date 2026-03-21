@@ -838,3 +838,105 @@ Added project rule:
 * Flux successfully decrypts and applies secrets
 * age private key securely backed up outside Git
 * secrets fully managed via GitOps workflow
+
+---
+
+# Phase 6 — Platform Configuration — Completed
+
+Platform-level cluster services are now structured to reconcile cleanly under Flux, including correct ordering for CRD-producing controllers and CRD-dependent custom resources.
+
+## Current State
+
+* initial platform structure created under `platform/`
+* namespaces are managed through Flux
+* cert-manager installation is managed through Flux
+* CRD-dependent issuer resources are separated from the initial cert-manager installation path
+* app reconciliation is gated on both platform readiness and issuer readiness
+
+## Issue Encountered
+
+Flux failed to reconcile the `platform` Kustomization during dry-run validation because a `ClusterIssuer` was included in the same apply path as the cert-manager install before the cert-manager CRDs existed.
+
+Failure observed:
+
+* `platform` marked not ready
+* error:
+
+```text
+no matches for kind "ClusterIssuer" in version "cert-manager.io/v1"
+```
+
+* `apps` reconciliation blocked because it depended on `platform`
+
+## Key Architectural Decision
+
+Do not place CRD-dependent custom resources in the same initial reconciliation path as the controller that installs their CRDs.
+
+### Reason
+
+* avoids Flux dry-run and validation failures during bootstrap
+* prevents CRD race conditions
+* creates a clearer dependency graph
+* makes reconciliation failures easier to debug
+* better matches production GitOps behavior
+
+## Implemented Fix
+
+### 1. Split issuer resources from cert-manager install
+
+* removed `clusterissuer-staging.yaml` from `platform/cert-manager`
+* created:
+
+```text
+platform/cert-manager-issuers/
+```
+
+* moved `ClusterIssuer` resources into that directory
+
+### 2. Added dedicated Flux Kustomization for issuers
+
+Created a separate Flux Kustomization:
+
+* `cert-issuers`
+
+Configured it to depend on:
+
+* `platform`
+
+### 3. Updated app dependency chain
+
+Updated the `apps` Kustomization to depend on:
+
+* `platform`
+* `cert-issuers`
+
+## Final Reconciliation Order
+
+1. Install cert-manager and its CRDs
+2. Apply `ClusterIssuer` resources
+3. Deploy apps
+
+## Validation Outcome
+
+* `platform` can reconcile independently
+* `cert-issuers` applies only after cert-manager is available
+* `apps` are no longer blocked by missing cert-manager CRDs
+
+## Definition of Done (Phase 6)
+
+* platform namespaces are reconciled through Flux
+* cert-manager is installed through Flux
+* issuer resources are reconciled only after cert-manager CRDs exist
+* Flux dependency ordering prevents CRD validation failures during bootstrap
+* app reconciliation is no longer blocked by cert-manager CRD timing
+
+## Next Phase
+
+Phase 7 — HTTPS Validation / Test Workload
+
+Goals:
+
+* verify `platform` reports `Ready`
+* verify `cert-issuers` reports `Ready`
+* confirm `ClusterIssuer` exists in cluster
+* deploy a small HTTPS test workload before onboarding real apps
