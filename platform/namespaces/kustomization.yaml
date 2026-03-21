@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
   - apps-n8n.yaml
   - apps-actual.yaml
+  - cnpg-system.yaml
   - infra-postgres.yaml

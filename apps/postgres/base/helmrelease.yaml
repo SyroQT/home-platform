@@ -7,11 +7,11 @@ spec:
   interval: 30m
   chart:
     spec:
-      chart: postgresql
-      version: "15.*"
+      chart: cluster
+      version: "0.6.*"
       sourceRef:
         kind: HelmRepository
-        name: bitnami
+        name: cnpg
         namespace: flux-system
   install:
     remediation:
@@ -20,20 +20,21 @@ spec:
     remediation:
       retries: 3
   values:
-    auth:
-      existingSecret: postgres-auth
-      secretKeys:
-        adminPasswordKey: postgres-password
-        userPasswordKey: password
-      username: n8n
-      database: n8n
+    type: postgresql
+    version:
+      postgresql: "16"
 
-    primary:
-      persistence:
-        enabled: true
+    cluster:
+      instances: 1
+      enableSuperuserAccess: false
+      initdb:
+        database: n8n
+        owner: n8n
+        secret:
+          name: postgres-auth
+      storage:
         storageClass: local-path
         size: 8Gi
-
       resources:
         requests:
           cpu: 100m
@@ -41,11 +42,5 @@ spec:
         limits:
           cpu: 500m
           memory: 768Mi
-
-    architecture: standalone
-
-    networkPolicy:
-      enabled: false
-
-    metrics:
-      enabled: false
+      monitoring:
+        enabled: false
