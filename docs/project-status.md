@@ -706,3 +706,135 @@ Goals:
 * store encrypted secrets in Git
 * enable Flux decryption at runtime
 * eliminate plaintext secrets from repository
+
+---
+
+## Phase 5 Status
+
+### Phase 5 — Secrets Management (SOPS + age)
+
+**Status:** In Progress
+
+### Objective
+
+Introduce secure, GitOps-compatible secret management using SOPS with age encryption, enabling encrypted secrets to be stored in Git and decrypted at runtime by Flux.
+
+### Current Progress
+
+* SOPS and age installed and verified locally
+* age keypair generated and stored at `~/.config/sops/age/keys.txt`
+* public key extracted and configured in `.sops.yaml`
+* `.sops.yaml` created at repository root with rules that:
+  * target `secrets/*.sops.yaml`
+  * encrypt only `data` and `stringData` fields
+* initial secret (`demo-secret`) created and successfully:
+  * encrypted with SOPS
+  * decrypted locally for verification
+* workflow issue identified and corrected:
+  * file was left in plaintext after decryption testing
+  * file was re-encrypted and verified to be back in proper encrypted state (`ENC[...]`)
+
+### Key Decisions
+
+#### 1. Encryption Standard: SOPS + age
+
+* age selected over PGP for simplicity and modern defaults
+* aligns with Flux native SOPS integration
+* avoids external key servers and complex key management
+
+#### 2. Git as Source of Truth (Encrypted Only)
+
+* all secrets must be stored encrypted in Git
+* plaintext secrets are never committed
+* Flux performs decryption inside the cluster at reconcile time
+
+#### 3. Repository Structure
+
+Secrets are stored under:
+
+```text
+secrets/prod/*.sops.yaml
+```
+
+This keeps them clearly separated from:
+
+* platform
+* apps
+* infrastructure
+
+#### 4. File Naming Convention
+
+* `.sops.yaml` suffix enforced
+* ensures `.sops.yaml` rules apply consistently
+* reduces risk of accidental plaintext commits
+
+#### 5. Editing Workflow (Critical)
+
+Standard workflow:
+
+```bash
+sops <file>
+```
+
+* manual decrypt/edit/re-encrypt flows are avoided
+* this prevents accidental plaintext persistence
+
+#### 6. Cluster Decryption Model
+
+* Flux will use Kubernetes Secret `flux-system/sops-age`
+* this Secret will contain the age private key
+* Flux will use it to decrypt manifests during reconciliation
+
+#### 7. Safety Principle
+
+If a secret is ever committed in plaintext:
+
+* it is considered compromised
+* it must be rotated immediately
+
+### Deviations / Lessons Learned
+
+#### Issue: Plaintext file left after decryption
+
+* root cause:
+  * manual decrypt/test flow without guaranteed re-encryption
+* impact:
+  * risk of committing plaintext secret
+* resolution:
+  * re-encrypted file with `sops --encrypt --in-place`
+  * standardized on `sops <file>` for editing
+
+#### Improvement Over Guide
+
+The guide did not explicitly enforce that the final on-disk state must be encrypted.
+
+Added project rule:
+
+> Any file readable via `cat` is invalid.
+
+### Validation Status
+
+* local encryption and decryption working correctly
+* `.sops.yaml` rules applied as expected
+* encrypted file verified to contain:
+  * `ENC[...]` values
+  * `sops:` metadata block
+
+### Next Steps
+
+1. Create `sops-age` Secret in `flux-system`
+2. Add Flux `Kustomization` with `decryption` block
+3. Wire the `secrets` directory into cluster reconciliation
+4. Push the encrypted secret to Git
+5. Verify:
+   * Flux reconciliation succeeds
+   * Secret appears in cluster decrypted
+   * `flux get kustomizations` reports healthy
+
+### Definition of Done (Phase 5)
+
+* encrypted secrets stored in Git
+* no plaintext secrets in repository
+* Flux successfully decrypts and applies secrets
+* age private key securely backed up outside Git
+* secrets fully managed via GitOps workflow
