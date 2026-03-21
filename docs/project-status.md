@@ -2,6 +2,73 @@
 
 ---
 
+## LLM Quick Reference
+
+Use this section as the canonical current state. The phase sections below are the implementation history.
+
+### Current Stack
+
+- Provider: Hetzner Cloud
+- Host OS: Debian 12
+- Kubernetes: K3s
+- GitOps: Flux
+- Secrets: SOPS + age
+- TLS / certificates: cert-manager
+- Ingress: Traefik
+- PostgreSQL: CloudNativePG
+
+### Canonical Paths
+
+- Terraform: `bootstrap/terraform`
+- Ansible: `bootstrap/ansible`
+- Cluster root: `clusters/vps-prod`
+- Platform manifests: `platform/`
+- App manifests: `apps/`
+- Encrypted secrets: `secrets/prod/`
+- Status/history document: `docs/project-status.md`
+
+### Current Operational Model
+
+- Infrastructure is provisioned by Terraform
+- Host bootstrap and hardening are managed by Ansible
+- Cluster resources are reconciled by Flux from Git
+- Secrets are committed only in encrypted SOPS form
+- Platform resources reconcile before apps
+- PostgreSQL is operator-managed via CloudNativePG
+
+### Current PostgreSQL State
+
+- Namespace: `infra-postgres`
+- Operator namespace: `cnpg-system`
+- Write endpoint: `postgres-rw`
+- Read-only endpoint: `postgres-ro`
+- Replica/internal endpoint: `postgres-r`
+- PostgreSQL version: 16
+- Instances: 1
+- Storage class: `local-path`
+- Storage size: `8Gi`
+- Bootstrap database: `n8n`
+- Bootstrap user: `n8n`
+- Secret name: `postgres-auth`
+- Secret type: `kubernetes.io/basic-auth`
+
+### Current Flux / Platform Components
+
+- `cert-manager`
+- `cloudnative-pg`
+- `postgres`
+
+### Rules That Must Stay True
+
+- Do not commit plaintext secrets
+- Do not manage cluster resources manually outside Git unless recovering from failure
+- Do not expose PostgreSQL via Ingress
+- Use `postgres-rw` for application writes
+- Validate PVC binding and storage placement after storage-related changes
+- Treat this section as canonical when historical sections differ in wording
+
+---
+
 # Phase 1 — Infrastructure Provisioning (Terraform) — Completed
 
 Terraform manages the base infrastructure on Hetzner Cloud.
@@ -443,83 +510,36 @@ Cluster is recreated deterministically.
 
 # Phase 4 — GitOps (Flux) — Completed
 
-Flux is installed and configured to manage cluster state from Git.
+### Outcome
 
----
+Flux is the active GitOps controller for the cluster. Git is the source of truth for Kubernetes state, and normal deployment flow is Git commit/push followed by Flux reconciliation.
 
-## Objective
+### Canonical State
 
-Establish Git as the single source of truth for all Kubernetes resources and eliminate manual `kubectl apply` workflows.
+- Reconciliation root: `clusters/vps-prod`
+- Flux bootstrap path: `clusters/vps-prod`
+- Bootstrap-generated manifests:
+  - `clusters/vps-prod/flux-system/gotk-components.yaml`
+  - `clusters/vps-prod/flux-system/gotk-sync.yaml`
+- Authentication: SSH deploy key
+- Local private key: `~/.ssh/flux-vps-prod`
+- Access level: read-only
+- Main controllers:
+  - `source-controller`
+  - `kustomize-controller`
+  - `helm-controller`
+  - `notification-controller`
+- Top-level Flux Kustomizations:
+  - `platform`
+  - `apps`
 
----
+### Canonical Workflow
 
-## Implementation
+1. Modify manifests locally
+2. Commit and push to Git
+3. Flux reconciles from Git
 
-### Bootstrap method
-
-Flux was bootstrapped using:
-
-```bash
-flux bootstrap git \
-  --url=ssh://git@github.com/SyroQT/home-platform.git \
-  --branch=main \
-  --private-key-file="$HOME/.ssh/flux-vps-prod" \
-  --path=clusters/vps-prod
-```
-
-### Authentication model
-
-- Git access via **SSH deploy key**
-- Key stored locally at:
-
-```
-~/.ssh/flux-vps-prod
-```
-
-- Public key added to GitHub repository deploy keys
-- Access level: **read-only**
-
-**Reason:**
-
-- avoids long-lived personal access tokens
-- aligns with pull-based GitOps model
-- safer default until image automation is introduced
-
----
-
-## Repository integration
-
-Flux manages the cluster from:
-
-```
-clusters/vps-prod
-```
-
-Bootstrap created:
-
-```
-clusters/vps-prod/flux-system/
-  gotk-components.yaml
-  gotk-sync.yaml
-```
-
-**Important behavior:**
-
-- bootstrap pushes directly to remote
-- local repo must be manually pulled after bootstrap
-
----
-
-## Reconciliation model
-
-Flux continuously reconciles cluster state from Git.
-
-### Controllers installed
-
-- source-controller
-- kustomize-controller
-- helm-controller
-- notification-controller
+`kubectl` is for inspection, debugging, and break-glass recovery. Manual cluster changes must be reflected back into Git.
 
 ### Validation
 
@@ -530,567 +550,321 @@ kubectl get pods -n flux-system
 
 Expected:
 
-- all controllers running
+- Flux controllers are running
 - `flux check` passes
 
----
+### Gotchas
 
-## Kustomization structure
-
-Two top-level Flux Kustomizations define separation of concerns:
-
-### Platform layer
-
-```
-clusters/vps-prod/kustomizations/platform.yaml
-→ ./platform
-```
-
-### Applications layer
-
-```
-clusters/vps-prod/kustomizations/apps.yaml
-→ ./apps
-```
-
-Apps depend on platform:
-
-```yaml
-dependsOn:
-  - name: platform
-```
-
-**Reason:**
-
-- ensures infrastructure (ingress, cert-manager, etc.) is ready before apps
-- enforces clean layering
-
----
-
-## Architecture alignment
-
-This completes the intended layered model:
-
-```
-Terraform → infrastructure
-Ansible   → host + K3s
-Flux      → cluster state
-```
-
-**Result:**
-
-- full separation of concerns
-- reproducible cluster state
-- clear ownership boundaries per layer
-
----
-
-## Operational model
-
-### Normal workflow
-
-1. Modify manifests locally
-2. Commit and push to Git
-3. Flux reconciles automatically
-
-### Cluster interaction
-
-`kubectl` is used for:
-
-- inspection
-- debugging
-- emergency fixes only
-
-Manual changes must be reflected back into Git.
-
----
-
-## Key decisions
-
-### 1. Pull-based GitOps (Flux)
-
-**Decision:**
-Use Flux (pull model) instead of push-based CD.
-
-**Why:**
-
-- cluster pulls desired state
-- no external deploy pipeline required
-- simpler security model
-
----
-
-### 2. SSH deploy key (not PAT)
-
-**Decision:**
-Use SSH deploy key for Git authentication.
-
-**Why:**
-
-- avoids storing personal credentials
-- scoped to single repository
-- easily revocable
-
----
-
-### 3. Read-only Git access
-
-**Decision:**
-Deploy key is read-only.
-
-**Why:**
-
-- prevents automated writes to repo
-- reduces blast radius
-- aligns with PR-based workflow
-
-**Future option:**
-
-- enable write access if Flux image automation is introduced
-
----
-
-### 4. Layered Kustomizations
-
-**Decision:**
-Separate `platform` and `apps`.
-
-**Why:**
-
-- enforces dependency ordering
-- isolates failures
-- improves maintainability
-
----
-
-### 5. Git as single source of truth
-
-**Decision:**
-No direct `kubectl apply` for normal operations.
-
-**Why:**
-
-- prevents configuration drift
-- ensures reproducibility
-- aligns with GitOps principles
-
----
-
-## Known behaviors / gotchas
-
-- `flux bootstrap` does not update local repo -> must `git pull`
-- Flux reconciliation is interval-based (not instant)
-- misconfigured manifests fail silently unless checked via:
+- `flux bootstrap` writes to the remote repo; the local repo must be pulled afterward
+- Flux reconciliation is interval-based, not instant
+- If manifests are wrong, inspect with:
 
 ```bash
 flux get kustomizations
 flux logs
 ```
 
----
+### Definition of Done (Phase 4)
 
-## Definition of Done (Phase 4)
-
-- Flux controllers installed and healthy
-- Git repository connected via SSH deploy key
-- `clusters/vps-prod` is active reconciliation root
-- `platform` and `apps` Kustomizations exist
-- Flux successfully reconciles changes from Git
-- No manual `kubectl apply` required for deployments
+- Flux controllers healthy
+- Git repository connected through SSH deploy key
+- `clusters/vps-prod` active as reconciliation root
+- `platform` and `apps` Kustomizations present
+- Normal deployments no longer rely on `kubectl apply`
 
 ---
 
-## Next Phase
+# Phase 5 — Secrets Management (SOPS + age) — Completed
 
-Phase 5 — Secrets Management (SOPS + age)
+### Outcome
 
-Goals:
+Secrets are stored in Git only in encrypted SOPS form and decrypted by Flux inside the cluster.
 
-- store encrypted secrets in Git
-- enable Flux decryption at runtime
-- eliminate plaintext secrets from repository
+### Canonical State
 
----
+- Secret files live under: `secrets/prod/*.sops.yaml`
+- Encryption tool: SOPS
+- Key type: age
+- Local age private key path: `~/.config/sops/age/keys.txt`
+- Repo config file: `.sops.yaml`
+- Cluster decryption secret: `flux-system/sops-age`
+- Encryption scope: `data` and `stringData` fields only
 
-## Phase 5 Status
+### Canonical Workflow
 
-### Phase 5 — Secrets Management (SOPS + age)
-
-**Status:** Completed
-
-### Objective
-
-Introduce secure, GitOps-compatible secret management using SOPS with age encryption, enabling encrypted secrets to be stored in Git and decrypted at runtime by Flux.
-
-### Current Progress
-
-- SOPS and age installed and verified locally
-- age keypair generated and stored at `~/.config/sops/age/keys.txt`
-- public key extracted and configured in `.sops.yaml`
-- `.sops.yaml` created at repository root with rules that:
-  - target `secrets/*.sops.yaml`
-  - encrypt only `data` and `stringData` fields
-- initial secret (`demo-secret`) created and successfully:
-  - encrypted with SOPS
-  - decrypted locally for verification
-- workflow issue identified and corrected:
-  - file was left in plaintext after decryption testing
-  - file was re-encrypted and verified to be back in proper encrypted state (`ENC[...]`)
-
-### Key Decisions
-
-#### 1. Encryption Standard: SOPS + age
-
-- age selected over PGP for simplicity and modern defaults
-- aligns with Flux native SOPS integration
-- avoids external key servers and complex key management
-
-#### 2. Git as Source of Truth (Encrypted Only)
-
-- all secrets must be stored encrypted in Git
-- plaintext secrets are never committed
-- Flux performs decryption inside the cluster at reconcile time
-
-#### 3. Repository Structure
-
-Secrets are stored under:
-
-```text
-secrets/prod/*.sops.yaml
-```
-
-This keeps them clearly separated from:
-
-- platform
-- apps
-- infrastructure
-
-#### 4. File Naming Convention
-
-- `.sops.yaml` suffix enforced
-- ensures `.sops.yaml` rules apply consistently
-- reduces risk of accidental plaintext commits
-
-#### 5. Editing Workflow (Critical)
-
-Standard workflow:
+Edit encrypted files with:
 
 ```bash
 sops <file>
 ```
 
-- manual decrypt/edit/re-encrypt flows are avoided
-- this prevents accidental plaintext persistence
+Rules:
 
-#### 6. Cluster Decryption Model
+- never commit plaintext secrets
+- never leave a secret decrypted on disk
+- if plaintext is committed, treat it as compromised and rotate it
 
-- Flux will use Kubernetes Secret `flux-system/sops-age`
-- this Secret will contain the age private key
-- Flux will use it to decrypt manifests during reconciliation
+### Validation
 
-#### 7. Safety Principle
+- encrypted files contain `ENC[...]`
+- encrypted files contain a `sops:` metadata block
+- Flux `secrets` Kustomization reconciles successfully
+- decrypted Secret resources appear correctly in-cluster
 
-If a secret is ever committed in plaintext:
+### Gotchas
 
-- it is considered compromised
-- it must be rotated immediately
-
-### Deviations / Lessons Learned
-
-#### Issue: Plaintext file left after decryption
-
-- root cause:
-  - manual decrypt/test flow without guaranteed re-encryption
-- impact:
-  - risk of committing plaintext secret
-- resolution:
-  - re-encrypted file with `sops --encrypt --in-place`
-  - standardized on `sops <file>` for editing
-
-#### Improvement Over Guide
-
-The guide did not explicitly enforce that the final on-disk state must be encrypted.
-
-Added project rule:
-
-> Any file readable via `cat` is invalid.
-
-### Validation Status
-
-- local encryption and decryption working correctly
-- `.sops.yaml` rules applied as expected
-- encrypted file verified to contain:
-  - `ENC[...]` values
-  - `sops:` metadata block
-- end-to-end verification completed:
-  - `sops-age` Secret created in `flux-system`
-  - Flux `secrets` Kustomization decrypts SOPS manifests during reconciliation
-  - encrypted secrets stored in Git are applied successfully in decrypted form in-cluster
-  - `flux get kustomizations` reports healthy reconciliation for secrets
+- Manual decrypt/edit/re-encrypt flows are error-prone
+- Any secret readable directly via `cat` is in an invalid on-disk state
 
 ### Definition of Done (Phase 5)
 
-- encrypted secrets stored in Git
-- no plaintext secrets in repository
-- Flux successfully decrypts and applies secrets
-- age private key securely backed up outside Git
-- secrets fully managed via GitOps workflow
+- Encrypted secrets stored in Git
+- No plaintext secrets in repository
+- Flux decrypts and applies secrets successfully
+- age private key backed up outside Git
 
 ---
 
 # Phase 6 — Platform Configuration — Completed
 
-Platform-level cluster services are now structured to reconcile cleanly under Flux, including correct ordering for CRD-producing controllers and CRD-dependent custom resources.
+### Outcome
 
-## Current State
+Platform services reconcile cleanly under Flux, including correct dependency ordering for CRD-producing controllers and CRD-dependent resources.
 
-- initial platform structure created under `platform/`
-- namespaces are managed through Flux
-- cert-manager installation is managed through Flux
-- CRD-dependent issuer resources are separated from the initial cert-manager installation path
-- app reconciliation is gated on both platform readiness and issuer readiness
+### Canonical State
 
-## Issue Encountered
+- Platform manifests live under: `platform/`
+- Namespaces are managed by Flux
+- cert-manager is installed via Flux
+- CRD-dependent issuer resources are separated from the cert-manager install path
+- App reconciliation depends on platform readiness
 
-Flux failed to reconcile the `platform` Kustomization during dry-run validation because a `ClusterIssuer` was included in the same apply path as the cert-manager install before the cert-manager CRDs existed.
+### Key Design Rule
 
-Failure observed:
+Do not place CRD-dependent custom resources in the same initial reconciliation path as the controller that installs their CRDs.
 
-- `platform` marked not ready
-- error:
+### Implemented Structure
+
+- cert-manager install path remains under `platform/cert-manager`
+- issuer resources moved to `platform/cert-manager-issuers`
+- dedicated Flux Kustomization: `cert-issuers`
+- app dependency chain updated so `apps` depends on:
+  - `platform`
+  - `cert-issuers`
+
+### Reconciliation Order
+
+1. Install cert-manager and its CRDs
+2. Reconcile issuer resources
+3. Reconcile apps
+
+### Validation
+
+- `platform` reconciles independently
+- `cert-issuers` waits until cert-manager CRDs exist
+- `apps` no longer fail due to missing `ClusterIssuer` CRDs
+
+### Gotchas
+
+- If a `ClusterIssuer` is included before cert-manager CRDs exist, Flux dry-run fails with:
 
 ```text
 no matches for kind "ClusterIssuer" in version "cert-manager.io/v1"
 ```
 
-- `apps` reconciliation blocked because it depended on `platform`
+### Definition of Done (Phase 6)
 
-## Key Architectural Decision
-
-Do not place CRD-dependent custom resources in the same initial reconciliation path as the controller that installs their CRDs.
-
-### Reason
-
-- avoids Flux dry-run and validation failures during bootstrap
-- prevents CRD race conditions
-- creates a clearer dependency graph
-- makes reconciliation failures easier to debug
-- better matches production GitOps behavior
-
-## Implemented Fix
-
-### 1. Split issuer resources from cert-manager install
-
-- removed `clusterissuer-staging.yaml` from `platform/cert-manager`
-- created:
-
-```text
-platform/cert-manager-issuers/
-```
-
-- moved `ClusterIssuer` resources into that directory
-
-### 2. Added dedicated Flux Kustomization for issuers
-
-Created a separate Flux Kustomization:
-
-- `cert-issuers`
-
-Configured it to depend on:
-
-- `platform`
-
-### 3. Updated app dependency chain
-
-Updated the `apps` Kustomization to depend on:
-
-- `platform`
-- `cert-issuers`
-
-## Final Reconciliation Order
-
-1. Install cert-manager and its CRDs
-2. Apply `ClusterIssuer` resources
-3. Deploy apps
-
-## Validation Outcome
-
-- `platform` can reconcile independently
-- `cert-issuers` applies only after cert-manager is available
-- `apps` are no longer blocked by missing cert-manager CRDs
-
-## Definition of Done (Phase 6)
-
-- platform namespaces are reconciled through Flux
-- cert-manager is installed through Flux
-- issuer resources are reconciled only after cert-manager CRDs exist
-- Flux dependency ordering prevents CRD validation failures during bootstrap
-- app reconciliation is no longer blocked by cert-manager CRD timing
-
-## Phase 7 — HTTPS Validation / Test Workload — Completed
-
-### Objective
-
-Validate end-to-end ingress and TLS setup using a minimal test application before deploying real workloads.
+- Platform namespaces reconciled by Flux
+- cert-manager installed by Flux
+- issuer resources reconciled only after CRDs exist
+- dependency ordering prevents CRD timing failures
 
 ---
 
-### Current Progress
+# Phase 7 — HTTPS Validation / Test Workload — Completed
 
-- `platform` Kustomization reconciled successfully
-- `cert-issuers` Kustomization reconciled successfully
-- `ClusterIssuer` resources available in cluster:
-  - `letsencrypt-staging`
-  - `letsencrypt-production`
+### Outcome
 
-- DNS configured for test domain:
-  - `whoami.titas.dev → VPS public IP`
+Ingress and TLS were validated end-to-end using a minimal `whoami` workload before deploying real applications.
 
-- Removed conflicting wildcard DNS records that were routing traffic externally
+### Canonical State
 
----
-
-### Test Workload Deployment
-
-Deployed a minimal `whoami` application under:
-
-```
-apps/whoami
-```
-
-Resources included:
-
+- Test workload path: `apps/whoami`
 - Namespace: `apps-test`
-- Deployment (1 replica)
-- Service (ClusterIP)
-- Ingress (Traefik)
-
-Ingress configuration:
-
 - Host: `whoami.titas.dev`
-- TLS enabled
-- Production issuer validated end-to-end
-- Annotation:
+- Ingress controller: Traefik
+- Certificate issuer: `letsencrypt-production`
+- Supporting Flux Kustomizations healthy:
+  - `platform`
+  - `cert-issuers`
+  - `apps`
 
-  ```
-  cert-manager.io/cluster-issuer: letsencrypt-production
-  ```
-
----
-
-### Key Issue Encountered
-
-#### DNS / External Proxy Interference
-
-- Traffic was initially routed through an external proxy (Sucuri)
-- Symptoms:
-  - Incorrect certificate (DigiCert)
-  - Unexpected redirects
-  - Requests not reaching cluster
-
-#### Root Cause
-
-- Wildcard DNS record:
-
-  ```
-  *.titas.dev → external host (31.x IP)
-  ```
-
-- This overrode or intercepted subdomain routing
-
-#### Resolution
-
-- Removed wildcard DNS record
-- Ensured explicit A record:
-
-  ```
-  whoami.titas.dev → VPS IP
-  ```
-
-- Verified direct routing to cluster
-
----
-
-### Validation Results
-
-#### Ingress Routing
+### Validation
 
 ```bash
 curl -vk https://whoami.titas.dev
-```
-
-- Request reaches Traefik
-- Response returned from whoami pod
-- Correct headers (`X-Forwarded-*`) present
-
-#### TLS Issuance (Production)
-
-- Certificate successfully issued by cert-manager
-- Issuer:
-
-  ```
-  Let's Encrypt
-  ```
-
-- Production certificate validated successfully for `whoami.titas.dev`
-
-- Certificate status:
-
-  ```
-  Ready=True
-  ```
-
-#### Cluster Checks
-
-```bash
 flux get kustomizations -A
 kubectl get clusterissuer
 kubectl get certificate -n apps-test
 kubectl get pods -n cert-manager
 ```
 
-All components healthy and reconciled.
+Expected:
 
----
+- Traffic reaches Traefik
+- `whoami` responds successfully
+- cert-manager issues a valid production certificate
+- certificate reports `Ready=True`
 
-### Key Decisions
+### Incident / Fix
 
-#### 1. Use Staging First, Then Confirm Production
+- Problem: wildcard DNS routed traffic through an external proxy instead of the cluster
+- Symptom: wrong certificate, redirects, requests not reaching Traefik
+- Root cause: `*.titas.dev` pointed at an external host
+- Fix: remove wildcard record and create explicit record:
 
-- staging used for initial ACME validation
-- production issuance then confirmed successfully on the test workload
+```text
+whoami.titas.dev → VPS IP
+```
 
-#### 2. Introduce Dedicated Test Workload
+### Operational Rule
 
-- `whoami` app used to isolate ingress/TLS from application complexity
-- Provides reproducible validation target
+Validate ingress and TLS with a minimal workload before introducing application complexity.
 
-#### 3. Separate CRD-Dependent Resources
-
-- `ClusterIssuer` managed in `cert-issuers` Kustomization
-- Prevents Flux dry-run failures due to missing CRDs
-
-#### 4. Explicit DNS over Wildcard
-
-- Avoid wildcard DNS in mixed hosting environments
-- Prevent unintended traffic interception
-
----
-
-### Definition of Done
+### Definition of Done (Phase 7)
 
 - HTTPS endpoint reachable at `whoami.titas.dev`
 - Traffic routed through Traefik
-- cert-manager successfully issues a Let's Encrypt production certificate
-- ClusterIssuer functional
-- Flux reconciliation healthy across:
-  - `platform`
-  - `cert-issuers`
-  - `apps`
+- Let's Encrypt production certificate issued successfully
+- Flux reconciliation healthy across platform and apps
+
+### Next Step
+
+Proceed to shared infrastructure: PostgreSQL.
 
 ---
 
-### Next Steps
+## Phase 8 — PostgreSQL (CloudNativePG Migration)
 
-1. Use the verified ingress + TLS pattern for real applications
-2. Proceed to shared infrastructure (PostgreSQL) before deploying apps
+### Outcome
+
+PostgreSQL now runs on **CloudNativePG (CNPG)** instead of the Bitnami PostgreSQL Helm chart.
+
+This changed the deployment model from a single Helm-managed database release to an operator-managed PostgreSQL cluster.
+
+### Why This Changed
+
+- The Bitnami chart tried to pull `docker.io/bitnami/postgresql:16.4.0-debian-12-r14`
+- That image tag was no longer available after Bitnami changed image distribution on August 28, 2025
+- `bitnamilegacy/postgresql` was considered only as a short-term workaround and rejected for production use
+- CloudNativePG was selected because it is actively maintained and fits the GitOps/operator model better
+
+### Canonical Architecture
+
+```text
+HelmRelease (cloudnative-pg operator)   [platform layer]
+↓
+HelmRelease (postgres / CNPG cluster)   [apps layer]
+↓
+Managed PostgreSQL cluster in infra-postgres
+```
+
+### Canonical Current State
+
+- Operator namespace: `cnpg-system`
+- Database namespace: `infra-postgres`
+- Helm releases:
+  - `cert-manager`
+  - `cloudnative-pg`
+  - `postgres`
+- Write service: `postgres-rw`
+- Read-only service: `postgres-ro`
+- Replica/internal service: `postgres-r`
+- PostgreSQL version: 16
+- Instances: 1
+- Storage class: `local-path`
+- Storage size: `8Gi`
+- Bootstrap database: `n8n`
+- Bootstrap user: `n8n`
+- Secret: `postgres-auth`
+- Secret type: `kubernetes.io/basic-auth`
+
+### Canonical Secret Shape
+
+CloudNativePG does not use the old Bitnami `auth.*` values model.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-auth
+  namespace: infra-postgres
+type: kubernetes.io/basic-auth
+stringData:
+  username: n8n
+  password: <secure-password>
+```
+
+### Canonical Connectivity
+
+- In-cluster write endpoint: `postgres-rw.infra-postgres.svc.cluster.local:5432`
+- n8n should use:
+
+```text
+DB_TYPE=postgresdb
+DB_POSTGRESDB_HOST=postgres-rw
+DB_POSTGRESDB_PORT=5432
+DB_POSTGRESDB_DATABASE=n8n
+DB_POSTGRESDB_USER=n8n
+DB_POSTGRESDB_PASSWORD=<from secret>
+```
+
+### Required Validation
+
+Storage path must resolve under:
+
+```text
+/srv/data/k3s-local-path
+```
+
+Validation commands:
+
+```bash
+kubectl get pvc -n infra-postgres
+kubectl get pv
+
+ssh deployer@<server-ip>
+sudo find /srv/data/k3s-local-path -maxdepth 3 -type d | sort
+```
+
+Expected:
+
+- PVC is `Bound`
+- Data directory exists under `/srv/data/k3s-local-path`
+
+### Operational Rules
+
+- Do not expose PostgreSQL via Ingress
+- Use `postgres-rw` for writes
+- Keep credentials only in SOPS-encrypted secrets
+- Do not manually edit the running cluster unless recovering from failure
+- Manage changes through Git and Flux reconciliation
+
+### Common Failure Modes
+
+- Secret missing before reconcile → bootstrap fails
+- Secret type or shape wrong → authentication/bootstrap issues
+- PVC not bound → pod remains Pending
+- Wrong service used (`postgres-ro`) → write failures
+- Storage path not validated → risk of data landing on the wrong disk
+
+### Status
+
+- PostgreSQL deployment: **Completed**
+- CNPG operator installed and healthy
+- Cluster running
+- Ready for application onboarding
+
+### Next Step
+
+Proceed to **Phase 9 — n8n Deployment (PostgreSQL-backed)** using `postgres-rw`.
