@@ -4,7 +4,7 @@ metadata:
   name: whoami
   namespace: apps-test
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
   ingressClassName: traefik
   tls:
