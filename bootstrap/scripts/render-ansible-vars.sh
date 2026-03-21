@@ -25,6 +25,12 @@ ansible_host: $(jq -r '.server_ipv4.value' "$TF_JSON")
 data_device: $(jq -r '.volume_linux_device.value' "$TF_JSON")
 data_mount_point: $(jq -r '.data_mount_point.value' "$TF_JSON")
 
+ssh_allowed_cidrs:
+$(jq -r '.ssh_allowed_cidrs.value[] | "  - \(.)"' "$TF_JSON")
+
+kube_api_allowed_cidrs:
+$(jq -r 'if (.kube_api_allowed_cidrs.value | length) > 0 then .kube_api_allowed_cidrs.value[] | "  - \(.)" else "  []" end' "$TF_JSON")
+
 ssh_public_keys:
   - $PUBKEY_YAML
 EOF

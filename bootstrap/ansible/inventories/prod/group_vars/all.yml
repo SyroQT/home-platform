@@ -10,7 +10,6 @@ disable_password_auth: true
 data_filesystem: ext4
 
 ufw_allowed_tcp_ports:
-  - 22
   - 80
   - 443
 # keep 6443 closed for now unless you specifically want host-level access later

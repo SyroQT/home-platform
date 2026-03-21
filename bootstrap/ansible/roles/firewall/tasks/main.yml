@@ -1,16 +1,30 @@
 ---
-- name: Allow OpenSSH in UFW
+- name: Allow SSH from trusted CIDRs in UFW
   community.general.ufw:
     rule: allow
-    port: "22"
+    direction: in
     proto: tcp
+    from_ip: "{{ item }}"
+    to_port: "22"
+  loop: "{{ ssh_allowed_cidrs }}"
 
 - name: Allow configured TCP ports in UFW
   community.general.ufw:
     rule: allow
-    port: "{{ item }}"
+    direction: in
     proto: tcp
+    to_port: "{{ item }}"
   loop: "{{ ufw_allowed_tcp_ports }}"
+
+- name: Allow Kubernetes API from trusted CIDRs
+  community.general.ufw:
+    rule: allow
+    direction: in
+    proto: tcp
+    from_ip: "{{ item }}"
+    to_port: "6443"
+  loop: "{{ kube_api_allowed_cidrs | default([]) }}"
+  when: (kube_api_allowed_cidrs | default([])) | length > 0
 
 - name: Set default incoming policy to deny
   community.general.ufw:

@@ -25,3 +25,11 @@ output "data_mount_point" {
 output "firewall_name" {
   value = hcloud_firewall.vps.name
 }
+
+output "ssh_allowed_cidrs" {
+  value = [var.allowed_ssh_cidr]
+}
+
+output "kube_api_allowed_cidrs" {
+  value = var.kube_api_allowed_cidrs
+}
