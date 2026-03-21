@@ -1,0 +1,51 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: postgres
+  namespace: infra-postgres
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: postgresql
+      version: "15.*"
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    auth:
+      existingSecret: postgres-auth
+      secretKeys:
+        adminPasswordKey: postgres-password
+        userPasswordKey: password
+      username: n8n
+      database: n8n
+
+    primary:
+      persistence:
+        enabled: true
+        storageClass: local-path
+        size: 8Gi
+
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 768Mi
+
+    architecture: standalone
+
+    networkPolicy:
+      enabled: false
+
+    metrics:
+      enabled: false
