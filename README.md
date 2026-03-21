@@ -84,6 +84,12 @@ ansible-playbook -i bootstrap/ansible/inventories/prod/hosts.ini bootstrap/ansib
   sudo sshd -t
   ```
 
+### k3s Setup
+
+```
+ansible-playbook -i inventories/prod/hosts.ini playbooks/k3s.yml
+```
+
 ## Destroy infra
 
 ```bash

@@ -1,0 +1,14 @@
+cluster-init: true
+secrets-encryption: true
+
+write-kubeconfig-mode: "0640"
+write-kubeconfig-group: "deployer"
+
+default-local-storage-path: "{{ data_mount_point }}/k3s-local-path"
+
+etcd-snapshot-schedule-cron: "0 */6 * * *"
+etcd-snapshot-retention: 7
+etcd-snapshot-compress: true
+
+tls-san:
+  - "{{ ansible_host }}"

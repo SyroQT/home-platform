@@ -1,0 +1,6 @@
+---
+- name: Install and configure K3s
+  hosts: vps
+  become: true
+  roles:
+    - k3s

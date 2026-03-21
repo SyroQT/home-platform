@@ -1,0 +1,51 @@
+---
+- name: Ensure K3s config directory exists
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Ensure K3s local storage directory exists
+  ansible.builtin.file:
+    path: "{{ data_mount_point }}/k3s-local-path"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Render K3s config
+  ansible.builtin.template:
+    src: k3s-config.yml.j2
+    dest: /etc/rancher/k3s/config.yaml
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Restart k3s
+
+- name: Install K3s server
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | sh -
+  args:
+    creates: /usr/local/bin/k3s
+  environment:
+    INSTALL_K3S_EXEC: server
+
+- name: Ensure k3s service is enabled and started
+  ansible.builtin.systemd:
+    name: k3s
+    enabled: true
+    state: started
+
+- name: Wait for node token file
+  ansible.builtin.wait_for:
+    path: /var/lib/rancher/k3s/server/node-token
+    timeout: 120
+
+- name: Ensure deployer can read kubeconfig
+  ansible.builtin.file:
+    path: /etc/rancher/k3s/k3s.yaml
+    owner: root
+    group: deployer
+    mode: "0640"
