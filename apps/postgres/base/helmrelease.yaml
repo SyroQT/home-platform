@@ -32,6 +32,13 @@ spec:
         owner: app_platform
         secret:
           name: postgres-auth
+      managed:
+        roles:
+          - name: n8n
+            ensure: present
+            login: true
+            passwordSecret:
+              name: postgres-n8n-auth
       storage:
         storageClass: local-path
         size: 8Gi
