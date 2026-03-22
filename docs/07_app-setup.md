@@ -376,6 +376,8 @@ flux reconcile source git flux-system -n flux-system
 flux reconcile kustomization platform -n flux-system --with-source
 flux reconcile kustomization secrets -n flux-system --with-source
 flux reconcile kustomization apps -n flux-system --with-source
+# optional to inspect it live
+flux get kustomizations -A --watch
 ```
 
 Why:
