@@ -29,7 +29,7 @@ spec:
       enableSuperuserAccess: false
       initdb:
         database: n8n
-        owner: n8n
+        owner: app_platform
         secret:
           name: postgres-auth
       storage:
