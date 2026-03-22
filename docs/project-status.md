@@ -953,15 +953,23 @@ n8n is deployed in `apps-n8n`, exposed through Traefik with TLS, and configured 
 ### Canonical State
 
 - Namespace: `apps-n8n`
+- Namespace ownership: `platform/namespaces/apps-n8n.yaml`
+- Layout:
+  - `apps/n8n/base` contains reusable manifests
+  - `apps/n8n/prod` references `../base`
 - Deployment: `n8n`
 - Service: `n8n`
 - Ingress host: `beta-n8n.titas.dev`
 - PVC: `n8n-data`
 - Application secret: `n8n-secret`
+- Image: `docker.n8n.io/n8nio/n8n:2.12.3`
 - Database host: `postgres-cluster-rw.infra-postgres.svc.cluster.local`
 - Database: `n8n`
 - Database user: `n8n`
 - `enableServiceLinks: false` is required in the pod spec
+- `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true` is enabled
+- `N8N_DEFAULT_BINARY_DATA_MODE` is not explicitly set
+- external task runners are not configured
 
 ### Canonical Secrets
 
@@ -975,11 +983,49 @@ n8n is deployed in `apps-n8n`, exposed through Traefik with TLS, and configured 
   - `password: <same value as DB_POSTGRESDB_PASSWORD>`
   - `metadata.labels.cnpg.io/reload: "true"`
 
+### Base And Prod Framework
+
+The application layout follows the same `base` / `prod` overlay pattern used elsewhere in the repo.
+
+- `apps/n8n/base/kustomization.yaml`
+  - deployment
+  - service
+  - pvc
+  - ingress
+- `apps/n8n/prod/kustomization.yaml`
+  - references `../base`
+- `apps/postgres/base`
+  - HelmRelease and database resources
+  - `database-n8n.yaml` creates the dedicated `n8n` database
+- `apps/postgres/prod/kustomization.yaml`
+  - references `../base`
+
+Operational rules for this layout:
+
+- keep reusable manifests in `base`
+- keep environment-specific composition in `prod`
+- manage shared namespaces in the platform layer, not inside app overlays
+- keep SOPS secrets under `secrets/prod`
+- Flux `apps` reconciles `apps/`, Flux `secrets` reconciles `secrets/prod`
+- `clusters/vps-prod/kustomizations/secrets.yaml` depends on `platform` so namespaced secrets are applied only after namespaces exist
+
+### Important Considerations
+
+- n8n must use `postgres-cluster-rw.infra-postgres.svc.cluster.local`, not `postgres-rw`
+- `enableServiceLinks: false` prevents Kubernetes from injecting `N8N_PORT=tcp://...`
+- the n8n app secret and the CNPG role secret must carry the same database password value
+- successful secret reconciliation does not by itself prove the PostgreSQL role password has updated
+- direct DB login verification is required after initial setup and after password rotation
+- Python runners are not functional in internal mode unless Python exists inside the runtime image; production use should prefer external task runners
+- because task runners are not explicitly configured, newer n8n images may log Python runner warnings without blocking normal JavaScript-based operation
+- because binary data mode is not explicitly configured, newer n8n versions may emit storage-path migration warnings; review this before a future v3 upgrade
+
 ### Validation
 
 ```bash
 kubectl get pods -n apps-n8n
 kubectl get ingress -n apps-n8n
+kubectl get secret -n apps-n8n n8n-secret
 kubectl logs -n apps-n8n deploy/n8n --tail=200
 kubectl logs -n apps-n8n deploy/n8n --previous --tail=200
 kubectl describe pod -n apps-n8n
@@ -991,6 +1037,7 @@ Expected:
 - Ingress host is `beta-n8n.titas.dev`
 - n8n starts without `N8N_PORT` parsing errors
 - n8n connects successfully to PostgreSQL as user `n8n`
+- n8n settings file permissions are enforced successfully
 
 ### Status
 
