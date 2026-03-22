@@ -16,7 +16,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: n8n
-          image: docker.n8n.io/n8nio/n8n:1.84.1
+          image: docker.n8n.io/n8nio/n8n:2.12.3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5678
@@ -64,6 +64,8 @@ spec:
               value: https://beta-n8n.titas.dev/
             - name: TZ
               value: Europe/Amsterdam
+            - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+              value: "true"
           resources:
             requests:
               cpu: 100m

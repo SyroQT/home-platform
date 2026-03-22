@@ -615,6 +615,9 @@ Rules:
 
 - Manual decrypt/edit/re-encrypt flows are error-prone
 - Any secret readable directly via `cat` is in an invalid on-disk state
+- SOPS MAC mismatches happen if encrypted files are edited outside `sops`
+- Secret namespaces must exist before the Flux `secrets` Kustomization applies namespaced secrets
+- App secrets and operator-managed database secrets should stay separate even if they carry the same password value
 
 ### Definition of Done (Phase 5)
 
@@ -777,21 +780,25 @@ Managed PostgreSQL cluster in infra-postgres
   - `cert-manager`
   - `cloudnative-pg`
   - `postgres`
-- Write service: `postgres-rw`
-- Read-only service: `postgres-ro`
-- Replica/internal service: `postgres-r`
+- Cluster name: `postgres-cluster`
+- Write service: `postgres-cluster-rw`
+- Read-only service: `postgres-cluster-ro`
+- Replica/internal service: `postgres-cluster-r`
 - PostgreSQL version: 16
 - Instances: 1
 - Storage class: `local-path`
 - Storage size: `8Gi`
 - Bootstrap database: `n8n`
-- Bootstrap user: `n8n`
-- Secret: `postgres-auth`
-- Secret type: `kubernetes.io/basic-auth`
+- Bootstrap owner: `app_platform`
+- Bootstrap secret: `postgres-auth`
+- Bootstrap secret type: `kubernetes.io/basic-auth`
+- Application database: `n8n`
+- Application role: `n8n`
+- Application role password secret: `postgres-n8n-auth`
 
 ### Canonical Secret Shape
 
-CloudNativePG does not use the old Bitnami `auth.*` values model.
+CloudNativePG does not use the old Bitnami `auth.*` values model. The bootstrap secret and the managed role secret are separate resources.
 
 ```yaml
 apiVersion: v1
@@ -801,18 +808,32 @@ metadata:
   namespace: infra-postgres
 type: kubernetes.io/basic-auth
 stringData:
+  username: app_platform
+  password: <secure-password>
+```
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-n8n-auth
+  namespace: infra-postgres
+  labels:
+    cnpg.io/reload: "true"
+type: kubernetes.io/basic-auth
+stringData:
   username: n8n
   password: <secure-password>
 ```
 
 ### Canonical Connectivity
 
-- In-cluster write endpoint: `postgres-rw.infra-postgres.svc.cluster.local:5432`
+- In-cluster write endpoint: `postgres-cluster-rw.infra-postgres.svc.cluster.local:5432`
 - n8n should use:
 
 ```text
 DB_TYPE=postgresdb
-DB_POSTGRESDB_HOST=postgres-rw
+DB_POSTGRESDB_HOST=postgres-cluster-rw.infra-postgres.svc.cluster.local
 DB_POSTGRESDB_PORT=5432
 DB_POSTGRESDB_DATABASE=n8n
 DB_POSTGRESDB_USER=n8n
@@ -845,17 +866,23 @@ Expected:
 ### Operational Rules
 
 - Do not expose PostgreSQL via Ingress
-- Use `postgres-rw` for writes
+- Use `postgres-cluster-rw` for writes
 - Keep credentials only in SOPS-encrypted secrets
 - Do not manually edit the running cluster unless recovering from failure
 - Manage changes through Git and Flux reconciliation
+- Keep CNPG-owned secrets in `infra-postgres` and app-owned secrets in app namespaces
+- Manage `apps-n8n` in the platform namespace layer so secrets can reconcile before apps
 
 ### Common Failure Modes
 
 - Secret missing before reconcile → bootstrap fails
 - Secret type or shape wrong → authentication/bootstrap issues
+- Manual edits to encrypted files → SOPS MAC mismatch
+- Wrong namespace ownership/order → `Secret/apps-n8n/n8n-secret not found: namespaces "apps-n8n" not found`
 - PVC not bound → pod remains Pending
-- Wrong service used (`postgres-ro`) → write failures
+- Wrong service name (`postgres-rw` vs `postgres-cluster-rw`) → DNS resolution failures
+- Kubernetes service links enabled → `N8N_PORT` injected as `tcp://...` and n8n fails to start
+- Matching Kubernetes secrets but stale PostgreSQL role password → `password authentication failed for user "n8n"`
 - Storage path not validated → risk of data landing on the wrong disk
 
 ### Status
@@ -863,8 +890,111 @@ Expected:
 - PostgreSQL deployment: **Completed**
 - CNPG operator installed and healthy
 - Cluster running
+- Dedicated `n8n` database created
+- Dedicated `n8n` role created
 - Ready for application onboarding
 
-### Next Step
+### Reconcile And Verify
 
-Proceed to **Phase 9 — n8n Deployment (PostgreSQL-backed)** using `postgres-rw`.
+```bash
+flux reconcile source git flux-system -n flux-system
+flux reconcile kustomization platform -n flux-system --with-source
+flux reconcile kustomization secrets -n flux-system --with-source
+flux reconcile kustomization apps -n flux-system --with-source
+```
+
+```bash
+kubectl get svc -n infra-postgres
+kubectl get pods -n infra-postgres
+kubectl get database -n infra-postgres
+kubectl get secret -n infra-postgres postgres-auth postgres-n8n-auth
+kubectl get secret -n apps-n8n n8n-secret
+```
+
+### Password Reconciliation Notes
+
+- `postgres-n8n-auth` is the CNPG-owned desired password for the `n8n` database role
+- `n8n-secret` is the n8n application secret and includes `DB_POSTGRESDB_PASSWORD`
+- These two password values must match
+- Updating Kubernetes secrets does not guarantee the PostgreSQL role password has already changed
+- Verify the live database password with a direct login test before assuming rotation succeeded
+
+Verification:
+
+```bash
+kubectl exec -n infra-postgres -it postgres-cluster-1 -- \
+  env PGPASSWORD='<password>' \
+  psql -h 127.0.0.1 -U n8n -d n8n -c 'select current_user, current_database();'
+```
+
+If the direct login test fails even though the in-cluster secrets match, manually reconcile the role password:
+
+```bash
+kubectl exec -n infra-postgres -it postgres-cluster-1 -- \
+  psql -U postgres -d postgres -c "ALTER ROLE n8n WITH PASSWORD '<password>';"
+```
+
+After password updates:
+
+```bash
+kubectl rollout restart deployment/n8n -n apps-n8n
+kubectl rollout status deployment/n8n -n apps-n8n
+kubectl logs -n apps-n8n deploy/n8n --tail=200
+```
+
+---
+
+# Phase 9 — n8n Deployment (PostgreSQL-backed) — Completed
+
+### Outcome
+
+n8n is deployed in `apps-n8n`, exposed through Traefik with TLS, and configured to use the shared PostgreSQL cluster through a dedicated `n8n` role and database.
+
+### Canonical State
+
+- Namespace: `apps-n8n`
+- Deployment: `n8n`
+- Service: `n8n`
+- Ingress host: `beta-n8n.titas.dev`
+- PVC: `n8n-data`
+- Application secret: `n8n-secret`
+- Database host: `postgres-cluster-rw.infra-postgres.svc.cluster.local`
+- Database: `n8n`
+- Database user: `n8n`
+- `enableServiceLinks: false` is required in the pod spec
+
+### Canonical Secrets
+
+- `secrets/prod/n8n.sops.yaml`
+  - `DB_POSTGRESDB_PASSWORD`
+  - `N8N_ENCRYPTION_KEY`
+  - `N8N_BASIC_AUTH_USER`
+  - `N8N_BASIC_AUTH_PASSWORD`
+- `secrets/prod/postgres-n8n-auth.sops.yaml`
+  - `username: n8n`
+  - `password: <same value as DB_POSTGRESDB_PASSWORD>`
+  - `metadata.labels.cnpg.io/reload: "true"`
+
+### Validation
+
+```bash
+kubectl get pods -n apps-n8n
+kubectl get ingress -n apps-n8n
+kubectl logs -n apps-n8n deploy/n8n --tail=200
+kubectl logs -n apps-n8n deploy/n8n --previous --tail=200
+kubectl describe pod -n apps-n8n
+```
+
+Expected:
+
+- Deployment becomes `Ready`
+- Ingress host is `beta-n8n.titas.dev`
+- n8n starts without `N8N_PORT` parsing errors
+- n8n connects successfully to PostgreSQL as user `n8n`
+
+### Status
+
+- n8n deployment: **Completed**
+- Dedicated application database and role configured
+- Flux ordering adjusted so namespaces exist before secrets reconcile
+- Password rotation requires verification against the live PostgreSQL role state
