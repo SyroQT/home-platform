@@ -39,6 +39,8 @@ spec:
             periodSeconds: 20
             failureThreshold: 3
           env:
+            - name: ACTUAL_PORT
+              value: "5006"
             - name: TZ
               value: "Europe/Amsterdam"
             - name: ACTUAL_OPENID_DISCOVERY_URL
