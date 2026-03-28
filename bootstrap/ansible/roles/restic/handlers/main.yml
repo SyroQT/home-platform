@@ -1,0 +1,13 @@
+---
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Initialize restic repository
+  ansible.builtin.shell: |
+    set -a; source /etc/restic/env; set +a
+    restic snapshots || restic init
+  args:
+    executable: /bin/bash
+  register: restic_init_result
+  changed_when: "'created restic repository' in restic_init_result.stdout"

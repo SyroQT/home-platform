@@ -1,0 +1,55 @@
+---
+- name: Install restic
+  ansible.builtin.apt:
+    name: restic
+    state: present
+    update_cache: true
+
+- name: Create restic config directory
+  ansible.builtin.file:
+    path: /etc/restic
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Render restic environment file
+  ansible.builtin.template:
+    src: restic-env.j2
+    dest: /etc/restic/env
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Initialize restic repository
+
+- name: Render restic backup script
+  ansible.builtin.template:
+    src: restic-backup.sh.j2
+    dest: /usr/local/bin/restic-backup
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Install restic backup systemd service
+  ansible.builtin.copy:
+    src: restic-backup.service
+    dest: /etc/systemd/system/restic-backup.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Install restic backup systemd timer
+  ansible.builtin.copy:
+    src: restic-backup.timer
+    dest: /etc/systemd/system/restic-backup.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Enable and start restic backup timer
+  ansible.builtin.systemd:
+    name: restic-backup.timer
+    enabled: true
+    state: started

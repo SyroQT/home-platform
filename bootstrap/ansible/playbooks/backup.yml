@@ -1,0 +1,6 @@
+---
+- name: Configure backup tooling
+  hosts: vps
+  become: true
+  roles:
+    - restic
