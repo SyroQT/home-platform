@@ -50,3 +50,22 @@ variable "volume_size_gb" {
   type        = number
   default     = 50
 }
+
+variable "object_storage_access_key" {
+  description = "Hetzner Object Storage access key"
+  type        = string
+  sensitive   = true
+}
+
+variable "object_storage_secret_key" {
+  description = "Hetzner Object Storage secret key"
+  type        = string
+  sensitive   = true
+}
+
+variable "backup_bucket_name" {
+  description = "Name for the S3 backup bucket"
+  type        = string
+  default     = "k3s-prod-backups"
+}
+

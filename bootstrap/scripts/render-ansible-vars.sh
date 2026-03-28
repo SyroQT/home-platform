@@ -33,6 +33,10 @@ $(jq -r 'if (.kube_api_allowed_cidrs.value | length) > 0 then .kube_api_allowed_
 
 ssh_public_keys:
   - $PUBKEY_YAML
+
+backup_bucket_name: $(jq -r '.backup_bucket_name.value' "$TF_JSON")
+backup_bucket_endpoint: $(jq -r '.backup_bucket_endpoint.value' "$TF_JSON")
+backup_location: $(jq -r '.location.value' "$TF_JSON")
 EOF
 
 echo "Wrote $OUT_FILE"

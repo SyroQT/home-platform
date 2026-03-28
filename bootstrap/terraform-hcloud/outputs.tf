@@ -33,3 +33,15 @@ output "ssh_allowed_cidrs" {
 output "kube_api_allowed_cidrs" {
   value = var.kube_api_allowed_cidrs
 }
+
+output "backup_bucket_name" {
+  value = aws_s3_bucket.backups.bucket
+}
+
+output "backup_bucket_endpoint" {
+  value = "https://${var.location}.your-objectstorage.com"
+}
+
+output "location" {
+  value = var.location
+}
