@@ -52,21 +52,23 @@ spec:
       monitoring:
         enabled: false
 
-    backups:
-      enabled: true
-      provider: s3
-      s3:
-        bucket: k3s-prod-backups
-        path: /cnpg
+      backups:
+        enabled: true
+
         endpointURL: https://nbg1.your-objectstorage.com
-        region: nbg1
-        accessKey: ""   # must be present but empty — secret below overrides
-        secretKey: ""   # must be present but empty — secret below overrides
-      secret:
-        create: false   # secret already exists (postgres-backup-s3)
-        name: postgres-backup-s3
-      scheduledBackups:
-        - name: daily-backup
-          schedule: "0 0 3 * * *"
-          backupOwnerReference: self
-      retentionPolicy: "7d"
+
+        destinationPath: s3://k3s-prod-backups/cnpg/
+
+        s3:
+          region: nbg1
+
+        secret:
+          create: false
+          name: postgres-backup-s3
+
+        scheduledBackups:
+          - name: daily-backup
+            schedule: "0 0 3 * * *"
+            backupOwnerReference: self
+
+        retentionPolicy: "7d"
