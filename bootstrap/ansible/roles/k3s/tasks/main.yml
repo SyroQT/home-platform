@@ -49,3 +49,20 @@
     owner: root
     group: deployer
     mode: "0640"
+    
+- name: Ensure K3s config drop-in directory exists
+  ansible.builtin.file:
+    path: /etc/rancher/k3s/config.yaml.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Render K3s etcd S3 config
+  ansible.builtin.template:
+    src: k3s-etcd-s3.yml.j2
+    dest: /etc/rancher/k3s/config.yaml.d/etcd-s3.yaml
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Restart k3s

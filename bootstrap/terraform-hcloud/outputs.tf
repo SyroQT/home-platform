@@ -39,7 +39,7 @@ output "backup_bucket_name" {
 }
 
 output "backup_bucket_endpoint" {
-  value = "https://${var.location}.your-objectstorage.com"
+  value = "${var.location}.your-objectstorage.com"
 }
 
 output "location" {

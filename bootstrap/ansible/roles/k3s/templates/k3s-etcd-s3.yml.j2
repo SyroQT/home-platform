@@ -1,0 +1,8 @@
+{% set s3_endpoint_host = backup_bucket_endpoint | regex_replace('^https?://', '') | regex_replace('/.*$', '') %}
+etcd-s3: true
+etcd-s3-endpoint: "{{ s3_endpoint_host }}"
+etcd-s3-bucket: "{{ backup_bucket_name }}"
+etcd-s3-region: "{{ backup_location }}"
+etcd-s3-access-key: "{{ backup_s3_access_key }}"
+etcd-s3-secret-key: "{{ backup_s3_secret_key }}"
+etcd-s3-folder: "etcd"

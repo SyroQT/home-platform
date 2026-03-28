@@ -11,3 +11,4 @@ crash.log
 
 # Ansible
 **/group_vars/vps/generated.yml
+**/group_vars/vps/secrets.yml
