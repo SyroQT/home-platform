@@ -58,7 +58,7 @@ spec:
       s3:
         bucket: k3s-prod-backups
         path: /cnpg
-        endpoint: https://nbg1.your-objectstorage.com
+        endpointURL: https://nbg1.your-objectstorage.com
         region: nbg1
         accessKey: ""   # must be present but empty — secret below overrides
         secretKey: ""   # must be present but empty — secret below overrides
