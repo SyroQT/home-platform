@@ -59,13 +59,12 @@ spec:
         bucket: k3s-prod-backups
         path: /cnpg
         endpoint: https://nbg1.your-objectstorage.com
-        accessKey:
-          name: postgres-backup-s3
-          key: ACCESS_KEY_ID
-        secretKey:
-          name: postgres-backup-s3
-          key: ACCESS_SECRET_KEY
         region: nbg1
+        accessKey: ""   # must be present but empty — secret below overrides
+        secretKey: ""   # must be present but empty — secret below overrides
+      secret:
+        create: false   # secret already exists (postgres-backup-s3)
+        name: postgres-backup-s3
       scheduledBackups:
         - name: daily-backup
           schedule: "0 0 3 * * *"
