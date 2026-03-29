@@ -51,3 +51,9 @@ spec:
           memory: 768Mi
       monitoring:
         enabled: false
+
+      plugins:
+        - name: barman-cloud.cloudnative-pg.io
+          isWALArchiver: true
+          parameters:
+            barmanObjectName: hetzner-s3-store

@@ -5,3 +5,4 @@ resources:
   - cert-manager
   - cloudnative-pg
   - ingress
+  - barman-cloud

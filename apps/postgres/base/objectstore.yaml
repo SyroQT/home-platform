@@ -1,0 +1,21 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: hetzner-s3-store
+  namespace: infra-postgres
+spec:
+  configuration:
+    destinationPath: "s3://k3s-prod-backups/postgres"
+    endpointURL: "https://nbg1.your-objectstorage.com"
+    s3Credentials:
+      accessKeyId:
+        name: postgres-backup-s3
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: postgres-backup-s3
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: "7d" 
