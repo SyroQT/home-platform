@@ -5,3 +5,4 @@ resources:
   - apps-n8n.yaml
   - cnpg-system.yaml
   - infra-postgres.yaml
+  - apps-linkding.yaml
