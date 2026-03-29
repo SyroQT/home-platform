@@ -1,0 +1,17 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: postgres-backup
+  namespace: infra-postgres
+spec:
+  configuration:
+    destinationPath: s3://k3s-prod-backups/cnpg/
+    endpointURL: https://nbg1.your-objectstorage.com
+    s3Credentials:
+      accessKeyId:
+        name: postgres-backup-s3
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: postgres-backup-s3
+        key: ACCESS_SECRET_KEY
+  retentionPolicy: 7d

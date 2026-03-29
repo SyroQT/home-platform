@@ -7,4 +7,4 @@ spec:
   name: n8n
   owner: n8n
   cluster:
-    name: postgres
+    name: postgres-cluster

@@ -1,0 +1,38 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-cluster
+  namespace: infra-postgres
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  imagePullPolicy: IfNotPresent
+  enableSuperuserAccess: false
+  storage:
+    storageClass: local-path
+    size: 8Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 768Mi
+  bootstrap:
+    initdb:
+      database: n8n
+      owner: app_platform
+      secret:
+        name: postgres-auth
+  managed:
+    roles:
+      - name: n8n
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-n8n-auth
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: postgres-backup
