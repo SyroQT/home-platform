@@ -19,10 +19,14 @@
   },
   "packageRules": [
     {
-      "description": "Widen Helm chart minor versions (e.g., v1.18.* -> v1.19.*)",
+      "description": "Use widen range strategy for all Flux-managed Helm charts",
+      "matchManagers": ["flux"],
+      "rangeStrategy": "widen"
+    },
+    {
+      "description": "No automerge for Helm minor and patch updates",
       "matchManagers": ["flux"],
       "matchUpdateTypes": ["minor", "patch"],
-      "rangeStrategy": "widen",
       "automerge": false
     },
     {
@@ -38,9 +42,8 @@
       "automerge": false
     },
     {
-      "description": "Pin major version bumps to manual review for everything",
+      "description": "Major version bumps always require manual review",
       "matchUpdateTypes": ["major"],
-      "enabled": true,
       "automerge": false,
       "labels": ["major-update", "requires-review"]
     }
