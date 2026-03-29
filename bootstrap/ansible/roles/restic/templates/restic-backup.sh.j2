@@ -10,7 +10,8 @@ echo "[$(date -u +%FT%TZ)] Starting restic backup of ${BACKUP_PATH}"
 restic backup "${BACKUP_PATH}" \
   --tag k3s-pvc \
   --exclude="*.tmp" \
-  --exclude="*.lock"
+  --exclude="*.lock" \
+  --exclude="*/pvc-*_infra-postgres_*"
 
 restic forget \
   --keep-daily 7 \
