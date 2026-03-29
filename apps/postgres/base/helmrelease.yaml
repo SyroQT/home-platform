@@ -51,24 +51,3 @@ spec:
           memory: 768Mi
       monitoring:
         enabled: false
-
-      backups:
-        enabled: true
-
-        endpointURL: https://nbg1.your-objectstorage.com
-
-        destinationPath: s3://k3s-prod-backups/cnpg/
-
-        s3:
-          region: nbg1
-
-        secret:
-          create: false
-          name: postgres-backup-s3
-
-        scheduledBackups:
-          - name: daily-backup
-            schedule: "0 0 3 * * *"
-            backupOwnerReference: self
-
-        retentionPolicy: "7d"
