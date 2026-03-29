@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": ["every weekend"],
+  "prConcurrentLimit": 5,
+  "flux": {
+    "enabled": true
+  },
+  "kubernetes": {
+    "fileMatch": [
+      "apps/.+\\.yaml$",
+      "platform/.+\\.yaml$"
+    ]
+  },
+  "terraform": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "description": "Widen Helm chart minor versions (e.g., v1.18.* -> v1.19.*)",
+      "matchManagers": ["flux"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "rangeStrategy": "widen",
+      "automerge": false
+    },
+    {
+      "description": "Container image minor and patch updates - open PR, no automerge",
+      "matchManagers": ["kubernetes"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "description": "Terraform provider/module updates",
+      "matchManagers": ["terraform"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "description": "Pin major version bumps to manual review for everything",
+      "matchUpdateTypes": ["major"],
+      "enabled": true,
+      "automerge": false,
+      "labels": ["major-update", "requires-review"]
+    }
+  ]
+}
