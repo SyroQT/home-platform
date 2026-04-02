@@ -14,14 +14,14 @@ All backups are stored externally in **Hetzner Object Storage** (`nbg1.your-obje
 
 **What is backed up:** The embedded etcd database, which contains all Kubernetes object state (Deployments, Services, ConfigMaps, Secrets, PVCs, CRDs, etc.).
 
-| Property | Value |
-|---|---|
-| Schedule | Daily at **02:00 UTC** |
-| Retention | 7 local snapshots on-node; unlimited in S3 (managed by k3s) |
-| Compression | Enabled |
-| Local path | `/var/lib/rancher/k3s/server/db/snapshots/` |
-| S3 path | `s3://k3s-prod-backups/etcd/` |
-| S3 endpoint | `nbg1.your-objectstorage.com` |
+| Property    | Value                                                       |
+| ----------- | ----------------------------------------------------------- |
+| Schedule    | Daily at **02:00 UTC**                                      |
+| Retention   | 7 local snapshots on-node; unlimited in S3 (managed by k3s) |
+| Compression | Enabled                                                     |
+| Local path  | `/var/lib/rancher/k3s/server/db/snapshots/`                 |
+| S3 path     | `s3://k3s-prod-backups/etcd/`                               |
+| S3 endpoint | `nbg1.your-objectstorage.com`                               |
 
 **What is NOT covered:** PVC data (persistent volume contents). Those are covered by Restic.
 
@@ -31,15 +31,15 @@ All backups are stored externally in **Hetzner Object Storage** (`nbg1.your-obje
 
 **What is backed up:** The k3s local-path provisioner data directory (`/srv/data/k3s-local-path`), which contains the on-disk content of all `local-path` PVCs — except PostgreSQL PVCs (handled separately by CNPG).
 
-| Property | Value |
-|---|---|
-| Schedule | Daily at **04:00 UTC** (with up to 5-min randomised delay) |
-| Retention | 7 daily + 4 weekly snapshots; older snapshots are pruned automatically |
-| Excluded paths | `*.tmp`, `*.lock`, `*/pvc-*_infra-postgres_*` |
-| Tag | `k3s-pvc` |
-| S3 repository | `s3:https://nbg1.your-objectstorage.com/k3s-prod-backups/restic` |
-| Config file | `/etc/restic/env` |
-| Backup script | `/usr/local/bin/restic-backup.sh` |
+| Property       | Value                                                                  |
+| -------------- | ---------------------------------------------------------------------- |
+| Schedule       | Daily at **04:00 UTC** (with up to 5-min randomised delay)             |
+| Retention      | 7 daily + 4 weekly snapshots; older snapshots are pruned automatically |
+| Excluded paths | `*.tmp`, `*.lock`, `*/pvc-*_infra-postgres_*`                          |
+| Tag            | `k3s-pvc`                                                              |
+| S3 repository  | `s3:https://nbg1.your-objectstorage.com/k3s-prod-backups/restic`       |
+| Config file    | `/etc/restic/env`                                                      |
+| Backup script  | `/usr/local/bin/restic-backup.sh`                                      |
 
 ---
 
@@ -114,11 +114,13 @@ sudo bash -c 'set -a; source /etc/restic/env; set +a; restic check'
 > This restores Kubernetes object state only. It does not restore PVC contents such as application files or PostgreSQL data.
 
 1. **Stop k3s on the node:**
+
    ```bash
    sudo systemctl stop k3s
    ```
 
 2. **Download the desired snapshot from S3** (if local copy is unavailable):
+
    ```bash
    AWS_ACCESS_KEY_ID=<key> AWS_SECRET_ACCESS_KEY=<secret> \
      aws s3 cp s3://k3s-prod-backups/etcd/<snapshot-file> /tmp/snapshot.db.gz \
@@ -126,19 +128,23 @@ sudo bash -c 'set -a; source /etc/restic/env; set +a; restic check'
    ```
 
 3. **Restore the snapshot:**
+
    ```bash
    sudo k3s server \
      --cluster-reset \
      --cluster-reset-restore-path=/tmp/snapshot.db.gz
    ```
+
    k3s will reset the etcd data directory and restore from the snapshot, then exit.
 
 4. **Restart k3s normally:**
+
    ```bash
    sudo systemctl start k3s
    ```
 
 5. **Verify cluster health:**
+
    ```bash
    sudo k3s kubectl get nodes
    sudo k3s kubectl get pods -A
@@ -163,55 +169,119 @@ If the cluster appears to return to the same state after an etcd restore, that c
 
 > Do not use this procedure for PostgreSQL. The Restic backup job excludes the `infra-postgres` PVC path.
 
+> **Important:** never use `cp` for PVC restores. It can merge old and new files and leave stale data behind. Always use `rsync -a --delete` so the live PVC becomes an exact match of the selected snapshot.
+
+---
+
 1. **Load the restic environment (on the VPS node, as root):**
+
    ```bash
    sudo bash
    set -a; source /etc/restic/env; set +a
    ```
 
 2. **List available snapshots:**
+
    ```bash
    restic snapshots --tag k3s-pvc
    ```
+
    Note the snapshot ID you want to restore from.
 
-3. **Browse the snapshot contents (optional — confirm paths before restoring):**
+3. **Browse the snapshot contents (recommended — confirm exact restore path):**
+
    ```bash
    restic ls <snapshot-id> /srv/data/k3s-local-path
    ```
 
+sudo find /srv/data/k3s-local-path -maxdepth 2 -type d | sort
+
 4. **Restore to a temporary directory first:**
+
    ```bash
    restic restore <snapshot-id> \
      --target /tmp/restic-restore \
      --include /srv/data/k3s-local-path/<pvc-directory>
    ```
 
-5. **Stop the workload using the PVC** (to avoid data races):
+5. **Stop the workload using the PVC** (required to avoid data races):
+
    ```bash
    sudo k3s kubectl scale deployment/<name> -n <namespace> --replicas=0
+   sudo k3s kubectl get pods -n <namespace>
    ```
 
-6. **Copy restored files into place:**
+   Wait until the pod is fully terminated.
+
+6. **Sync the exact restored PVC subdirectory into place**
+   using `rsync` with deletion semantics:
+
    ```bash
-   sudo cp -r /tmp/restic-restore/srv/data/k3s-local-path/<pvc-directory>/. \
+   sudo rsync -a --delete \
+     /tmp/restic-restore/srv/data/k3s-local-path/<pvc-directory>/ \
      /srv/data/k3s-local-path/<pvc-directory>/
    ```
 
-7. **Restart the workload:**
+   Notes:
+   - the **trailing slash matters**
+   - sync from the **exact PVC subdirectory inside the snapshot**
+   - do **not** sync from `/tmp/restic-restore/` root
+   - `--delete` removes stale files that do not exist in the snapshot
+
+7. **If the workload uses SQLite or other file-based databases, fix ownership after restore**
+   because restored files may come back as `root:root`:
+
    ```bash
-   sudo k3s kubectl scale deployment/<name> -n <namespace> --replicas=1
+   sudo chown -R 1000:1000 /srv/data/k3s-local-path/<pvc-directory>
+   sudo find /srv/data/k3s-local-path/<pvc-directory> -type d -exec chmod 755 {} \;
+   sudo find /srv/data/k3s-local-path/<pvc-directory> -type f -exec chmod 644 {} \;
    ```
 
-8. **Verify the application is healthy.**
+   This is especially important for:
+   - Actual Budget
+   - SQLite-backed applications
+   - apps that create WAL/journal files
 
-If the application still shows the same data after this procedure, verify all of the following before assuming the backup is bad:
+8. **Restart the workload:**
 
-- the workload was fully stopped before files were copied back
-- the restored snapshot timestamp predates the unwanted change
-- the correct PVC directory was restored
+   ```bash
+   sudo k3s kubectl scale deployment/<name> -n <namespace> --replicas=1
+   sudo k3s kubectl rollout status deployment/<name> -n <namespace>
+   ```
+
+9. **Clean up the temporary restore directory:**
+
+   ```bash
+   sudo rm -rf /tmp/restic-restore
+   ```
+
+10. **Verify the application is healthy.**
+    clear the cache chrome://settings/content/all?searchSubpage=titas
+
+---
+
+### Restore validation checklist
+
+Before assuming the backup is bad, verify all of the following:
+
+- the workload was fully stopped before restore
+- the selected snapshot predates the unwanted change
+- the **exact PVC subdirectory** was restored (not the snapshot wrapper path)
+- `rsync -a --delete` was used instead of `cp`
+- file ownership is correct for the container runtime user
 - the application is actually reading from that PVC path
 - the data is not stored in PostgreSQL, which is outside Restic coverage in the current repo state
+- browser-local cache is not masking the server restore result (test in incognito if relevant)
+
+---
+
+### Lessons learned from restore drills
+
+- `cp` is unsafe for stateful PVC restores because it merges data
+- restoring from the wrong wrapper level can make applications appear empty
+- SQLite-based apps may fail with `readonly database` after restore if ownership is not corrected
+- browser-local state can make a successful server restore appear broken
+- restore drills must validate both **filesystem correctness** and **application behavior**
 
 ---
 
@@ -281,6 +351,7 @@ ls -lh /tmp/drill-restore/srv/data/k3s-local-path/<chosen-pvc-dir>/
 **Pass criteria:** Files are present and readable in `/tmp/drill-restore`.
 
 Clean up:
+
 ```bash
 sudo rm -rf /tmp/drill-restore
 ```
@@ -310,6 +381,7 @@ gunzip -t /tmp/etcd-drill.db.gz && echo "Snapshot file is valid"
 **Pass criteria:** `gunzip -t` exits 0 with no errors.
 
 Clean up:
+
 ```bash
 rm /tmp/etcd-drill.db.gz
 ```
@@ -318,13 +390,13 @@ rm /tmp/etcd-drill.db.gz
 
 ### Drill Result Checklist
 
-| Check | Result |
-|---|---|
-| etcd snapshot in S3 within 48h | pass / fail |
-| Restic repository check passes | pass / fail |
-| Restic snapshot within 48h | pass / fail |
-| Restic file restore produces readable files | pass / fail |
-| etcd snapshot file is valid gzip | pass / fail |
+| Check                                           | Result         |
+| ----------------------------------------------- | -------------- |
+| etcd snapshot in S3 within 48h                  | pass / fail    |
+| Restic repository check passes                  | pass / fail    |
+| Restic snapshot within 48h                      | pass / fail    |
+| Restic file restore produces readable files     | pass / fail    |
+| etcd snapshot file is valid gzip                | pass / fail    |
 | PostgreSQL backup path is configured and tested | currently fail |
 
 Record the date and results. If any check fails, investigate before treating the backup layer as reliable.
@@ -333,14 +405,14 @@ Record the date and results. If any check fails, investigate before treating the
 
 ## Key File Locations
 
-| File | Purpose |
-|---|---|
-| `/etc/rancher/k3s/config.yaml.d/etcd-s3.yaml` | k3s etcd S3 upload config |
-| `/var/lib/rancher/k3s/server/db/snapshots/` | Local etcd snapshot directory |
-| `/etc/restic/env` | Restic repository URL and credentials |
-| `/usr/local/bin/restic-backup.sh` | Restic backup script |
-| `/etc/systemd/system/restic-backup.service` | Restic systemd service |
-| `/etc/systemd/system/restic-backup.timer` | Restic systemd timer |
-| `bootstrap/ansible/roles/restic/` | Ansible role that configures Restic |
-| `bootstrap/ansible/roles/k3s/` | Ansible role that configures k3s and etcd snapshots |
-| `secrets/prod/postgres-backup.sops.yaml` | SOPS-encrypted S3 credentials staged for CNPG, but not currently consumed by the PostgreSQL `HelmRelease` |
+| File                                          | Purpose                                                                                                   |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `/etc/rancher/k3s/config.yaml.d/etcd-s3.yaml` | k3s etcd S3 upload config                                                                                 |
+| `/var/lib/rancher/k3s/server/db/snapshots/`   | Local etcd snapshot directory                                                                             |
+| `/etc/restic/env`                             | Restic repository URL and credentials                                                                     |
+| `/usr/local/bin/restic-backup.sh`             | Restic backup script                                                                                      |
+| `/etc/systemd/system/restic-backup.service`   | Restic systemd service                                                                                    |
+| `/etc/systemd/system/restic-backup.timer`     | Restic systemd timer                                                                                      |
+| `bootstrap/ansible/roles/restic/`             | Ansible role that configures Restic                                                                       |
+| `bootstrap/ansible/roles/k3s/`                | Ansible role that configures k3s and etcd snapshots                                                       |
+| `secrets/prod/postgres-backup.sops.yaml`      | SOPS-encrypted S3 credentials staged for CNPG, but not currently consumed by the PostgreSQL `HelmRelease` |

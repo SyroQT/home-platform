@@ -13,6 +13,8 @@ This document reflects the repository as it exists today. It is a repo-state sum
 - Secrets are stored as SOPS-encrypted manifests under `secrets/prod/`.
 - cert-manager and CloudNativePG are managed through Flux Helm releases.
 - The repo defines three workloads today: `n8n`, `actual`, and `whoami`.
+- Repository guardrails now include pre-commit hooks for merge-conflict detection, large-file checks, secret scanning, and SOPS encryption validation.
+- A Renovate configuration is committed at the repo root for Flux, Kubernetes manifest, and Terraform dependency updates.
 
 ## Canonical Paths
 
@@ -175,6 +177,8 @@ Current secret management model:
 - SOPS config lives in `.sops.yaml`
 - Only `data` and `stringData` are encrypted
 - Flux decrypts `secrets/prod/` using the `flux-system/sops-age` secret
+- Pre-commit enforces a local SOPS encryption check for files under `secrets/**/*.sops.yaml`
+- Secret scanning baseline and pre-commit integration are committed in `.secrets.baseline` and `.pre-commit-config.yaml`
 
 Secret files currently committed:
 
@@ -184,6 +188,12 @@ Secret files currently committed:
 - `secrets/prod/postgres-backup.sops.yaml`
 - `secrets/prod/postgres-n8n-auth.sops.yaml`
 - `secrets/prod/actual.sops.yaml`
+
+Relevant repo guardrail files:
+
+- `.pre-commit-config.yaml`
+- `.secrets.baseline`
+- `scripts/check-sops-encrypted.sh`
 
 ## Backup and Recovery
 
@@ -202,16 +212,32 @@ Implemented in the repo:
 Still incomplete or not fully wired:
 
 - PostgreSQL restore drill procedure should be exercised and documented against the plugin-based backup flow
-- `docs/todo/backup.md` may still contain older assumptions and should be aligned with the current plugin-based design
+- `docs/drd/backup-and-recovery.md` still contains older assumptions that predate the current CNPG plugin-based backup wiring and should be revised
 
 ## Renovation / Update Automation
 
-This repo has planning notes for automated dependency updates in `docs/todo/renovate.md`, but no Renovate configuration is committed yet.
+Automated dependency update configuration is now committed in `renovate.json`.
 
 Current status:
 
-- update automation is planned
-- update automation is not yet implemented in this repo
+- Renovate is configured with `config:recommended`
+- Updates are scheduled for weekends
+- Flux, Kubernetes manifest, and Terraform managers are enabled in config
+- Major updates are labeled for manual review
+- The repo config does not enable automerge
+
+Important scope note:
+
+- This document reflects committed repo config only; whether Renovate is actively running still depends on repository-side app/install enablement outside this repo
+
+## Repo Guardrails
+
+Current repo hygiene controls committed in Git:
+
+- Pre-commit hooks check for large added files and merge conflicts
+- `detect-secrets` is configured with `.secrets.baseline`
+- SOPS-encrypted secret files are validated by `scripts/check-sops-encrypted.sh`
+- The secret-scanning config explicitly excludes encrypted SOPS payload files from false positives
 
 ## What Is Stable vs. What Is Still In Flight
 
@@ -221,6 +247,7 @@ Stable repo patterns:
 - Ansible for host bootstrap and k3s setup
 - Flux for GitOps reconciliation
 - SOPS for secret storage
+- pre-commit secret and encryption guardrails
 - CNPG for PostgreSQL
 - `base` plus `prod` app layout
 
@@ -228,8 +255,8 @@ Still in flight:
 
 - explicit ingress platform management in Git
 - PostgreSQL restore drill and recovery documentation polish
-- formal update automation
 - cleanup or normalization of the legacy `whoami` test workload layout
+- validation that Renovate is enabled and operating against the repository host
 
 ## Practical Bottom Line
 
@@ -240,10 +267,11 @@ The repository is past initial bootstrap and now defines a working GitOps-shaped
 - k3s bootstrap
 - Flux reconciliation
 - encrypted secrets
+- pre-commit repo guardrails
 - cert-manager
 - CloudNativePG
 - a PostgreSQL-backed `n8n` app
 - an `actual` deployment
 - a retained `whoami` test app
 
-The main unfinished areas are restore validation for PostgreSQL, explicit ingress ownership in Git, and update automation.
+The main unfinished areas are restore validation for PostgreSQL, explicit ingress ownership in Git, documentation drift cleanup, and confirming Renovate is active at the repository host level.

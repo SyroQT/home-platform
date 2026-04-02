@@ -55,13 +55,13 @@ spec:
                   name: n8n-secret
                   key: N8N_BASIC_AUTH_PASSWORD
             - name: N8N_HOST
-              value: beta-n8n.titas.dev
+              value: n8n.titas.dev
             - name: N8N_PROTOCOL
               value: https
             - name: WEBHOOK_URL
-              value: https://beta-n8n.titas.dev/
+              value: https://n8n.titas.dev/
             - name: VUE_APP_URL_BASE_API
-              value: https://beta-n8n.titas.dev/
+              value: https://n8n.titas.dev/
             - name: TZ
               value: Europe/Amsterdam
             - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS

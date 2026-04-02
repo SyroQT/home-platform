@@ -46,7 +46,7 @@ spec:
             - name: ACTUAL_OPENID_DISCOVERY_URL
               value: "https://accounts.google.com/.well-known/openid-configuration"
             - name: ACTUAL_OPENID_SERVER_HOSTNAME
-              value: "https://beta-budget.titas.dev"
+              value: "https://budget.titas.dev"
             - name: ACTUAL_OPENID_AUTH_METHOD
               value: "openid"
             - name: ACTUAL_OPENID_CLIENT_ID

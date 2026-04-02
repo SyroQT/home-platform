@@ -9,10 +9,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - beta-n8n.titas.dev
+        - n8n.titas.dev
       secretName: n8n-tls
   rules:
-    - host: beta-n8n.titas.dev
+    - host: n8n.titas.dev
       http:
         paths:
           - path: /
