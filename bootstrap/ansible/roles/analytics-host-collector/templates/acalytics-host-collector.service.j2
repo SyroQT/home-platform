@@ -1,0 +1,10 @@
+[Unit]
+Description=Analytics host collector
+After=network.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/analytics/host-collector.env
+ExecStart=/usr/bin/python3 {{ analytics_host_collector_install_dir }}/collect.py
+StandardOutput=journal
+StandardError=journal

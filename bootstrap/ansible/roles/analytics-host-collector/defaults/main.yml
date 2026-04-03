@@ -1,0 +1,6 @@
+---
+analytics_host_collector_install_dir: /opt/analytics/host
+analytics_s3_endpoint_url: "https://nbg1.your-objectstorage.com"
+analytics_s3_bucket: "k3s-prod-analytics"
+analytics_collector_schedule: "*:0/15"  # every 15 minutes
+ 

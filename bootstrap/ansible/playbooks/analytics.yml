@@ -1,0 +1,12 @@
+---
+- name: Deploy analytics collectors
+  hosts: vps
+  become: true
+  pre_tasks:
+    - name: Load analytics S3 credentials
+      community.sops.load_vars:
+        file: "{{ playbook_dir }}/../../../secrets/prod/analytics-s3.sops.yaml"
+        name: analytics_s3_creds
+
+  roles:
+    - analytics-host-collector

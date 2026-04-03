@@ -1,0 +1,83 @@
+---
+- name: Install python3-boto3
+  ansible.builtin.apt:
+    name: python3-boto3
+    state: present
+    update_cache: true
+
+- name: Create analytics host collector directory
+  ansible.builtin.file:
+    path: "{{ analytics_host_collector_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install collector script
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../analytics/collectors/host/collect.py"
+    dest: "{{ analytics_host_collector_install_dir }}/collect.py"
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Create analytics config directory
+  ansible.builtin.file:
+    path: /etc/analytics
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Render environment file
+  ansible.builtin.template:
+    src: analytics-host-collector-env.j2
+    dest: /etc/analytics/host-collector.env
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Reload systemd
+
+- name: Install systemd service unit
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/analytics-host-collector.service
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Analytics host collector
+      After=network.target
+
+      [Service]
+      Type=oneshot
+      EnvironmentFile=/etc/analytics/host-collector.env
+      ExecStart=/usr/bin/python3 {{ analytics_host_collector_install_dir }}/collect.py
+      StandardOutput=journal
+      StandardError=journal
+  notify: Reload systemd
+
+- name: Install systemd timer unit
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/analytics-host-collector.timer
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Analytics host collector timer
+      Requires=analytics-host-collector.service
+
+      [Timer]
+      OnCalendar=*:0/15
+      Persistent=true
+
+      [Install]
+      WantedBy=timers.target
+  notify: Reload systemd
+
+- name: Enable and start analytics host collector timer
+  ansible.builtin.systemd:
+    name: analytics-host-collector.timer
+    enabled: true
+    state: started
