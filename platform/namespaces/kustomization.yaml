@@ -6,3 +6,4 @@ resources:
   - cnpg-system.yaml
   - infra-postgres.yaml
   - apps-linkding.yaml
+  - analytics.yaml
