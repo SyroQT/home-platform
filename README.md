@@ -2,6 +2,10 @@
 
 ## Set up
 
+## CLI for working in the project
+
+`export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt`
+
 ### Minimal Set up
 
 ```bash

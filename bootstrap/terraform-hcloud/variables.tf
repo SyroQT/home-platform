@@ -69,3 +69,8 @@ variable "backup_bucket_name" {
   default     = "k3s-prod-backups"
 }
 
+variable "analytics_bucket_name" {
+  description = "Name for the S3 analytics bucket"
+  type        = string
+  default     = "k3s-prod-analytics"
+}

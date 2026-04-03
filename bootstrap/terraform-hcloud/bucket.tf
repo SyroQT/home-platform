@@ -26,3 +26,15 @@ resource "aws_s3_bucket_versioning" "backups" {
     status = "Enabled"
   }
 }
+
+resource "aws_s3_bucket" "analytics" {
+  bucket = var.analytics_bucket_name
+}
+
+resource "aws_s3_bucket_versioning" "analytics" {
+  bucket = aws_s3_bucket.analytics.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
