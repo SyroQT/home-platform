@@ -16,7 +16,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: linkding
-          image: sissbruecker/linkding:1.38.0
+          image: sissbruecker/linkding:1.45.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9090
