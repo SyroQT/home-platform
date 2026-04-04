@@ -9,9 +9,9 @@
     "enabled": true
   },
   "kubernetes": {
-    "fileMatch": [
-      "apps/.+\\.yaml$",
-      "platform/.+\\.yaml$"
+    "managerFilePatterns": [
+      "/apps/.+\.yaml$/",
+      "/platform/.+\.yaml$/"
     ]
   },
   "terraform": {
