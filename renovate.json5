@@ -17,6 +17,11 @@
   "terraform": {
     "enabled": true
   },
+  "dockerfile": {
+    "managerFilePatterns": [
+      "/bootstrap/docker/.+/Dockerfile$/"
+    ]
+  },
   "packageRules": [
     {
       "description": "Use widen range strategy for all Flux-managed Helm charts",
