@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: analytics-collector
+  namespace: analytics
+spec:
+  schedule: "5,20,35,50 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          serviceAccountName: analytics-collector
+          restartPolicy: Never
+          containers:
+            - name: collector
+              image: ghcr.io/syroqt/home-platform/analytics-collector:sha-a7dbc93
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+              envFrom:
+                - secretRef:
+                    name: analytics-s3
+          imagePullSecrets:
+            - name: ghcr-pull-secret
