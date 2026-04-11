@@ -9,13 +9,18 @@
     "enabled": true
   },
   "kubernetes": {
-    "fileMatch": [
-      "apps/.+\\.yaml$",
-      "platform/.+\\.yaml$"
+    "managerFilePatterns": [
+      "/apps/.+\.yaml$/",
+      "/platform/.+\.yaml$/"
     ]
   },
   "terraform": {
     "enabled": true
+  },
+  "dockerfile": {
+    "managerFilePatterns": [
+      "/bootstrap/docker/.+/Dockerfile$/"
+    ]
   },
   "packageRules": [
     {

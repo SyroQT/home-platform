@@ -16,8 +16,8 @@ spec:
       enableServiceLinks: false
       containers:
         - name: n8n
-          image: docker.n8n.io/n8nio/n8n:2.15.0
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/syroqt/home-platform/n8n:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5678
               name: http
@@ -65,6 +65,8 @@ spec:
             - name: TZ
               value: Europe/Amsterdam
             - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+              value: "true"
+            - name: N8N_COMMUNITY_PACKAGES_ENABLED
               value: "true"
           resources:
             requests:
