@@ -1,0 +1,10 @@
+[Unit]
+Description=Analytics host collector timer
+Requires=analytics-host-collector.service
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=true
+
+[Install]
+WantedBy=timers.target

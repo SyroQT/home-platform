@@ -15,3 +15,5 @@ crash.log
 **/group_vars/vps/secrets.yml
 
 .claude/
+.venv/
+.pytest_cache/
