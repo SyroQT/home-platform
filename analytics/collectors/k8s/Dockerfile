@@ -11,4 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 
 RUN pip install --no-cache-dir boto3==1.35.0
 
+COPY collect.py /opt/analytics/collect.py
+
 USER nobody
+
+ENTRYPOINT ["python", "/opt/analytics/collect.py"]
