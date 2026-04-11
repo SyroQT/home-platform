@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: n8n
+        home-platform/analytics-collect: "true"
     spec:
       enableServiceLinks: false
       containers:

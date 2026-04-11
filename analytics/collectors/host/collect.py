@@ -144,11 +144,20 @@ def get_s3_client():
         print("ERROR: S3_ENDPOINT_URL is not set", file=sys.stderr)
         sys.exit(1)
 
+    access_key = os.environ.get("AWS_ACCESS_KEY_ID")
+    secret_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    if not access_key:
+        print("ERROR: AWS_ACCESS_KEY_ID is not set", file=sys.stderr)
+        sys.exit(1)
+    if not secret_key:
+        print("ERROR: AWS_SECRET_ACCESS_KEY is not set", file=sys.stderr)
+        sys.exit(1)
+
     return boto3.client(
         "s3",
         endpoint_url=endpoint,
-        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
     )
 
 
@@ -175,6 +184,7 @@ def main() -> None:
 
     exit_code = 0
     snapshot = {}
+    client = None
 
     try:
         snapshot = collect()
@@ -209,7 +219,8 @@ def main() -> None:
                 "exit_code": exit_code,
                 "field_count": field_count,
             }
-            client = get_s3_client()
+            if client is None:
+                client = get_s3_client()
             upload(client, bucket, meta_key, json.dumps(meta, indent=2))
         except Exception as meta_exc:
             print(f"WARNING: metadata upload failed: {meta_exc}", file=sys.stderr)

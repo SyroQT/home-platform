@@ -5,6 +5,9 @@ metadata:
   namespace: infra-postgres
 spec:
   instances: 1
+  inheritedMetadata:
+    labels:
+      home-platform/analytics-collect: "true"
   imageName: ghcr.io/cloudnative-pg/postgresql:16
   imagePullPolicy: IfNotPresent
   enableSuperuserAccess: false
