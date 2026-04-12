@@ -1,0 +1,84 @@
+{
+  "kind": "NodeList",
+  "items": [
+    {
+      "name": "k3s-prod",
+      "labels": {
+        "beta.kubernetes.io/arch": "amd64",
+        "beta.kubernetes.io/instance-type": "k3s",
+        "beta.kubernetes.io/os": "linux",
+        "kubernetes.io/arch": "amd64",
+        "kubernetes.io/hostname": "k3s-prod",
+        "kubernetes.io/os": "linux",
+        "node-role.kubernetes.io/control-plane": "true",
+        "node-role.kubernetes.io/etcd": "true",
+        "node.kubernetes.io/instance-type": "k3s"
+      },
+      "conditions": [
+        {
+          "lastHeartbeatTime": "2026-04-12T07:04:27Z",
+          "lastTransitionTime": "2026-03-20T18:37:13Z",
+          "message": "Node is a voting member of the etcd cluster",
+          "reason": "MemberNotLearner",
+          "status": "True",
+          "type": "EtcdIsVoter"
+        },
+        {
+          "lastHeartbeatTime": "2026-04-12T07:04:44Z",
+          "lastTransitionTime": "2026-03-20T18:36:47Z",
+          "message": "kubelet has sufficient memory available",
+          "reason": "KubeletHasSufficientMemory",
+          "status": "False",
+          "type": "MemoryPressure"
+        },
+        {
+          "lastHeartbeatTime": "2026-04-12T07:04:44Z",
+          "lastTransitionTime": "2026-03-20T18:36:47Z",
+          "message": "kubelet has no disk pressure",
+          "reason": "KubeletHasNoDiskPressure",
+          "status": "False",
+          "type": "DiskPressure"
+        },
+        {
+          "lastHeartbeatTime": "2026-04-12T07:04:44Z",
+          "lastTransitionTime": "2026-03-20T18:36:47Z",
+          "message": "kubelet has sufficient PID available",
+          "reason": "KubeletHasSufficientPID",
+          "status": "False",
+          "type": "PIDPressure"
+        },
+        {
+          "lastHeartbeatTime": "2026-04-12T07:04:44Z",
+          "lastTransitionTime": "2026-03-20T18:36:47Z",
+          "message": "kubelet is posting ready status",
+          "reason": "KubeletReady",
+          "status": "True",
+          "type": "Ready"
+        }
+      ],
+      "allocatable": {
+        "cpu": "2",
+        "ephemeral-storage": "37990606614",
+        "hugepages-1Gi": "0",
+        "hugepages-2Mi": "0",
+        "memory": "3910840Ki",
+        "pods": "110"
+      },
+      "capacity": {
+        "cpu": "2",
+        "ephemeral-storage": "39052844Ki",
+        "hugepages-1Gi": "0",
+        "hugepages-2Mi": "0",
+        "memory": "3910840Ki",
+        "pods": "110"
+      },
+      "node_info": {
+        "architecture": "amd64",
+        "kernel_version": "6.1.0-44-amd64",
+        "kubelet_version": "v1.34.5+k3s1",
+        "os_image": "Debian GNU/Linux 12 (bookworm)",
+        "container_runtime_version": "containerd://2.1.5-k3s1"
+      }
+    }
+  ]
+}

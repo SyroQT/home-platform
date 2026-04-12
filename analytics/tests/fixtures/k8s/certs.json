@@ -1,0 +1,159 @@
+{
+  "kind": "CertificateList",
+  "items": [
+    {
+      "name": "actual-tls",
+      "namespace": "apps-actual",
+      "dns_names": [
+        "budget.titas.dev"
+      ],
+      "common_name": null,
+      "issuer_ref": {
+        "group": "cert-manager.io",
+        "kind": "ClusterIssuer",
+        "name": "letsencrypt-production"
+      },
+      "not_after": "2026-07-01T11:48:55Z",
+      "not_before": "2026-04-02T11:48:56Z",
+      "renewal_time": "2026-06-01T11:48:55Z",
+      "conditions": [
+        {
+          "lastTransitionTime": "2026-04-02T12:47:27Z",
+          "message": "Certificate is up to date and has not expired",
+          "observedGeneration": 2,
+          "reason": "Ready",
+          "status": "True",
+          "type": "Ready"
+        }
+      ]
+    },
+    {
+      "name": "linkding-tls",
+      "namespace": "apps-linkding",
+      "dns_names": [
+        "links.titas.dev"
+      ],
+      "common_name": null,
+      "issuer_ref": {
+        "group": "cert-manager.io",
+        "kind": "ClusterIssuer",
+        "name": "letsencrypt-production"
+      },
+      "not_after": "2026-06-27T15:35:29Z",
+      "not_before": "2026-03-29T15:35:30Z",
+      "renewal_time": "2026-05-28T15:35:29Z",
+      "conditions": [
+        {
+          "lastTransitionTime": "2026-03-29T16:34:02Z",
+          "message": "Certificate is up to date and has not expired",
+          "observedGeneration": 1,
+          "reason": "Ready",
+          "status": "True",
+          "type": "Ready"
+        }
+      ]
+    },
+    {
+      "name": "n8n-tls",
+      "namespace": "apps-n8n",
+      "dns_names": [
+        "n8n.titas.dev"
+      ],
+      "common_name": null,
+      "issuer_ref": {
+        "group": "cert-manager.io",
+        "kind": "ClusterIssuer",
+        "name": "letsencrypt-production"
+      },
+      "not_after": "2026-07-01T11:48:56Z",
+      "not_before": "2026-04-02T11:48:57Z",
+      "renewal_time": "2026-06-01T11:48:56Z",
+      "conditions": [
+        {
+          "lastTransitionTime": "2026-04-02T12:47:28Z",
+          "message": "Certificate is up to date and has not expired",
+          "observedGeneration": 2,
+          "reason": "Ready",
+          "status": "True",
+          "type": "Ready"
+        }
+      ]
+    },
+    {
+      "name": "whoami-tls",
+      "namespace": "apps-test",
+      "dns_names": [
+        "whoami.titas.dev"
+      ],
+      "common_name": null,
+      "issuer_ref": {
+        "group": "cert-manager.io",
+        "kind": "ClusterIssuer",
+        "name": "letsencrypt-production"
+      },
+      "not_after": "2026-06-19T13:46:09Z",
+      "not_before": "2026-03-21T13:46:10Z",
+      "renewal_time": "2026-05-20T13:46:09Z",
+      "conditions": [
+        {
+          "lastTransitionTime": "2026-03-21T14:44:42Z",
+          "message": "Certificate is up to date and has not expired",
+          "observedGeneration": 2,
+          "reason": "Ready",
+          "status": "True",
+          "type": "Ready"
+        }
+      ]
+    },
+    {
+      "name": "barman-cloud-client",
+      "namespace": "cnpg-system",
+      "dns_names": [],
+      "common_name": "barman-cloud-client",
+      "issuer_ref": {
+        "group": "cert-manager.io",
+        "kind": "Issuer",
+        "name": "cnpg-system-plugin-barman-cloud-selfsigned-issuer"
+      },
+      "not_after": "2026-06-27T09:48:10Z",
+      "not_before": "2026-03-29T09:48:10Z",
+      "renewal_time": "2026-06-12T09:48:10Z",
+      "conditions": [
+        {
+          "lastTransitionTime": "2026-03-29T09:48:10Z",
+          "message": "Certificate is up to date and has not expired",
+          "observedGeneration": 1,
+          "reason": "Ready",
+          "status": "True",
+          "type": "Ready"
+        }
+      ]
+    },
+    {
+      "name": "barman-cloud-server",
+      "namespace": "cnpg-system",
+      "dns_names": [
+        "barman-cloud"
+      ],
+      "common_name": "barman-cloud",
+      "issuer_ref": {
+        "group": "cert-manager.io",
+        "kind": "Issuer",
+        "name": "cnpg-system-plugin-barman-cloud-selfsigned-issuer"
+      },
+      "not_after": "2026-06-27T09:48:10Z",
+      "not_before": "2026-03-29T09:48:10Z",
+      "renewal_time": "2026-06-12T09:48:10Z",
+      "conditions": [
+        {
+          "lastTransitionTime": "2026-03-29T09:48:10Z",
+          "message": "Certificate is up to date and has not expired",
+          "observedGeneration": 1,
+          "reason": "Ready",
+          "status": "True",
+          "type": "Ready"
+        }
+      ]
+    }
+  ]
+}

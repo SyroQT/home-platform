@@ -1,0 +1,2501 @@
+{
+  "kind": "WorkloadList",
+  "items": [
+    {
+      "kind": "Deployment",
+      "name": "actual",
+      "namespace": "apps-actual",
+      "labels": {
+        "kustomize.toolkit.fluxcd.io/name": "apps",
+        "kustomize.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "Recreate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-04-11T15:38:37Z",
+            "lastUpdateTime": "2026-04-11T15:38:37Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-22T10:46:22Z",
+            "lastUpdateTime": "2026-04-11T15:38:37Z",
+            "message": "ReplicaSet \"actual-6dd8f9d9c8\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "linkding",
+      "namespace": "apps-linkding",
+      "labels": {
+        "kustomize.toolkit.fluxcd.io/name": "apps",
+        "kustomize.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-29T16:34:02Z",
+            "lastUpdateTime": "2026-03-29T16:34:02Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-29T16:33:36Z",
+            "lastUpdateTime": "2026-04-11T15:38:23Z",
+            "message": "ReplicaSet \"linkding-75c5475fc8\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "n8n",
+      "namespace": "apps-n8n",
+      "labels": {
+        "kustomize.toolkit.fluxcd.io/name": "apps",
+        "kustomize.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-22T09:47:41Z",
+            "lastUpdateTime": "2026-03-22T09:47:41Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-04-10T16:34:09Z",
+            "lastUpdateTime": "2026-04-11T15:40:09Z",
+            "message": "ReplicaSet \"n8n-6b4ffb5c5f\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "whoami",
+      "namespace": "apps-test",
+      "labels": {
+        "kustomize.toolkit.fluxcd.io/name": "apps",
+        "kustomize.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-21T14:28:14Z",
+            "lastUpdateTime": "2026-03-21T14:28:14Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-21T14:28:09Z",
+            "lastUpdateTime": "2026-03-29T10:47:19Z",
+            "message": "ReplicaSet \"whoami-9d54d85c7\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "cert-manager-cert-manager",
+      "namespace": "cert-manager",
+      "labels": {
+        "app": "cert-manager",
+        "app.kubernetes.io/component": "controller",
+        "app.kubernetes.io/instance": "cert-manager-cert-manager",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "cert-manager",
+        "app.kubernetes.io/version": "v1.18.6",
+        "helm.sh/chart": "cert-manager-v1.18.6",
+        "helm.toolkit.fluxcd.io/name": "cert-manager",
+        "helm.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-21T14:14:01Z",
+            "lastUpdateTime": "2026-03-21T14:14:01Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-21T14:13:53Z",
+            "lastUpdateTime": "2026-03-21T14:14:01Z",
+            "message": "ReplicaSet \"cert-manager-cert-manager-57c5c8c8f8\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "cert-manager-cert-manager-cainjector",
+      "namespace": "cert-manager",
+      "labels": {
+        "app": "cainjector",
+        "app.kubernetes.io/component": "cainjector",
+        "app.kubernetes.io/instance": "cert-manager-cert-manager",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "cainjector",
+        "app.kubernetes.io/version": "v1.18.6",
+        "helm.sh/chart": "cert-manager-v1.18.6",
+        "helm.toolkit.fluxcd.io/name": "cert-manager",
+        "helm.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-21T14:13:59Z",
+            "lastUpdateTime": "2026-03-21T14:13:59Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-21T14:13:53Z",
+            "lastUpdateTime": "2026-03-21T14:13:59Z",
+            "message": "ReplicaSet \"cert-manager-cert-manager-cainjector-bfbdc75db\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "cert-manager-cert-manager-webhook",
+      "namespace": "cert-manager",
+      "labels": {
+        "app": "webhook",
+        "app.kubernetes.io/component": "webhook",
+        "app.kubernetes.io/instance": "cert-manager-cert-manager",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "webhook",
+        "app.kubernetes.io/version": "v1.18.6",
+        "helm.sh/chart": "cert-manager-v1.18.6",
+        "helm.toolkit.fluxcd.io/name": "cert-manager",
+        "helm.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-21T14:14:05Z",
+            "lastUpdateTime": "2026-03-21T14:14:05Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-21T14:13:53Z",
+            "lastUpdateTime": "2026-03-21T14:14:05Z",
+            "message": "ReplicaSet \"cert-manager-cert-manager-webhook-54595756d7\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "cnpg-system-cloudnative-pg",
+      "namespace": "cnpg-system",
+      "labels": {
+        "app.kubernetes.io/instance": "cnpg-system-cloudnative-pg",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "cloudnative-pg",
+        "app.kubernetes.io/version": "1.28.1",
+        "helm.sh/chart": "cloudnative-pg-0.27.1",
+        "helm.toolkit.fluxcd.io/name": "cloudnative-pg",
+        "helm.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-21T16:47:21Z",
+            "lastUpdateTime": "2026-03-21T16:47:21Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-21T16:47:09Z",
+            "lastUpdateTime": "2026-03-21T16:47:21Z",
+            "message": "ReplicaSet \"cnpg-system-cloudnative-pg-848cd6684\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "cnpg-system-plugin-barman-cloud",
+      "namespace": "cnpg-system",
+      "labels": {
+        "app.kubernetes.io/instance": "cnpg-system-plugin-barman-cloud",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "plugin-barman-cloud",
+        "app.kubernetes.io/version": "v0.11.0",
+        "helm.sh/chart": "plugin-barman-cloud-0.5.0",
+        "helm.toolkit.fluxcd.io/name": "plugin-barman-cloud",
+        "helm.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "Recreate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-29T09:48:32Z",
+            "lastUpdateTime": "2026-03-29T09:48:32Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-29T09:48:09Z",
+            "lastUpdateTime": "2026-03-29T09:48:32Z",
+            "message": "ReplicaSet \"cnpg-system-plugin-barman-cloud-69bccb4785\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "helm-controller",
+      "namespace": "flux-system",
+      "labels": {
+        "app.kubernetes.io/component": "helm-controller",
+        "app.kubernetes.io/instance": "flux-system",
+        "app.kubernetes.io/part-of": "flux",
+        "app.kubernetes.io/version": "v2.8.5",
+        "control-plane": "controller",
+        "kustomize.toolkit.fluxcd.io/name": "flux-system",
+        "kustomize.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-21T07:45:29Z",
+            "lastUpdateTime": "2026-03-21T07:45:29Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-21T07:45:19Z",
+            "lastUpdateTime": "2026-04-11T06:19:21Z",
+            "message": "ReplicaSet \"helm-controller-544cb5dbcf\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "kustomize-controller",
+      "namespace": "flux-system",
+      "labels": {
+        "app.kubernetes.io/component": "kustomize-controller",
+        "app.kubernetes.io/instance": "flux-system",
+        "app.kubernetes.io/part-of": "flux",
+        "app.kubernetes.io/version": "v2.8.5",
+        "control-plane": "controller",
+        "kustomize.toolkit.fluxcd.io/name": "flux-system",
+        "kustomize.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-28T12:04:41Z",
+            "lastUpdateTime": "2026-03-28T12:04:41Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-21T07:45:19Z",
+            "lastUpdateTime": "2026-04-11T06:19:19Z",
+            "message": "ReplicaSet \"kustomize-controller-6895d76965\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "notification-controller",
+      "namespace": "flux-system",
+      "labels": {
+        "app.kubernetes.io/component": "notification-controller",
+        "app.kubernetes.io/instance": "flux-system",
+        "app.kubernetes.io/part-of": "flux",
+        "app.kubernetes.io/version": "v2.8.5",
+        "control-plane": "controller",
+        "kustomize.toolkit.fluxcd.io/name": "flux-system",
+        "kustomize.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-21T07:45:30Z",
+            "lastUpdateTime": "2026-03-21T07:45:30Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-21T07:45:19Z",
+            "lastUpdateTime": "2026-04-11T06:19:18Z",
+            "message": "ReplicaSet \"notification-controller-f7bb75965\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "source-controller",
+      "namespace": "flux-system",
+      "labels": {
+        "app.kubernetes.io/component": "source-controller",
+        "app.kubernetes.io/instance": "flux-system",
+        "app.kubernetes.io/part-of": "flux",
+        "app.kubernetes.io/version": "v2.8.5",
+        "control-plane": "controller",
+        "kustomize.toolkit.fluxcd.io/name": "flux-system",
+        "kustomize.toolkit.fluxcd.io/namespace": "flux-system"
+      },
+      "replicas": 1,
+      "strategy": "Recreate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-04-11T06:19:20Z",
+            "lastUpdateTime": "2026-04-11T06:19:20Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-21T07:45:20Z",
+            "lastUpdateTime": "2026-04-11T06:19:20Z",
+            "message": "ReplicaSet \"source-controller-6dfdb64568\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "coredns",
+      "namespace": "kube-system",
+      "labels": {
+        "k8s-app": "kube-dns",
+        "kubernetes.io/name": "CoreDNS",
+        "objectset.rio.cattle.io/hash": "bce283298811743a0386ab510f2f67ef74240c57"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-20T18:37:22Z",
+            "lastUpdateTime": "2026-03-20T18:37:22Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-20T18:37:22Z",
+            "lastUpdateTime": "2026-03-20T18:37:34Z",
+            "message": "ReplicaSet \"coredns-695cbbfcb9\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "local-path-provisioner",
+      "namespace": "kube-system",
+      "labels": {
+        "objectset.rio.cattle.io/hash": "183f35c65ffbc3064603f43f1580d8c68a2dabd4"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-20T18:37:22Z",
+            "lastUpdateTime": "2026-03-20T18:37:22Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-20T18:37:22Z",
+            "lastUpdateTime": "2026-03-20T18:37:32Z",
+            "message": "ReplicaSet \"local-path-provisioner-546dfc6456\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "metrics-server",
+      "namespace": "kube-system",
+      "labels": {
+        "k8s-app": "metrics-server",
+        "objectset.rio.cattle.io/hash": "e10e245e13e46a725c9dddd4f9eb239f147774fd"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-20T18:37:22Z",
+            "lastUpdateTime": "2026-03-20T18:37:22Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-03-20T18:37:22Z",
+            "lastUpdateTime": "2026-03-20T18:37:49Z",
+            "message": "ReplicaSet \"metrics-server-c8774f4f4\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Deployment",
+      "name": "traefik",
+      "namespace": "kube-system",
+      "labels": {
+        "app.kubernetes.io/instance": "traefik-kube-system",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "traefik",
+        "helm.sh/chart": "traefik-39.0.201_up39.0.2"
+      },
+      "replicas": 1,
+      "strategy": "RollingUpdate",
+      "status": {
+        "replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-03-20T18:37:56Z",
+            "lastUpdateTime": "2026-03-20T18:38:04Z",
+            "message": "ReplicaSet \"traefik-788bc4688c\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          },
+          {
+            "lastTransitionTime": "2026-03-28T12:04:41Z",
+            "lastUpdateTime": "2026-03-28T12:04:41Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Pod",
+      "name": "analytics-collector-29599580-8hr8n",
+      "namespace": "analytics",
+      "labels": {
+        "job-name": "analytics-collector-29599580"
+      },
+      "phase": "Succeeded",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:20:23Z",
+          "observedGeneration": 1,
+          "status": "False",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:20:00Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:20:22Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:20:22Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:20:00Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "collector",
+          "image": "ghcr.io/syroqt/home-platform/analytics-collector:sha-a7dbc93",
+          "resources": {
+            "limits": {
+              "cpu": "200m",
+              "memory": "128Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "collector",
+          "ready": false,
+          "restart_count": 0,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://2918bcbcb799b218d5c42c86d0dfeea58cd27b706d7dd0eca1594cd6f678126e",
+              "exitCode": 0,
+              "finishedAt": "2026-04-12T06:20:21Z",
+              "reason": "Completed",
+              "startedAt": "2026-04-12T06:20:01Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "analytics-collector-29599595-v4xg7",
+      "namespace": "analytics",
+      "labels": {
+        "job-name": "analytics-collector-29599595"
+      },
+      "phase": "Succeeded",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:35:35Z",
+          "observedGeneration": 1,
+          "status": "False",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:35:00Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:35:34Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:35:34Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:35:00Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "collector",
+          "image": "ghcr.io/syroqt/home-platform/analytics-collector:sha-a7dbc93",
+          "resources": {
+            "limits": {
+              "cpu": "200m",
+              "memory": "128Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "collector",
+          "ready": false,
+          "restart_count": 0,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://78e5e820d74f62eec1f76a469ad93643463a3e01d8d3dda788021b4ee1c68f3e",
+              "exitCode": 0,
+              "finishedAt": "2026-04-12T06:35:33Z",
+              "reason": "Completed",
+              "startedAt": "2026-04-12T06:35:01Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "analytics-collector-29599610-4nz6j",
+      "namespace": "analytics",
+      "labels": {
+        "job-name": "analytics-collector-29599610"
+      },
+      "phase": "Succeeded",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:50:28Z",
+          "observedGeneration": 1,
+          "status": "False",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:50:00Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:50:26Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:50:26Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T06:50:00Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "collector",
+          "image": "ghcr.io/syroqt/home-platform/analytics-collector:sha-983faec",
+          "resources": {
+            "limits": {
+              "cpu": "200m",
+              "memory": "128Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "collector",
+          "ready": false,
+          "restart_count": 0,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://530129651b7d4af5032a596089e7fc7330821106fd420c80d4a1c973fd37e164",
+              "exitCode": 0,
+              "finishedAt": "2026-04-12T06:50:26Z",
+              "reason": "Completed",
+              "startedAt": "2026-04-12T06:50:07Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "analytics-collector-29599625-dn5gd",
+      "namespace": "analytics",
+      "labels": {
+        "job-name": "analytics-collector-29599625"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T07:05:01Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T07:05:00Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T07:05:01Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T07:05:01Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-12T07:05:00Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "collector",
+          "image": "ghcr.io/syroqt/home-platform/analytics-collector:sha-983faec",
+          "resources": {
+            "limits": {
+              "cpu": "200m",
+              "memory": "128Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "collector",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-12T07:05:01Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "actual-6dd8f9d9c8-kjjq4",
+      "namespace": "apps-actual",
+      "labels": {
+        "app": "actual",
+        "home-platform/analytics-collect": "true"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:23Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:21Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:37Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:37Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:21Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "actual",
+          "image": "actualbudget/actual-server:26.4.0",
+          "resources": {
+            "limits": {
+              "cpu": "500m",
+              "memory": "768Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "actual",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-11T15:38:22Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "linkding-75c5475fc8-d9xvb",
+      "namespace": "apps-linkding",
+      "labels": {
+        "app": "linkding",
+        "home-platform/analytics-collect": "true"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:20Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:20Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "linkding",
+          "image": "sissbruecker/linkding:1.45.0",
+          "resources": {
+            "limits": {
+              "cpu": "250m",
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "128Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "linkding",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-11T15:38:22Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "n8n-6b4ffb5c5f-qgx8w",
+      "namespace": "apps-n8n",
+      "labels": {
+        "app": "n8n",
+        "home-platform/analytics-collect": "true"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:40:09Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:20Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:40:09Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:40:09Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T15:38:20Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "n8n",
+          "image": "ghcr.io/syroqt/home-platform/n8n:latest",
+          "resources": {
+            "limits": {
+              "cpu": "500m",
+              "memory": "768Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "n8n",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-11T15:40:08Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "whoami-9d54d85c7-rvwdm",
+      "namespace": "apps-test",
+      "labels": {
+        "app": "whoami"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T10:47:19Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T10:47:13Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T10:47:19Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T10:47:19Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T10:47:13Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "whoami",
+          "image": "traefik/whoami:v1.11.0",
+          "resources": {
+            "limits": {
+              "cpu": "100m",
+              "memory": "64Mi"
+            },
+            "requests": {
+              "cpu": "25m",
+              "memory": "32Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "whoami",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-29T10:47:18Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "cert-manager-cert-manager-57c5c8c8f8-5q9dx",
+      "namespace": "cert-manager",
+      "labels": {
+        "app": "cert-manager",
+        "app.kubernetes.io/component": "controller",
+        "app.kubernetes.io/instance": "cert-manager-cert-manager",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "cert-manager",
+        "app.kubernetes.io/version": "v1.18.6",
+        "helm.sh/chart": "cert-manager-v1.18.6"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:26Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-21T14:13:53Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:26Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:26Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-21T14:13:53Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "cert-manager-controller",
+          "image": "quay.io/jetstack/cert-manager-controller:v1.18.6",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "cert-manager-controller",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-28T12:04:23Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "cert-manager-cert-manager-cainjector-bfbdc75db-jzhbg",
+      "namespace": "cert-manager",
+      "labels": {
+        "app": "cainjector",
+        "app.kubernetes.io/component": "cainjector",
+        "app.kubernetes.io/instance": "cert-manager-cert-manager",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "cainjector",
+        "app.kubernetes.io/version": "v1.18.6",
+        "helm.sh/chart": "cert-manager-v1.18.6"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:26Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-21T14:13:53Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:26Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:26Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-21T14:13:53Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "cert-manager-cainjector",
+          "image": "quay.io/jetstack/cert-manager-cainjector:v1.18.6",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "cert-manager-cainjector",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-28T12:04:24Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "cert-manager-cert-manager-webhook-54595756d7-hp8fz",
+      "namespace": "cert-manager",
+      "labels": {
+        "app": "webhook",
+        "app.kubernetes.io/component": "webhook",
+        "app.kubernetes.io/instance": "cert-manager-cert-manager",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "webhook",
+        "app.kubernetes.io/version": "v1.18.6",
+        "helm.sh/chart": "cert-manager-v1.18.6"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:26Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-21T14:13:53Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:07Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:07Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-21T14:13:53Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "cert-manager-webhook",
+          "image": "quay.io/jetstack/cert-manager-webhook:v1.18.6",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "cert-manager-webhook",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-28T12:04:21Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "cnpg-system-cloudnative-pg-848cd6684-qms24",
+      "namespace": "cnpg-system",
+      "labels": {
+        "app.kubernetes.io/instance": "cnpg-system-cloudnative-pg",
+        "app.kubernetes.io/name": "cloudnative-pg"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:29Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-21T16:47:09Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:12Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:12Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-21T16:47:09Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "manager",
+          "image": "ghcr.io/cloudnative-pg/cloudnative-pg:1.28.1",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "manager",
+          "ready": true,
+          "restart_count": 6,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-03T08:25:06Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "cnpg-system-plugin-barman-cloud-69bccb4785-9lp4b",
+      "namespace": "cnpg-system",
+      "labels": {
+        "app.kubernetes.io/instance": "cnpg-system-plugin-barman-cloud",
+        "app.kubernetes.io/name": "plugin-barman-cloud"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T09:48:11Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T09:48:09Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:19Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:19Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T09:48:09Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "barman-cloud",
+          "image": "ghcr.io/cloudnative-pg/plugin-barman-cloud:v0.11.0",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "barman-cloud",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-03T08:25:06Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "helm-controller-544cb5dbcf-4lhfq",
+      "namespace": "flux-system",
+      "labels": {
+        "app": "helm-controller",
+        "app.kubernetes.io/component": "helm-controller",
+        "app.kubernetes.io/instance": "flux-system",
+        "app.kubernetes.io/part-of": "flux",
+        "app.kubernetes.io/version": "v2.8.5"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:10Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:08Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:21Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:21Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:07Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "manager",
+          "image": "ghcr.io/fluxcd/helm-controller:v1.5.3",
+          "resources": {
+            "limits": {
+              "cpu": "1",
+              "memory": "1Gi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "64Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "manager",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-11T06:19:09Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "kustomize-controller-6895d76965-cw2nb",
+      "namespace": "flux-system",
+      "labels": {
+        "app": "kustomize-controller",
+        "app.kubernetes.io/component": "kustomize-controller",
+        "app.kubernetes.io/instance": "flux-system",
+        "app.kubernetes.io/part-of": "flux",
+        "app.kubernetes.io/version": "v2.8.5"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:17Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:08Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:19Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:19Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:07Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "manager",
+          "image": "ghcr.io/fluxcd/kustomize-controller:v1.8.3",
+          "resources": {
+            "limits": {
+              "cpu": "1",
+              "memory": "1Gi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "64Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "manager",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-11T06:19:16Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "notification-controller-f7bb75965-4hprw",
+      "namespace": "flux-system",
+      "labels": {
+        "app": "notification-controller",
+        "app.kubernetes.io/component": "notification-controller",
+        "app.kubernetes.io/instance": "flux-system",
+        "app.kubernetes.io/part-of": "flux",
+        "app.kubernetes.io/version": "v2.8.5"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:16Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:08Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:18Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:18Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:07Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "manager",
+          "image": "ghcr.io/fluxcd/notification-controller:v1.8.3",
+          "resources": {
+            "limits": {
+              "cpu": "1",
+              "memory": "1Gi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "64Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "manager",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-11T06:19:15Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "source-controller-6dfdb64568-9fb8n",
+      "namespace": "flux-system",
+      "labels": {
+        "app": "source-controller",
+        "app.kubernetes.io/component": "source-controller",
+        "app.kubernetes.io/instance": "flux-system",
+        "app.kubernetes.io/part-of": "flux",
+        "app.kubernetes.io/version": "v2.8.5"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:19Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:09Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:20Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:20Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-11T06:19:09Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "manager",
+          "image": "ghcr.io/fluxcd/source-controller:v1.8.2",
+          "resources": {
+            "limits": {
+              "cpu": "1",
+              "memory": "1Gi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "manager",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-04-11T06:19:18Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "postgres-cluster-1",
+      "namespace": "infra-postgres",
+      "labels": {
+        "app.kubernetes.io/component": "database",
+        "app.kubernetes.io/instance": "postgres-cluster",
+        "app.kubernetes.io/managed-by": "cloudnative-pg",
+        "app.kubernetes.io/name": "postgresql",
+        "app.kubernetes.io/version": "16",
+        "cnpg.io/cluster": "postgres-cluster",
+        "cnpg.io/instanceName": "postgres-cluster-1",
+        "cnpg.io/instanceRole": "primary",
+        "cnpg.io/podRole": "instance",
+        "home-platform/analytics-collect": "true",
+        "role": "primary"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T10:00:18Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T10:00:58Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:16Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:16Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-29T10:00:17Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "postgres",
+          "image": "ghcr.io/cloudnative-pg/postgresql:16",
+          "resources": {
+            "limits": {
+              "cpu": "500m",
+              "memory": "768Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "postgres",
+          "ready": true,
+          "restart_count": 0,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-29T10:00:58Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "coredns-695cbbfcb9-95b6p",
+      "namespace": "kube-system",
+      "labels": {
+        "k8s-app": "kube-dns"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:25Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:06Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:06Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "coredns",
+          "image": "rancher/mirrored-coredns-coredns:1.14.1",
+          "resources": {
+            "limits": {
+              "memory": "170Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "70Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "coredns",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-28T12:04:21Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "helm-install-traefik-crd-6m8dh",
+      "namespace": "kube-system",
+      "labels": {
+        "helmcharts.helm.cattle.io/chart": "traefik-crd",
+        "job-name": "helm-install-traefik-crd"
+      },
+      "phase": "Succeeded",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:41Z",
+          "observedGeneration": 1,
+          "status": "False",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:40Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:40Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "helm",
+          "image": "rancher/klipper-helm:v0.9.14-build20260210",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "helm",
+          "ready": false,
+          "restart_count": 0,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://1eae5e3105e09df3070a8f7c80fcf23137d30921b7e3c23adb2e1cd595b71eff",
+              "exitCode": 0,
+              "finishedAt": "2026-03-20T18:37:39Z",
+              "message": "Installing helm chart\n",
+              "reason": "Completed",
+              "startedAt": "2026-03-20T18:37:35Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "helm-install-traefik-s67gg",
+      "namespace": "kube-system",
+      "labels": {
+        "helmcharts.helm.cattle.io/chart": "traefik",
+        "job-name": "helm-install-traefik"
+      },
+      "phase": "Succeeded",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:58Z",
+          "observedGeneration": 1,
+          "status": "False",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:57Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:57Z",
+          "observedGeneration": 1,
+          "reason": "PodCompleted",
+          "status": "False",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "helm",
+          "image": "rancher/klipper-helm:v0.9.14-build20260210",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "helm",
+          "ready": false,
+          "restart_count": 2,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://14d09cee011f3f85c4fc85b3e15c0ef685253435567f633e3379ec495514e960",
+              "exitCode": 0,
+              "finishedAt": "2026-03-20T18:37:57Z",
+              "message": "Installing helm chart\n",
+              "reason": "Completed",
+              "startedAt": "2026-03-20T18:37:55Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "local-path-provisioner-546dfc6456-twbt2",
+      "namespace": "kube-system",
+      "labels": {
+        "app": "local-path-provisioner"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:29Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:29Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:29Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "local-path-provisioner",
+          "image": "rancher/local-path-provisioner:v0.0.34",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "local-path-provisioner",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-28T12:04:28Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "metrics-server-c8774f4f4-2bxr9",
+      "namespace": "kube-system",
+      "labels": {
+        "k8s-app": "metrics-server"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:29Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:06Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:06Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:22Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "metrics-server",
+          "image": "rancher/mirrored-metrics-server:v0.8.1",
+          "resources": {
+            "requests": {
+              "cpu": "100m",
+              "memory": "70Mi"
+            }
+          }
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "metrics-server",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-28T12:04:26Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "svclb-traefik-59937c0e-ch8g2",
+      "namespace": "kube-system",
+      "labels": {
+        "app": "svclb-traefik-59937c0e",
+        "controller-revision-hash": "5f4b58f4cd",
+        "pod-template-generation": "1",
+        "svccontroller.k3s.cattle.io/svcname": "traefik",
+        "svccontroller.k3s.cattle.io/svcnamespace": "kube-system"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:27Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:57Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:27Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:27Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:57Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "lb-tcp-80",
+          "image": "rancher/klipper-lb:v0.4.14",
+          "resources": {}
+        },
+        {
+          "name": "lb-tcp-443",
+          "image": "rancher/klipper-lb:v0.4.14",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "lb-tcp-443",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-28T12:04:25Z"
+            }
+          }
+        },
+        {
+          "name": "lb-tcp-80",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-28T12:04:24Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "traefik-788bc4688c-x78mj",
+      "namespace": "kube-system",
+      "labels": {
+        "app.kubernetes.io/instance": "traefik-kube-system",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "traefik",
+        "helm.sh/chart": "traefik-39.0.201_up39.0.2"
+      },
+      "phase": "Running",
+      "conditions": [
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-28T12:04:27Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodReadyToStartContainers"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:57Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Initialized"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:07Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "Ready"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-04-03T08:25:07Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "ContainersReady"
+        },
+        {
+          "lastProbeTime": null,
+          "lastTransitionTime": "2026-03-20T18:37:57Z",
+          "observedGeneration": 1,
+          "status": "True",
+          "type": "PodScheduled"
+        }
+      ],
+      "containers": [
+        {
+          "name": "traefik",
+          "image": "rancher/mirrored-library-traefik:3.6.9",
+          "resources": {}
+        }
+      ],
+      "container_statuses": [
+        {
+          "name": "traefik",
+          "ready": true,
+          "restart_count": 1,
+          "state": {
+            "running": {
+              "startedAt": "2026-03-28T12:04:23Z"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "apps-actual/actual": [
+    {
+      "name": "actual-6dd8f9d9c8-kjjq4",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 0
+    }
+  ],
+  "apps-linkding/linkding": [
+    {
+      "name": "linkding-75c5475fc8-d9xvb",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 0
+    }
+  ],
+  "apps-n8n/n8n": [
+    {
+      "name": "n8n-6b4ffb5c5f-qgx8w",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 0
+    }
+  ],
+  "infra-postgres/postgres-cluster-1": [
+    {
+      "name": "postgres-cluster-1",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 0
+    }
+  ]
+}

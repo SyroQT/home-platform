@@ -1,0 +1,89 @@
+{
+  "kind": "IngressList",
+  "items": [
+    {
+      "name": "actual",
+      "namespace": "apps-actual",
+      "ingress_class": "traefik",
+      "rules": [
+        {
+          "host": "budget.titas.dev"
+        }
+      ],
+      "tls": [
+        {
+          "hosts": [
+            "budget.titas.dev"
+          ],
+          "secret_name": "actual-tls"
+        }
+      ],
+      "load_balancer_ips": [
+        "1.2.3.4"
+      ]
+    },
+    {
+      "name": "linkding",
+      "namespace": "apps-linkding",
+      "ingress_class": "traefik",
+      "rules": [
+        {
+          "host": "links.titas.dev"
+        }
+      ],
+      "tls": [
+        {
+          "hosts": [
+            "links.titas.dev"
+          ],
+          "secret_name": "linkding-tls"
+        }
+      ],
+      "load_balancer_ips": [
+        "1.2.3.4"
+      ]
+    },
+    {
+      "name": "n8n",
+      "namespace": "apps-n8n",
+      "ingress_class": "traefik",
+      "rules": [
+        {
+          "host": "n8n.titas.dev"
+        }
+      ],
+      "tls": [
+        {
+          "hosts": [
+            "n8n.titas.dev"
+          ],
+          "secret_name": "n8n-tls"
+        }
+      ],
+      "load_balancer_ips": [
+        "1.2.3.4"
+      ]
+    },
+    {
+      "name": "whoami",
+      "namespace": "apps-test",
+      "ingress_class": "traefik",
+      "rules": [
+        {
+          "host": "whoami.titas.dev"
+        }
+      ],
+      "tls": [
+        {
+          "hosts": [
+            "whoami.titas.dev"
+          ],
+          "secret_name": "whoami-tls"
+        }
+      ],
+      "load_balancer_ips": [
+        "1.2.3.4"
+      ]
+    }
+  ]
+}

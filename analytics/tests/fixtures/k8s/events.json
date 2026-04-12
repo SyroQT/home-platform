@@ -1,0 +1,1790 @@
+{
+  "kind": "EventList",
+  "items": [
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599595-v4xg7.18a5887d607caa12",
+      "reason": "Scheduled",
+      "type": "Normal",
+      "message": "Successfully assigned analytics/analytics-collector-29599595-v4xg7 to k3s-prod",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599595-v4xg7",
+        "namespace": "analytics"
+      },
+      "first_timestamp": null,
+      "last_timestamp": null,
+      "event_time": "2026-04-12T06:35:00.138592Z",
+      "count": null,
+      "reporting_component": "default-scheduler"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599580-8hr8n.18a587abd5bf6e49",
+      "reason": "Scheduled",
+      "type": "Normal",
+      "message": "Successfully assigned analytics/analytics-collector-29599580-8hr8n to k3s-prod",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599580-8hr8n",
+        "namespace": "analytics"
+      },
+      "first_timestamp": null,
+      "last_timestamp": null,
+      "event_time": "2026-04-12T06:20:00.162770Z",
+      "count": null,
+      "reporting_component": "default-scheduler"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599565-5kq9s.18a586da4dd3b658",
+      "reason": "Scheduled",
+      "type": "Normal",
+      "message": "Successfully assigned analytics/analytics-collector-29599565-5kq9s to k3s-prod",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599565-5kq9s",
+        "namespace": "analytics"
+      },
+      "first_timestamp": null,
+      "last_timestamp": null,
+      "event_time": "2026-04-12T06:05:00.234232Z",
+      "count": null,
+      "reporting_component": "default-scheduler"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599610-4nz6j.18a5894eedd50ffe",
+      "reason": "Scheduled",
+      "type": "Normal",
+      "message": "Successfully assigned analytics/analytics-collector-29599610-4nz6j to k3s-prod",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599610-4nz6j",
+        "namespace": "analytics"
+      },
+      "first_timestamp": null,
+      "last_timestamp": null,
+      "event_time": "2026-04-12T06:50:00.158139Z",
+      "count": null,
+      "reporting_component": "default-scheduler"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599625-dn5gd.18a58a2079ac8963",
+      "reason": "Scheduled",
+      "type": "Normal",
+      "message": "Successfully assigned analytics/analytics-collector-29599625-dn5gd to k3s-prod",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599625-dn5gd",
+        "namespace": "analytics"
+      },
+      "first_timestamp": null,
+      "last_timestamp": null,
+      "event_time": "2026-04-12T07:05:00.152450Z",
+      "count": null,
+      "reporting_component": "default-scheduler"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a586da46a1ea20",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created job analytics-collector-29599565",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:05:00Z",
+      "last_timestamp": "2026-04-12T06:05:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599565.18a586da4b375974",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created pod: analytics-collector-29599565-5kq9s",
+      "involved_object": {
+        "kind": "Job",
+        "name": "analytics-collector-29599565",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:05:00Z",
+      "last_timestamp": "2026-04-12T06:05:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "job-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599565-5kq9s.18a586da97ad932f",
+      "reason": "Started",
+      "type": "Normal",
+      "message": "Started container collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599565-5kq9s",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:05:01Z",
+      "last_timestamp": "2026-04-12T06:05:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599565-5kq9s.18a586da8f7708ab",
+      "reason": "Created",
+      "type": "Normal",
+      "message": "Created container: collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599565-5kq9s",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:05:01Z",
+      "last_timestamp": "2026-04-12T06:05:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599565-5kq9s.18a586da6ab5a531",
+      "reason": "FailedToRetrieveImagePullSecret",
+      "type": "Warning",
+      "message": "Unable to retrieve some image pull secrets (ghcr-pull-secret); attempting to pull the image may not succeed.",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599565-5kq9s",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:05:00Z",
+      "last_timestamp": "2026-04-12T06:05:01Z",
+      "event_time": null,
+      "count": 2,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599565-5kq9s.18a586da8cc37dad",
+      "reason": "Pulled",
+      "type": "Normal",
+      "message": "Container image \"ghcr.io/syroqt/home-platform/analytics-collector:sha-a7dbc93\" already present on machine",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599565-5kq9s",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:05:01Z",
+      "last_timestamp": "2026-04-12T06:05:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599565.18a586df1ae7ab53",
+      "reason": "Completed",
+      "type": "Normal",
+      "message": "Job completed",
+      "involved_object": {
+        "kind": "Job",
+        "name": "analytics-collector-29599565",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:05:20Z",
+      "last_timestamp": "2026-04-12T06:05:20Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "job-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a586df1ba6b4e5",
+      "reason": "SuccessfulDelete",
+      "type": "Normal",
+      "message": "Deleted job analytics-collector-29599520",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:05:20Z",
+      "last_timestamp": "2026-04-12T06:05:20Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a586df1ba7030c",
+      "reason": "SawCompletedJob",
+      "type": "Normal",
+      "message": "Saw completed job: analytics-collector-29599565, condition: Complete",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:05:20Z",
+      "last_timestamp": "2026-04-12T06:05:20Z",
+      "event_time": null,
+      "count": 2,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a586eb573ffa84",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 266.059398ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:06:13Z",
+      "last_timestamp": "2026-04-12T06:06:13Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a586f65c51d3f4",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 224.654933ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:07:00Z",
+      "last_timestamp": "2026-04-12T06:07:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a58701525456fb",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 1.166162341s, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:07:47Z",
+      "last_timestamp": "2026-04-12T06:07:47Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a58708fc5c14ec",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 478.965561ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:08:20Z",
+      "last_timestamp": "2026-04-12T06:08:20Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "apps.18a587291702cbfb",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 662.53227ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "apps",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:10:38Z",
+      "last_timestamp": "2026-04-12T06:10:38Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a587785281e9e6",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 310.108792ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:16:18Z",
+      "last_timestamp": "2026-04-12T06:16:18Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a587827730d540",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 252.728361ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:17:02Z",
+      "last_timestamp": "2026-04-12T06:17:02Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a58787e8a2b3e8",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 996.734186ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:17:25Z",
+      "last_timestamp": "2026-04-12T06:17:25Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "jetstack.18a53c489140c8f3",
+      "reason": "ArtifactUpToDate",
+      "type": "Normal",
+      "message": "artifact up-to-date with remote revision: 'sha256:d29d0d185fa6428fb7155ef917ca390e61050d960323fa93f137dbf902f284ba'",
+      "involved_object": {
+        "kind": "HelmRepository",
+        "name": "jetstack",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T07:18:30Z",
+      "last_timestamp": "2026-04-12T06:17:46Z",
+      "event_time": null,
+      "count": 24,
+      "reporting_component": "source-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a5879a4926ade5",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 408.530944ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:18:44Z",
+      "last_timestamp": "2026-04-12T06:18:44Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599580.18a587abd4570fc4",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created pod: analytics-collector-29599580-8hr8n",
+      "involved_object": {
+        "kind": "Job",
+        "name": "analytics-collector-29599580",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:20:00Z",
+      "last_timestamp": "2026-04-12T06:20:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "job-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a587abd2b121f3",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created job analytics-collector-29599580",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:20:00Z",
+      "last_timestamp": "2026-04-12T06:20:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599580-8hr8n.18a587ac1bb2c6c8",
+      "reason": "Started",
+      "type": "Normal",
+      "message": "Started container collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599580-8hr8n",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:20:01Z",
+      "last_timestamp": "2026-04-12T06:20:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599580-8hr8n.18a587ac114fba05",
+      "reason": "Created",
+      "type": "Normal",
+      "message": "Created container: collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599580-8hr8n",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:20:01Z",
+      "last_timestamp": "2026-04-12T06:20:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599580-8hr8n.18a587ac0fcb6491",
+      "reason": "Pulled",
+      "type": "Normal",
+      "message": "Container image \"ghcr.io/syroqt/home-platform/analytics-collector:sha-a7dbc93\" already present on machine",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599580-8hr8n",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:20:01Z",
+      "last_timestamp": "2026-04-12T06:20:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599580-8hr8n.18a587abebe18693",
+      "reason": "FailedToRetrieveImagePullSecret",
+      "type": "Warning",
+      "message": "Unable to retrieve some image pull secrets (ghcr-pull-secret); attempting to pull the image may not succeed.",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599580-8hr8n",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:20:00Z",
+      "last_timestamp": "2026-04-12T06:20:03Z",
+      "event_time": null,
+      "count": 3,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a587b184826354",
+      "reason": "SawCompletedJob",
+      "type": "Normal",
+      "message": "Saw completed job: analytics-collector-29599580, condition: Complete",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:20:24Z",
+      "last_timestamp": "2026-04-12T06:20:24Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a587b18481879a",
+      "reason": "SuccessfulDelete",
+      "type": "Normal",
+      "message": "Deleted job analytics-collector-29599535",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:20:24Z",
+      "last_timestamp": "2026-04-12T06:20:24Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599580.18a587b1840aca4e",
+      "reason": "Completed",
+      "type": "Normal",
+      "message": "Job completed",
+      "involved_object": {
+        "kind": "Job",
+        "name": "analytics-collector-29599580",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:20:24Z",
+      "last_timestamp": "2026-04-12T06:20:24Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "job-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "apps.18a587ba7075abe9",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 711.978804ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "apps",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:21:02Z",
+      "last_timestamp": "2026-04-12T06:21:02Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cnpg.18a53c7dc347ebd6",
+      "reason": "ArtifactUpToDate",
+      "type": "Normal",
+      "message": "artifact up-to-date with remote revision: 'sha256:b9e49145314f3c87dd258c8cdf3bbf0c127ddee68406bb2a364d8b0ff845309d'",
+      "involved_object": {
+        "kind": "HelmRepository",
+        "name": "cnpg",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T07:22:18Z",
+      "last_timestamp": "2026-04-12T06:22:41Z",
+      "event_time": null,
+      "count": 24,
+      "reporting_component": "source-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a588071b0db415",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 239.577809ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:26:32Z",
+      "last_timestamp": "2026-04-12T06:26:32Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a5880dda951dce",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 1.033878694s, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:27:01Z",
+      "last_timestamp": "2026-04-12T06:27:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a58814cbe5e6f4",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 243.073442ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:27:30Z",
+      "last_timestamp": "2026-04-12T06:27:30Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a58822f9f5e60d",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 458.839447ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:28:31Z",
+      "last_timestamp": "2026-04-12T06:28:31Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "apps.18a5883f8f7fe609",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 633.080848ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "apps",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:30:34Z",
+      "last_timestamp": "2026-04-12T06:30:34Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599595.18a5887d5fe7a2b5",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created pod: analytics-collector-29599595-v4xg7",
+      "involved_object": {
+        "kind": "Job",
+        "name": "analytics-collector-29599595",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:35:00Z",
+      "last_timestamp": "2026-04-12T06:35:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "job-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a5887d5f0e657c",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created job analytics-collector-29599595",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:35:00Z",
+      "last_timestamp": "2026-04-12T06:35:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599595-v4xg7.18a5887d98a226ca",
+      "reason": "Pulled",
+      "type": "Normal",
+      "message": "Container image \"ghcr.io/syroqt/home-platform/analytics-collector:sha-a7dbc93\" already present on machine",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599595-v4xg7",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:35:01Z",
+      "last_timestamp": "2026-04-12T06:35:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599595-v4xg7.18a5887d9c0df3fb",
+      "reason": "Created",
+      "type": "Normal",
+      "message": "Created container: collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599595-v4xg7",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:35:01Z",
+      "last_timestamp": "2026-04-12T06:35:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599595-v4xg7.18a5887da5d1fba5",
+      "reason": "Started",
+      "type": "Normal",
+      "message": "Started container collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599595-v4xg7",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:35:01Z",
+      "last_timestamp": "2026-04-12T06:35:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599595-v4xg7.18a5887d742aea81",
+      "reason": "FailedToRetrieveImagePullSecret",
+      "type": "Warning",
+      "message": "Unable to retrieve some image pull secrets (ghcr-pull-secret); attempting to pull the image may not succeed.",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599595-v4xg7",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:35:00Z",
+      "last_timestamp": "2026-04-12T06:35:02Z",
+      "event_time": null,
+      "count": 2,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a58885d551dc70",
+      "reason": "SawCompletedJob",
+      "type": "Normal",
+      "message": "Saw completed job: analytics-collector-29599595, condition: Complete",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:35:36Z",
+      "last_timestamp": "2026-04-12T06:35:36Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599595.18a58885d4a2005b",
+      "reason": "Completed",
+      "type": "Normal",
+      "message": "Job completed",
+      "involved_object": {
+        "kind": "Job",
+        "name": "analytics-collector-29599595",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:35:36Z",
+      "last_timestamp": "2026-04-12T06:35:36Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "job-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a58885d5517bf6",
+      "reason": "SuccessfulDelete",
+      "type": "Normal",
+      "message": "Deleted job analytics-collector-29599550",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:35:36Z",
+      "last_timestamp": "2026-04-12T06:35:36Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a560352433f2e7",
+      "reason": "GitOperationSucceeded",
+      "type": "Normal",
+      "message": "no changes since last reconcilation: observed revision 'main@sha1:42d0a67001d502ad841694a1d5c67893b8bfd185'",
+      "involved_object": {
+        "kind": "GitRepository",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T18:16:49Z",
+      "last_timestamp": "2026-04-12T06:35:57Z",
+      "event_time": null,
+      "count": 729,
+      "reporting_component": "source-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a588942bddaef5",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 1.26882219s, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:36:38Z",
+      "last_timestamp": "2026-04-12T06:36:38Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a588963e18b3da",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 255.841203ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:36:46Z",
+      "last_timestamp": "2026-04-12T06:36:46Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a588a10e4a3406",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 284.751365ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:37:33Z",
+      "last_timestamp": "2026-04-12T06:37:33Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a588a8cfcd7470",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 1.261018211s, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:38:06Z",
+      "last_timestamp": "2026-04-12T06:38:06Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a588a8b09a14e7",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 741.25902ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:38:06Z",
+      "last_timestamp": "2026-04-12T06:38:06Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a588af974a36c7",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 230.048824ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:38:35Z",
+      "last_timestamp": "2026-04-12T06:38:35Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a588af9342349c",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 253.434869ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:38:35Z",
+      "last_timestamp": "2026-04-12T06:38:35Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "apps.18a588b6b7b01bf4",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 850.28568ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "apps",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:39:06Z",
+      "last_timestamp": "2026-04-12T06:39:06Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a588c5f89b7599",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 1.167249981s, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:40:11Z",
+      "last_timestamp": "2026-04-12T06:40:11Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a588c5de6882de",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 728.724129ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:40:11Z",
+      "last_timestamp": "2026-04-12T06:40:11Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a588ccc76914cc",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 329.950569ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:40:41Z",
+      "last_timestamp": "2026-04-12T06:40:41Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a588ccc5849cb4",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 309.806686ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:40:41Z",
+      "last_timestamp": "2026-04-12T06:40:41Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a53938edb1daba",
+      "reason": "GarbageCollectionSucceeded",
+      "type": "Normal",
+      "message": "garbage collected 1 artifacts",
+      "involved_object": {
+        "kind": "GitRepository",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T06:22:24Z",
+      "last_timestamp": "2026-04-12T06:41:08Z",
+      "event_time": null,
+      "count": 8,
+      "reporting_component": "source-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "apps.18a588d3df1a83a4",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 654.008961ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "apps",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:41:11Z",
+      "last_timestamp": "2026-04-12T06:41:11Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a5390f82fa9e4e",
+      "reason": "DependencyNotReady",
+      "type": "Normal",
+      "message": "Dependencies do not meet ready condition, retrying in 30s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T06:19:26Z",
+      "last_timestamp": "2026-04-12T06:41:53Z",
+      "event_time": null,
+      "count": 10,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a5392b7b9e04b0",
+      "reason": "DependencyNotReady",
+      "type": "Normal",
+      "message": "Dependencies do not meet ready condition, retrying in 30s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T06:21:26Z",
+      "last_timestamp": "2026-04-12T06:41:53Z",
+      "event_time": null,
+      "count": 9,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a588ddf2a3a7b9",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 1.154148771s, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:41:54Z",
+      "last_timestamp": "2026-04-12T06:41:54Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a588ddecb594fd",
+      "reason": "Progressing",
+      "type": "Normal",
+      "message": "Health check passed in 399.679564ms",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:41:54Z",
+      "last_timestamp": "2026-04-12T06:41:54Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a588ddd4cf6811",
+      "reason": "Progressing",
+      "type": "Normal",
+      "message": "CronJob/analytics/analytics-collector configured",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:41:54Z",
+      "last_timestamp": "2026-04-12T06:41:54Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a588de2cd76451",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 410.673926ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:41:55Z",
+      "last_timestamp": "2026-04-12T06:41:55Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a588de01b6cf53",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 1.405498353s, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:41:55Z",
+      "last_timestamp": "2026-04-12T06:41:55Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "apps.18a5390f7c7a679d",
+      "reason": "DependencyNotReady",
+      "type": "Normal",
+      "message": "Dependencies do not meet ready condition, retrying in 30s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "apps",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T06:19:26Z",
+      "last_timestamp": "2026-04-12T06:42:23Z",
+      "event_time": null,
+      "count": 20,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a588e4cbb6d28e",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 497.837147ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:42:24Z",
+      "last_timestamp": "2026-04-12T06:42:24Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a588e4c1a5181f",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 326.546849ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:42:24Z",
+      "last_timestamp": "2026-04-12T06:42:24Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "apps.18a588ebe373509a",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 806.674688ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "apps",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:42:54Z",
+      "last_timestamp": "2026-04-12T06:42:54Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system-plugin-barman-cloud.18a53ac0e5028d23",
+      "reason": "ArtifactUpToDate",
+      "type": "Normal",
+      "message": "artifact up-to-date with remote revision: '0.5.0'",
+      "involved_object": {
+        "kind": "HelmChart",
+        "name": "flux-system-plugin-barman-cloud",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T06:50:28Z",
+      "last_timestamp": "2026-04-12T06:44:24Z",
+      "event_time": null,
+      "count": 49,
+      "reporting_component": "source-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a5894eebcbbb64",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created job analytics-collector-29599610",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:00Z",
+      "last_timestamp": "2026-04-12T06:50:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599610.18a5894eed1d9abf",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created pod: analytics-collector-29599610-4nz6j",
+      "involved_object": {
+        "kind": "Job",
+        "name": "analytics-collector-29599610",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:00Z",
+      "last_timestamp": "2026-04-12T06:50:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "job-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599610-4nz6j.18a5894f24627528",
+      "reason": "Pulling",
+      "type": "Normal",
+      "message": "Pulling image \"ghcr.io/syroqt/home-platform/analytics-collector:sha-983faec\"",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599610-4nz6j",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:01Z",
+      "last_timestamp": "2026-04-12T06:50:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599610-4nz6j.18a58950a83a148a",
+      "reason": "Started",
+      "type": "Normal",
+      "message": "Started container collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599610-4nz6j",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:07Z",
+      "last_timestamp": "2026-04-12T06:50:07Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599610-4nz6j.18a589509de92f40",
+      "reason": "Created",
+      "type": "Normal",
+      "message": "Created container: collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599610-4nz6j",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:07Z",
+      "last_timestamp": "2026-04-12T06:50:07Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599610-4nz6j.18a589509b973de7",
+      "reason": "Pulled",
+      "type": "Normal",
+      "message": "Successfully pulled image \"ghcr.io/syroqt/home-platform/analytics-collector:sha-983faec\" in 6.293s (6.294s including waiting). Image size: 88774451 bytes.",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599610-4nz6j",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:07Z",
+      "last_timestamp": "2026-04-12T06:50:07Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599610-4nz6j.18a5894f01d2c81a",
+      "reason": "FailedToRetrieveImagePullSecret",
+      "type": "Warning",
+      "message": "Unable to retrieve some image pull secrets (ghcr-pull-secret); attempting to pull the image may not succeed.",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599610-4nz6j",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:00Z",
+      "last_timestamp": "2026-04-12T06:50:08Z",
+      "event_time": null,
+      "count": 3,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a58955a62bfbd5",
+      "reason": "SuccessfulDelete",
+      "type": "Normal",
+      "message": "Deleted job analytics-collector-29599565",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:29Z",
+      "last_timestamp": "2026-04-12T06:50:29Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599610.18a58955a557542e",
+      "reason": "Completed",
+      "type": "Normal",
+      "message": "Job completed",
+      "involved_object": {
+        "kind": "Job",
+        "name": "analytics-collector-29599610",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:29Z",
+      "last_timestamp": "2026-04-12T06:50:29Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "job-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a58955a62c7e10",
+      "reason": "SawCompletedJob",
+      "type": "Normal",
+      "message": "Saw completed job: analytics-collector-29599610, condition: Complete",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T06:50:29Z",
+      "last_timestamp": "2026-04-12T06:50:29Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system-cert-manager.18a53aae7a8d1d35",
+      "reason": "ArtifactUpToDate",
+      "type": "Normal",
+      "message": "artifact up-to-date with remote revision: 'v1.18.6'",
+      "involved_object": {
+        "kind": "HelmChart",
+        "name": "flux-system-cert-manager",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T06:49:09Z",
+      "last_timestamp": "2026-04-12T06:50:39Z",
+      "event_time": null,
+      "count": 49,
+      "reporting_component": "source-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a58965c22a81db",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 510.690459ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:51:38Z",
+      "last_timestamp": "2026-04-12T06:51:38Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a589666755f26e",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 1.163502027s, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:51:40Z",
+      "last_timestamp": "2026-04-12T06:51:40Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a58971917f4424",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 210.917056ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:52:28Z",
+      "last_timestamp": "2026-04-12T06:52:28Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a58974fbd61833",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 219.43218ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:52:43Z",
+      "last_timestamp": "2026-04-12T06:52:43Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "apps.18a5897df4a7bc03",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 652.651997ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "apps",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:53:22Z",
+      "last_timestamp": "2026-04-12T06:53:22Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system-cloudnative-pg.18a53aafab265184",
+      "reason": "ArtifactUpToDate",
+      "type": "Normal",
+      "message": "artifact up-to-date with remote revision: '0.27.1'",
+      "involved_object": {
+        "kind": "HelmChart",
+        "name": "flux-system-cloudnative-pg",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-11T06:49:14Z",
+      "last_timestamp": "2026-04-12T06:56:55Z",
+      "event_time": null,
+      "count": 49,
+      "reporting_component": "source-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a588ec7c23ba8a",
+      "reason": "GitOperationSucceeded",
+      "type": "Normal",
+      "message": "no changes since last reconcilation: observed revision 'main@sha1:8c2c79b63ed7497421c810c1ef0e469d37723815'",
+      "involved_object": {
+        "kind": "GitRepository",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T06:42:57Z",
+      "last_timestamp": "2026-04-12T07:00:35Z",
+      "event_time": null,
+      "count": 18,
+      "reporting_component": "source-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "flux-system.18a589ebc15a6c98",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 1.131612809s, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "flux-system",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T07:01:13Z",
+      "last_timestamp": "2026-04-12T07:01:13Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "cert-issuers.18a589f6b59354ff",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 276.365364ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "cert-issuers",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T07:02:00Z",
+      "last_timestamp": "2026-04-12T07:02:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "platform.18a589f862bbc76c",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 427.032365ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "platform",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T07:02:07Z",
+      "last_timestamp": "2026-04-12T07:02:07Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "apps.18a58a074499faaa",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 711.469483ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "apps",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T07:03:11Z",
+      "last_timestamp": "2026-04-12T07:03:11Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "flux-system",
+      "name": "secrets.18a58a07a89fc018",
+      "reason": "ReconciliationSucceeded",
+      "type": "Normal",
+      "message": "Reconciliation finished in 233.081341ms, next run in 10m0s",
+      "involved_object": {
+        "kind": "Kustomization",
+        "name": "secrets",
+        "namespace": "flux-system"
+      },
+      "first_timestamp": "2026-04-12T07:03:13Z",
+      "last_timestamp": "2026-04-12T07:03:13Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kustomize-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector.18a58a2077915345",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created job analytics-collector-29599625",
+      "involved_object": {
+        "kind": "CronJob",
+        "name": "analytics-collector",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T07:05:00Z",
+      "last_timestamp": "2026-04-12T07:05:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "cronjob-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599625.18a58a2078ab8e0e",
+      "reason": "SuccessfulCreate",
+      "type": "Normal",
+      "message": "Created pod: analytics-collector-29599625-dn5gd",
+      "involved_object": {
+        "kind": "Job",
+        "name": "analytics-collector-29599625",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T07:05:00Z",
+      "last_timestamp": "2026-04-12T07:05:00Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "job-controller"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599625-dn5gd.18a58a208e7872a8",
+      "reason": "FailedToRetrieveImagePullSecret",
+      "type": "Warning",
+      "message": "Unable to retrieve some image pull secrets (ghcr-pull-secret); attempting to pull the image may not succeed.",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599625-dn5gd",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T07:05:00Z",
+      "last_timestamp": "2026-04-12T07:05:01Z",
+      "event_time": null,
+      "count": 2,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599625-dn5gd.18a58a20b6aaa752",
+      "reason": "Pulled",
+      "type": "Normal",
+      "message": "Container image \"ghcr.io/syroqt/home-platform/analytics-collector:sha-983faec\" already present on machine",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599625-dn5gd",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T07:05:01Z",
+      "last_timestamp": "2026-04-12T07:05:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599625-dn5gd.18a58a20b91e4e53",
+      "reason": "Created",
+      "type": "Normal",
+      "message": "Created container: collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599625-dn5gd",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T07:05:01Z",
+      "last_timestamp": "2026-04-12T07:05:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    },
+    {
+      "namespace": "analytics",
+      "name": "analytics-collector-29599625-dn5gd.18a58a20c003b36c",
+      "reason": "Started",
+      "type": "Normal",
+      "message": "Started container collector",
+      "involved_object": {
+        "kind": "Pod",
+        "name": "analytics-collector-29599625-dn5gd",
+        "namespace": "analytics"
+      },
+      "first_timestamp": "2026-04-12T07:05:01Z",
+      "last_timestamp": "2026-04-12T07:05:01Z",
+      "event_time": null,
+      "count": 1,
+      "reporting_component": "kubelet"
+    }
+  ]
+}
