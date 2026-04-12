@@ -1,6 +1,15 @@
 .env
 .vscode/
 .worktrees/
+.DS_Store
+
+# Python
+*.pyc
+*.pyo
+.python-version
+
+# uv
+.uv/
 
 # Terraform
 .terraform/
@@ -18,3 +27,20 @@ crash.log
 .venv/
 .pytest_cache/
 __pycache__/
+
+
+# dbt runtime artifacts
+target/
+dbt_packages/
+logs/
+.user.yml
+ 
+# DuckDB files (dev and tmp)
+*.duckdb
+*.duckdb.wal
+*.duckdb.tmp
+ 
+# profiles.yml contains S3 credentials — never commit
+# Commit profiles.yml.example instead
+profiles.yml
+ 

@@ -1,0 +1,35 @@
+home_platform:
+  target: dev
+  outputs:
+
+    # ── Local development ────────────────────────────────────────────────────
+    # Reads raw data from local fixture files.
+    # Set ANALYTICS_RAW_BASE_PATH to the absolute path of your fixtures dir,
+    # e.g. /path/to/repo/analytics/tests/fixtures
+    dev:
+      type: duckdb
+      path: /tmp/analytics_dev.duckdb
+      extensions:
+        - httpfs
+        - json
+      settings:
+        # No S3 config needed for dev — reads local files via read_json()
+      threads: 2
+
+    # ── Production (VPS) ─────────────────────────────────────────────────────
+    # Reads raw data from Hetzner Object Storage.
+    # Credentials are sourced from environment variables set by the systemd
+    # unit (populated from /etc/analytics/host-collector.env).
+    prod:
+      type: duckdb
+      path: /srv/data/analytics/analytics.duckdb
+      extensions:
+        - httpfs
+        - json
+      settings:
+        s3_endpoint: "nbg1.your-objectstorage.com"
+        s3_url_style: path               # Hetzner requires path-style URLs
+        s3_access_key_id: "{{ env_var('ANALYTICS_S3_ACCESS_KEY') }}"
+        s3_secret_access_key: "{{ env_var('ANALYTICS_S3_SECRET_KEY') }}"
+        s3_region: "us-east-1"           # Hetzner ignores region but DuckDB requires a value
+      threads: 2
