@@ -1,6 +1,6 @@
 # Project Status
 
-Last reviewed: 2026-04-11
+Last reviewed: 2026-04-12
 
 This document reflects the repository as it exists today. It is a repo-state summary, not a live-cluster health report.
 
@@ -12,10 +12,10 @@ This document reflects the repository as it exists today. It is a repo-state sum
 - Kubernetes state is managed through Flux from `clusters/vps-prod/`.
 - Secrets are stored as SOPS-encrypted manifests under `secrets/prod/`.
 - cert-manager and CloudNativePG are managed through Flux Helm releases.
-- The repo defines three workloads today: `n8n`, `actual`, and `whoami`.
+- The repo defines four workloads today: `n8n`, `actual`, `whoami`, and `linkding`.
 - Repository guardrails now include pre-commit hooks for merge-conflict detection, large-file checks, secret scanning, and SOPS encryption validation.
 - A Renovate configuration is committed at the repo root for Flux, Kubernetes manifest, and Terraform dependency updates.
-- An analytical layer is in active development under `analytics/`. Phases 1, 2, and 3 are complete.
+- An analytical layer is in active development under `analytics/`. Phases 1, 2, and 3 (cluster collector) are complete. The billing collector code is written but not yet committed. Phase 4 (dbt modeling) is next.
 
 ## Canonical Paths
 
@@ -79,7 +79,7 @@ The platform layer currently contains:
 
 Current state by component:
 
-- Namespaces are defined for `apps-actual`, `apps-n8n`, `cnpg-system`, `infra-postgres`, and `analytics`
+- Namespaces are defined for `apps-actual`, `apps-n8n`, `apps-linkding`, `cnpg-system`, `infra-postgres`, and `analytics`
 - cert-manager is installed from the Jetstack chart, version track `v1.18.*`
 - CloudNativePG operator is installed from the CNPG chart, version track `0.27.*`
 - The Barman Cloud CNPG plugin is installed from the CNPG chart repository, version track `0.5.*`
@@ -145,6 +145,7 @@ The repo currently ships these app entries from `apps/kustomization.yaml`:
 - `postgres`
 - `n8n`
 - `actual`
+- `linkding`
 
 ### n8n
 
@@ -172,6 +173,15 @@ The repo currently ships these app entries from `apps/kustomization.yaml`:
 - Image: `traefik/whoami:v1.10.4`
 - Pod template carries label `home-platform/analytics-collect: "true"`
 
+### linkding
+
+- Namespace: `apps-linkding`
+- Ingress host: `links.titas.dev`
+- PVC: `linkding-data`
+- Image: `sissbruecker/linkding:1.45.0`
+- Uses an OpenID secret from `secrets/prod/linkding.sops.yaml`
+- Pod template carries label `home-platform/analytics-collect: "true"`
+
 Important status note:
 
 - `whoami` still creates its namespace from `apps/whoami/base/namespace.yaml`
@@ -184,14 +194,14 @@ The analytical layer is under active development at `analytics/`. It follows a p
 
 ### Phase completion status
 
-| Phase | Description                       | Status                                |
-| ----- | --------------------------------- | ------------------------------------- |
-| 1     | Storage and project scaffolding   | ✅ Done                                |
-| 2     | Host collector                    | ✅ Done                                |
-| 3     | Cluster and billing collectors    | 🔄 In progress — 3.4 and 3.5 remaining |
-| 4     | DuckDB and dbt modeling           | ⬜ Not started                         |
-| 5     | Python dashboard                  | ⬜ Not started                         |
-| 6     | Transform job and pipeline wiring | ⬜ Not started                         |
+| Phase | Description                       | Status                                                             |
+| ----- | --------------------------------- | ------------------------------------------------------------------ |
+| 1     | Storage and project scaffolding   | ✅ Done                                                            |
+| 2     | Host collector                    | ✅ Done                                                            |
+| 3     | Cluster and billing collectors    | ✅ Done — billing collector deferred (code written, not committed) |
+| 4     | DuckDB and dbt modeling           | ⬜ Not started                                                     |
+| 5     | Python dashboard                  | ⬜ Not started                                                     |
+| 6     | Transform job and pipeline wiring | ⬜ Not started                                                     |
 
 ### Architecture
 
@@ -200,7 +210,7 @@ The analytical layer is under active development at `analytics/`. It follows a p
 | Collectors – Host    | Ansible    | systemd timer   | Raw snapshots → Object Storage |
 | Collectors – Cluster | Flux       | CronJob         | Raw snapshots → Object Storage |
 | Collectors – Billing | Ansible    | systemd timer   | Raw snapshots → Object Storage |
-| Modeling             | dbt-duckdb | CronJob (Flux)  | Curated marts in DuckDB        |
+| Modeling             | dbt-duckdb | systemd timer   | Curated marts in DuckDB        |
 | Presentation         | Python app | Flux Deployment | Dashboard HTML + Plotly charts |
 
 ### Host collector (Phase 2 — complete)
@@ -215,7 +225,7 @@ The analytical layer is under active development at `analytics/`. It follows a p
 - Golden-file tests: `analytics/tests/test_host_collector.py`
 - Fixture: `analytics/tests/fixtures/host/sample.json`
 
-### Cluster collector (Phase 3 — partially complete)
+### Cluster collector (Phase 3 — complete)
 
 - Script: `analytics/collectors/k8s/collect.py`
 - Collectors: `cluster`, `workloads`, `ingress`, `certs`, `events`, `app-health`
@@ -231,6 +241,18 @@ The analytical layer is under active development at `analytics/`. It follows a p
 - RBAC: `platform/analytics/clusterrole.yaml`, `clusterrolebinding.yaml`, `serviceaccount.yaml`
 - Namespace: `analytics`
 - S3 secret: `secrets/prod/analytics-s3-k8s.sops.yaml` (namespace: `analytics`)
+- Fixture tests: `analytics/tests/test_k8s_collectors.py` (38 tests, all passing)
+- Fixtures: `analytics/tests/fixtures/k8s/{cluster,workloads,ingress,certs,events,app-health}.json`
+
+### Billing collector (Phase 3.5 — deferred, code not yet committed)
+
+- Code written but intentionally not committed to the repo — to be done after Phase 4
+- Script: `analytics/collectors/billing/collect.py` (pending commit)
+- Ansible role: `bootstrap/ansible/roles/analytics-billing-collector/` (pending commit)
+- Timer: monthly, first of month at 06:00 (`OnCalendar=*-*-01 06:00:00`)
+- Static pricing: CX23 €4.83/month, Object Storage €7.85/month, 50 GB block volume €0.0572/GB/month, IPv4 €0.50/month
+- No billing snapshots exist in S3 yet
+- `mart_billing_daily` in Phase 4 should be stubbed until billing data exists
 
 ### Object Storage conventions
 
@@ -250,11 +272,21 @@ The analytical layer is under active development at `analytics/`. It follows a p
 
 ### Remaining analytical layer tasks
 
-- 3.4 — fixture tests for k8s collector output
-- 3.5 — billing collector (Ansible-managed, monthly timer)
-- Phase 4 — DuckDB and dbt modeling
+- 3.5 — billing collector: commit code and run Ansible playbook against VPS (after Phase 4)
+- Phase 4 — DuckDB and dbt modeling (next)
 - Phase 5 — Python dashboard
 - Phase 6 — transform job, pipeline wiring, retention policy
+
+### Phase 4 pre-work completed
+
+The following decisions and validations were made in preparation for Phase 4:
+
+- dbt will run as a VPS systemd timer (Ansible-managed), not a Flux CronJob
+- DuckDB will read S3 directly via `httpfs` extension — confirmed working against Hetzner Object Storage (nbg1) using path-style URLs (`SET s3_url_style='path'` required)
+- DuckDB file will live at `/srv/data/analytics/analytics.duckdb` (on the 50 GB block volume)
+- Crash safety pattern: write to `analytics.duckdb.tmp`, atomically `mv` on success only
+- Workloads staging: split into `stg_k8s_deployments` and `stg_k8s_pods` at the staging layer
+- Certs staging: keep all certs (including internal Barman certs) in staging; filter to app certs in marts
 
 ### Secrets
 
@@ -281,6 +313,7 @@ Secret files currently committed:
 - `secrets/prod/actual.sops.yaml`
 - `secrets/prod/analytics-s3.sops.yaml`
 - `secrets/prod/analytics-s3-k8s.sops.yaml`
+- `secrets/prod/linkding.sops.yaml`
 
 Relevant repo guardrail files:
 
@@ -309,7 +342,7 @@ Still incomplete or not fully wired:
 
 ## Renovation / Update Automation
 
-Automated dependency update configuration is now committed in `renovate.json`.
+Automated dependency update configuration is now committed in `renovate.json5`.
 
 Current status:
 
@@ -353,7 +386,7 @@ Still in flight:
 - PostgreSQL restore drill and recovery documentation polish
 - cleanup or normalization of the legacy `whoami` test workload layout
 - validation that Renovate is enabled and operating against the repository host
-- analytics Phase 3 completion (fixture tests, billing collector)
+- billing collector commit and Ansible wiring (deferred until after Phase 4)
 - analytics Phases 4–6 (dbt modeling, dashboard, pipeline wiring)
 
 ## Practical Bottom Line
@@ -370,8 +403,9 @@ The repository is past initial bootstrap and now defines a working GitOps-shaped
 - CloudNativePG
 - a PostgreSQL-backed `n8n` app
 - an `actual` deployment
+- a `linkding` bookmarks app
 - a retained `whoami` test app
 - a host analytics collector running every 15 minutes via systemd
 - a cluster analytics collector running every 15 minutes via Flux CronJob
 
-The main unfinished areas are restore validation for PostgreSQL, explicit ingress ownership in Git, documentation drift cleanup, confirming Renovate is active at the repository host level, and completing the analytical layer through Phases 3–6.
+The main unfinished areas are restore validation for PostgreSQL, explicit ingress ownership in Git, documentation drift cleanup, confirming Renovate is active at the repository host level, committing the billing collector, and completing the analytical layer through Phases 4–6.
