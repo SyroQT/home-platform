@@ -38,3 +38,51 @@ resource "aws_s3_bucket_versioning" "analytics" {
     status = "Enabled"
   }
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "backups" {
+  bucket = aws_s3_bucket.backups.id
+
+  timeouts {
+    create = "10m"
+    update = "10m"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+  rule {
+    id     = "expire-noncurrent-90d"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "analytics" {
+  bucket = aws_s3_bucket.analytics.id
+
+  timeouts {
+    create = "10m"
+    update = "10m"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+  rule {
+    id     = "expire-noncurrent-90d"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+  }
+}
