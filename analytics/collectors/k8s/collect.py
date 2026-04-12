@@ -3,8 +3,8 @@
 Cluster collector for the analytics pipeline.
 
 Runs kubectl commands against the in-cluster API and writes timestamped
-JSON snapshots to Object Storage. Emits a metadata record per collector
-on success or failure.
+JSON snapshots to Object Storage. Projects only analytically useful fields
+before upload to avoid capturing full Kubernetes object specs.
 
 Environment variables (injected by Kubernetes Secret):
     S3_ENDPOINT_URL        Hetzner Object Storage endpoint
@@ -36,15 +36,144 @@ def kubectl_json(*args) -> dict:
     return json.loads(proc.stdout)
 
 
-def kubectl_text(*args) -> str:
-    """Run a kubectl command and return raw text output."""
-    proc = subprocess.run(
-        ["kubectl", *args],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    return proc.stdout
+# ---------------------------------------------------------------------------
+# Field projections
+# ---------------------------------------------------------------------------
+
+
+def _project_node(node: dict) -> dict:
+    meta = node.get("metadata", {})
+    status = node.get("status", {})
+    info = status.get("nodeInfo", {})
+    return {
+        "name": meta.get("name"),
+        "labels": meta.get("labels", {}),
+        "conditions": status.get("conditions", []),
+        "allocatable": status.get("allocatable", {}),
+        "capacity": status.get("capacity", {}),
+        "node_info": {
+            "architecture": info.get("architecture"),
+            "kernel_version": info.get("kernelVersion"),
+            "kubelet_version": info.get("kubeletVersion"),
+            "os_image": info.get("osImage"),
+            "container_runtime_version": info.get("containerRuntimeVersion"),
+        },
+    }
+
+
+def _project_deployment(item: dict) -> dict:
+    meta = item.get("metadata", {})
+    spec = item.get("spec", {})
+    status = item.get("status", {})
+    return {
+        "kind": "Deployment",
+        "name": meta.get("name"),
+        "namespace": meta.get("namespace"),
+        "labels": meta.get("labels", {}),
+        "replicas": spec.get("replicas"),
+        "strategy": spec.get("strategy", {}).get("type"),
+        "status": {
+            "replicas": status.get("replicas", 0),
+            "ready_replicas": status.get("readyReplicas", 0),
+            "available_replicas": status.get("availableReplicas", 0),
+            "conditions": status.get("conditions", []),
+        },
+    }
+
+
+def _project_pod(item: dict) -> dict:
+    meta = item.get("metadata", {})
+    spec = item.get("spec", {})
+    status = item.get("status", {})
+    containers = spec.get("containers", [])
+    container_statuses = status.get("containerStatuses", [])
+    return {
+        "kind": "Pod",
+        "name": meta.get("name"),
+        "namespace": meta.get("namespace"),
+        "labels": {
+            k: v
+            for k, v in meta.get("labels", {}).items()
+            if not k.startswith("pod-template-hash")
+            and not k.startswith("controller-uid")
+            and not k.startswith("batch.kubernetes.io")
+        },
+        "phase": status.get("phase"),
+        "conditions": status.get("conditions", []),
+        "containers": [
+            {
+                "name": c.get("name"),
+                "image": c.get("image"),
+                "resources": c.get("resources", {}),
+            }
+            for c in containers
+        ],
+        "container_statuses": [
+            {
+                "name": cs.get("name"),
+                "ready": cs.get("ready"),
+                "restart_count": cs.get("restartCount"),
+                "state": cs.get("state"),
+            }
+            for cs in container_statuses
+        ],
+    }
+
+
+def _project_ingress(item: dict) -> dict:
+    meta = item.get("metadata", {})
+    spec = item.get("spec", {})
+    status = item.get("status", {})
+    return {
+        "name": meta.get("name"),
+        "namespace": meta.get("namespace"),
+        "ingress_class": spec.get("ingressClassName"),
+        "rules": [{"host": r.get("host")} for r in spec.get("rules", [])],
+        "tls": [
+            {"hosts": t.get("hosts", []), "secret_name": t.get("secretName")}
+            for t in spec.get("tls", [])
+        ],
+        "load_balancer_ips": [
+            i.get("ip") for i in status.get("loadBalancer", {}).get("ingress", [])
+        ],
+    }
+
+
+def _project_cert(item: dict) -> dict:
+    meta = item.get("metadata", {})
+    spec = item.get("spec", {})
+    status = item.get("status", {})
+    return {
+        "name": meta.get("name"),
+        "namespace": meta.get("namespace"),
+        "dns_names": spec.get("dnsNames", []),
+        "common_name": spec.get("commonName"),
+        "issuer_ref": spec.get("issuerRef", {}),
+        "not_after": status.get("notAfter"),
+        "not_before": status.get("notBefore"),
+        "renewal_time": status.get("renewalTime"),
+        "conditions": status.get("conditions", []),
+    }
+
+
+def _project_event(item: dict) -> dict:
+    return {
+        "namespace": item.get("metadata", {}).get("namespace"),
+        "name": item.get("metadata", {}).get("name"),
+        "reason": item.get("reason"),
+        "type": item.get("type"),
+        "message": item.get("message"),
+        "involved_object": {
+            "kind": item.get("involvedObject", {}).get("kind"),
+            "name": item.get("involvedObject", {}).get("name"),
+            "namespace": item.get("involvedObject", {}).get("namespace"),
+        },
+        "first_timestamp": item.get("firstTimestamp"),
+        "last_timestamp": item.get("lastTimestamp"),
+        "event_time": item.get("eventTime"),
+        "count": item.get("count"),
+        "reporting_component": item.get("reportingComponent"),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -53,24 +182,47 @@ def kubectl_text(*args) -> str:
 
 
 def collect_cluster() -> dict:
-    return kubectl_json("get", "nodes")
+    raw = kubectl_json("get", "nodes")
+    return {
+        "kind": "NodeList",
+        "items": [_project_node(n) for n in raw.get("items", [])],
+    }
 
 
 def collect_workloads() -> dict:
-    return kubectl_json("get", "deployments,pods", "-A")
+    raw = kubectl_json("get", "deployments,pods", "-A")
+    items = []
+    for item in raw.get("items", []):
+        kind = item.get("kind")
+        if kind == "Deployment":
+            items.append(_project_deployment(item))
+        elif kind == "Pod":
+            items.append(_project_pod(item))
+    return {"kind": "WorkloadList", "items": items}
 
 
 def collect_ingress() -> dict:
-    return kubectl_json("get", "ingress", "-A")
+    raw = kubectl_json("get", "ingress", "-A")
+    return {
+        "kind": "IngressList",
+        "items": [_project_ingress(i) for i in raw.get("items", [])],
+    }
 
 
 def collect_certs() -> dict:
-    return kubectl_json("get", "certificates", "-A")
+    raw = kubectl_json("get", "certificates", "-A")
+    return {
+        "kind": "CertificateList",
+        "items": [_project_cert(i) for i in raw.get("items", [])],
+    }
 
 
 def collect_events() -> dict:
-    """Collect cluster events as structured JSON, sorted by lastTimestamp."""
-    return kubectl_json("get", "events", "-A", "--sort-by=.lastTimestamp")
+    raw = kubectl_json("get", "events", "-A", "--sort-by=.lastTimestamp")
+    return {
+        "kind": "EventList",
+        "items": [_project_event(i) for i in raw.get("items", [])],
+    }
 
 
 def collect_app_health() -> dict:
@@ -149,9 +301,7 @@ def upload(client, bucket: str, key: str, body: str) -> None:
 # ---------------------------------------------------------------------------
 
 
-def run_collector(
-    name: str, fn, bucket: str, client, s3_key_prefix: str, is_text: bool = False
-) -> int:
+def run_collector(name: str, fn, bucket: str, client, s3_key_prefix: str) -> int:
     """
     Run a single collector function, upload its output, emit metadata.
     Returns 0 on success, 1 on failure.
@@ -165,21 +315,15 @@ def run_collector(
             datetime.now(timezone.utc).isoformat().replace(":", "-").replace("+", "-")
         )
 
-        if is_text:
-            body = result
-            field_count = len(result.splitlines())
-            ext = "txt"
+        body = json.dumps(result, indent=2)
+        if isinstance(result, list):
+            field_count = len(result)
+        elif "items" in result:
+            field_count = len(result["items"])
         else:
-            body = json.dumps(result, indent=2)
-            if isinstance(result, list):
-                field_count = len(result)
-            elif "items" in result:
-                field_count = len(result["items"])
-            else:
-                field_count = len(result)
-            ext = "json"
+            field_count = len(result)
 
-        key = f"{s3_key_prefix}/{timestamp}.{ext}"
+        key = f"{s3_key_prefix}/{timestamp}.json"
         upload(client, bucket, key, body)
         print(f"OK: {name} uploaded to {key}")
 
@@ -216,12 +360,12 @@ def run_collector(
 # ---------------------------------------------------------------------------
 
 COLLECTORS = [
-    ("cluster", collect_cluster, "analytics/raw/k8s/cluster", False),
-    ("workloads", collect_workloads, "analytics/raw/k8s/workloads", False),
-    ("ingress", collect_ingress, "analytics/raw/k8s/ingress", False),
-    ("certs", collect_certs, "analytics/raw/k8s/certs", False),
-    ("events", collect_events, "analytics/raw/k8s/events", False),
-    ("app-health", collect_app_health, "analytics/raw/k8s/app-health", False),
+    ("cluster", collect_cluster, "analytics/raw/k8s/cluster"),
+    ("workloads", collect_workloads, "analytics/raw/k8s/workloads"),
+    ("ingress", collect_ingress, "analytics/raw/k8s/ingress"),
+    ("certs", collect_certs, "analytics/raw/k8s/certs"),
+    ("events", collect_events, "analytics/raw/k8s/events"),
+    ("app-health", collect_app_health, "analytics/raw/k8s/app-health"),
 ]
 
 
@@ -234,8 +378,8 @@ def main() -> None:
     client = get_s3_client()
 
     results = []
-    for name, fn, prefix, is_text in COLLECTORS:
-        code = run_collector(name, fn, bucket, client, prefix, is_text)
+    for name, fn, prefix in COLLECTORS:
+        code = run_collector(name, fn, bucket, client, prefix)
         results.append((name, code))
 
     failed = [name for name, code in results if code != 0]
