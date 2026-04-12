@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'analytics/collectors/k8s/Dockerfile'
+      - 'analytics/collectors/k8s/collect.py'
   workflow_dispatch:
 
 env:
