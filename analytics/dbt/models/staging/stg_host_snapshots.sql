@@ -1,4 +1,4 @@
-{{ config(materialized='view') }}
+{{ config(materialized='view', tags=['staging', 'host']) }}
 
 -- stg_host_snapshots
 -- Normalises raw host collector JSON into typed, flat rows.
@@ -46,7 +46,7 @@ WITH raw AS (
 )
 
 SELECT
-    md5(filename)                                   AS snapshot_id,
+    {{ dbt_utils.generate_surrogate_key(['filename']) }} AS snapshot_id,
     -- Use the in-file timestamp as authoritative
     collected_at_field                              AS collected_at,
     collected_at_filename                           AS collected_at_from_filename,
