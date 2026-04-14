@@ -15,13 +15,6 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
-vars:
-  s3_bucket: "{{ env_var('ANALYTICS_S3_BUCKET') }}"
-  s3_endpoint: "{{ env_var('ANALYTICS_S3_ENDPOINT', 'https://nbg1.your-objectstorage.com') }}"
-  s3_access_key: "{{ env_var('ANALYTICS_S3_ACCESS_KEY') }}"
-  s3_secret_key: "{{ env_var('ANALYTICS_S3_SECRET_KEY') }}"
-  # dev target reads from local fixtures; prod reads from S3
-  raw_base_path: "{{ env_var('ANALYTICS_RAW_BASE_PATH', 's3://' ~ var('s3_bucket') ~ '/analytics/raw') }}"
 
 models:
   home_platform:

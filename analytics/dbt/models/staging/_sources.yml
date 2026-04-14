@@ -1,0 +1,60 @@
+version: 2
+
+sources:
+
+  - name: source_host
+    description: "VPS host snapshots — CPU, memory, disk, uptime, service status"
+    tables:
+      - name: snapshots
+        description: "One JSON file per 15-minute collection run"
+        config:
+          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/host/*.json', filename=true)"
+
+  - name: source_k8s_cluster
+    description: "Kubernetes node state snapshots"
+    tables:
+      - name: snapshots
+        config:
+          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/cluster/*.json', filename=true)"
+
+  - name: source_k8s_workloads
+    description: "Kubernetes Deployment and Pod snapshots"
+    tables:
+      - name: snapshots
+        config:
+          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/workloads/*.json', filename=true)"
+
+  - name: source_k8s_ingress
+    description: "Kubernetes Ingress snapshots"
+    tables:
+      - name: snapshots
+        config:
+          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/ingress/*.json', filename=true)"
+
+  - name: source_k8s_certs
+    description: "cert-manager Certificate snapshots"
+    tables:
+      - name: snapshots
+        config:
+          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/certs/*.json', filename=true)"
+
+  - name: source_k8s_events
+    description: "Kubernetes Event snapshots"
+    tables:
+      - name: snapshots
+        config:
+          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/events/*.json', filename=true)"
+
+  - name: source_k8s_app_health
+    description: "Per-app pod readiness snapshots (dict-of-lists keyed by namespace/app)"
+    tables:
+      - name: snapshots
+        config:
+          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/app-health/*.json', filename=true)"
+
+  - name: source_meta
+    description: "Collector pipeline run metadata — one record per collector per run"
+    tables:
+      - name: snapshots
+        config:
+          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/meta/**/*.json', filename=true)"

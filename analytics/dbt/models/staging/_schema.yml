@@ -1,0 +1,72 @@
+version: 2
+
+models:
+
+  - name: stg_host_snapshots
+    description: "Normalised host collector snapshots — one row per 15-minute run. CPU, memory, disk, uptime, and service status cast to typed columns."
+    columns:
+
+      - name: snapshot_id
+        description: "MD5 of the source filename. Unique identifier for each snapshot row."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: collected_at
+        description: "Authoritative collection timestamp from inside the JSON file (sub-second precision, includes tz offset)."
+        data_tests:
+          - not_null
+
+      - name: collected_at_from_filename
+        description: "Collection timestamp derived from the filename, kept for cross-checking against collected_at."
+
+      - name: cpu_load_1m
+        description: "1-minute CPU load average."
+
+      - name: cpu_load_5m
+        description: "5-minute CPU load average."
+
+      - name: cpu_load_15m
+        description: "15-minute CPU load average."
+
+      - name: mem_total_kb
+        description: "Total physical memory in kilobytes."
+
+      - name: mem_available_kb
+        description: "Available memory in kilobytes."
+
+      - name: mem_used_kb
+        description: "Used memory in kilobytes."
+
+      - name: mem_used_pct
+        description: "Memory used as a percentage of total (derived: mem_used_kb / mem_total_kb * 100, rounded to 1 dp)."
+
+      - name: uptime_seconds
+        description: "Host uptime in seconds at collection time."
+
+      - name: disk_root_used_pct
+        description: "Root filesystem (/) used percentage."
+
+      - name: disk_root_size_kb
+        description: "Root filesystem (/) total size in kilobytes."
+
+      - name: disk_root_used_kb
+        description: "Root filesystem (/) used kilobytes."
+
+      - name: disk_data_used_pct
+        description: "Data filesystem (/srv/data) used percentage. NULL if mount not present."
+
+      - name: disk_data_size_kb
+        description: "Data filesystem (/srv/data) total size in kilobytes. NULL if mount not present."
+
+      - name: disk_data_used_kb
+        description: "Data filesystem (/srv/data) used kilobytes. NULL if mount not present."
+
+      - name: svc_k3s_active
+        description: "TRUE if the k3s service was active at collection time. FALSE if inactive or absent."
+
+      - name: svc_sshd_active
+        description: "TRUE if sshd was active at collection time. FALSE if inactive or absent."
+
+      - name: svc_restic_timer_active
+        description: "TRUE if restic-backup.timer was active at collection time. FALSE if inactive or absent."
