@@ -14,8 +14,8 @@ import pytest
 FIXTURE_DIR = pathlib.Path(__file__).parent / "fixtures" / "k8s"
 
 
-def load(filename: str) -> object:
-    return json.loads((FIXTURE_DIR / filename).read_text())
+def load(name: str) -> object:
+    return json.loads((FIXTURE_DIR / name / "sample.json").read_text())
 
 
 # ---------------------------------------------------------------------------
@@ -25,7 +25,7 @@ def load(filename: str) -> object:
 
 class TestClusterFixture:
     def setup_method(self):
-        self.data = load("cluster.json")
+        self.data = load("cluster")
 
     def test_is_dict(self):
         assert isinstance(self.data, dict)
@@ -72,7 +72,7 @@ class TestClusterFixture:
 
 class TestWorkloadsFixture:
     def setup_method(self):
-        self.data = load("workloads.json")
+        self.data = load("workloads")
 
     def test_is_dict(self):
         assert isinstance(self.data, dict)
@@ -108,7 +108,7 @@ class TestWorkloadsFixture:
 
 class TestIngressFixture:
     def setup_method(self):
-        self.data = load("ingress.json")
+        self.data = load("ingress")
 
     def test_is_dict(self):
         assert isinstance(self.data, dict)
@@ -138,7 +138,7 @@ class TestIngressFixture:
 
 class TestCertsFixture:
     def setup_method(self):
-        self.data = load("certs.json")
+        self.data = load("certs")
 
     def test_is_dict(self):
         assert isinstance(self.data, dict)
@@ -184,7 +184,7 @@ class TestCertsFixture:
 
 class TestEventsFixture:
     def setup_method(self):
-        self.data = load("events.json")
+        self.data = load("events")
 
     def test_is_dict(self):
         assert isinstance(self.data, dict)
@@ -216,7 +216,7 @@ class TestEventsFixture:
 
 class TestAppHealthFixture:
     def setup_method(self):
-        self.data = load("app-health.json")
+        self.data = load("app-health")
 
     def test_is_dict(self):
         assert isinstance(self.data, dict)
