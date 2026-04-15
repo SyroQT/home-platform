@@ -1,0 +1,118 @@
+version: 2
+
+models:
+
+  - name: int_host_snapshots_enriched
+    description: >
+      All host snapshots enriched with human-friendly units and derived status
+      fields. One row per snapshot — same grain as stg_host_snapshots.
+      Marts slice this model without repeating business logic.
+    columns:
+
+      - name: snapshot_id
+        description: "Surrogate key from source filename."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: collected_at
+        description: "Authoritative collection timestamp from inside the JSON file."
+        data_tests:
+          - not_null
+
+      - name: cpu_load_1m
+        description: "1-minute CPU load average."
+
+      - name: cpu_load_5m
+        description: "5-minute CPU load average."
+
+      - name: cpu_load_15m
+        description: "15-minute CPU load average."
+
+      - name: cpu_status
+        description: >
+          CPU pressure relative to core count (var: cpu_cores, default 2).
+          'ok' if cpu_load_5m/cores ≤ 1.5;
+          'warning' if > 1.5;
+          'critical' if > 3.0.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ok', 'warning', 'critical']
+
+      - name: mem_total_mb
+        description: "Total physical memory in MB."
+
+      - name: mem_used_mb
+        description: "Used memory in MB."
+
+      - name: mem_available_mb
+        description: "Available memory in MB."
+
+      - name: mem_used_pct
+        description: "Memory used as % of total."
+
+      - name: mem_available_pct
+        description: "Memory available as % of total, rounded to 1 dp."
+
+      - name: mem_status
+        description: >
+          'critical' if available_pct < 4% or available_mb < 150;
+          'warning' if available_pct < 10% or available_mb < 400;
+          'watch' if available_pct < 20%;
+          'healthy' otherwise.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['critical', 'warning', 'watch', 'healthy']
+
+      - name: uptime_days
+        description: "Host uptime in days, rounded to 1 dp."
+
+      - name: disk_root_used_pct
+        description: "Root filesystem (/) used %."
+
+      - name: disk_root_used_gb
+        description: "Root filesystem (/) used in GB."
+
+      - name: disk_root_size_gb
+        description: "Root filesystem (/) total in GB."
+
+      - name: disk_root_status
+        description: "'ok' / 'warning' (>70%) / 'critical' (>85%) based on disk_root_used_pct."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ok', 'warning', 'critical']
+
+      - name: disk_data_used_pct
+        description: "/srv/data used %. NULL if mount not present."
+
+      - name: disk_data_used_gb
+        description: "/srv/data used in GB. NULL if mount not present."
+
+      - name: disk_data_size_gb
+        description: "/srv/data total in GB. NULL if mount not present."
+
+      - name: disk_data_status
+        description: "'ok' / 'warning' (>70%) / 'critical' (>85%) based on disk_data_used_pct."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ok', 'warning', 'critical']
+
+      - name: svc_k3s_active
+        description: "k3s service active at collection time."
+
+      - name: svc_sshd_active
+        description: "sshd active at collection time."
+
+      - name: svc_restic_timer_active
+        description: "restic-backup.timer active at collection time."
+
+      - name: services_status
+        description: "'ok' if all three active, 'warning' if only restic inactive, 'critical' if k3s or sshd inactive."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ok', 'warning', 'critical']

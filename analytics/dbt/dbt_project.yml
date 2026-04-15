@@ -20,5 +20,7 @@ models:
   home_platform:
     staging:
       +materialized: "{{ 'table' if target.name == 'dev-s3' else 'view' }}"
+    intermediate:
+      +materialized: view
     marts:
       +materialized: table
