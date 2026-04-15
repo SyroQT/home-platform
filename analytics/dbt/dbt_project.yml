@@ -19,6 +19,6 @@ clean-targets:
 models:
   home_platform:
     staging:
-      +materialized: view
+      +materialized: "{{ 'table' if target.name == 'dev-s3' else 'view' }}"
     marts:
       +materialized: table

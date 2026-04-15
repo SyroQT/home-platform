@@ -1,5 +1,4 @@
 {{ config(
-    materialized = 'view',
     tags = ['staging', 'k8s']
 ) }}
 -- stg_k8s_ingress

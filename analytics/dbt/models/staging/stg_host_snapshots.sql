@@ -1,5 +1,4 @@
 {{ config(
-    materialized = 'view',
     tags = ['staging', 'host']
 ) }}
 -- stg_host_snapshots
