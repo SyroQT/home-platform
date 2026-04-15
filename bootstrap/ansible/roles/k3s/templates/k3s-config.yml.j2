@@ -10,5 +10,9 @@ etcd-snapshot-schedule-cron: "0 2 * * *"
 etcd-snapshot-retention: 7
 etcd-snapshot-compress: true
 
+kubelet-arg:
+  - image-gc-high-threshold=80
+  - image-gc-low-threshold=70
+
 tls-san:
   - "{{ ansible_host }}"
