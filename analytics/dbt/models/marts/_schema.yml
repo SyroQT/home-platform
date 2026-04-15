@@ -1,0 +1,106 @@
+version: 2
+
+models:
+
+  - name: mart_host_status_latest
+    description: >
+      Single-row table holding the most recent host snapshot with derived
+      status fields for CPU, memory, disk, and services. Smoke-test that the
+      full pipeline (source → stg_host_snapshots → mart) is materialising
+      correctly.
+    data_tests:
+      - dbt_utils.expression_is_true:
+          expression: "count(*) = 1"
+          name: mart_host_status_latest_is_single_row
+    columns:
+
+      - name: snapshot_id
+        description: "Surrogate key from source filename."
+        data_tests:
+          - not_null
+
+      - name: collected_at
+        description: "Timestamp of the latest snapshot."
+        data_tests:
+          - not_null
+
+      - name: cpu_load_1m
+        description: "1-minute CPU load average."
+
+      - name: cpu_load_5m
+        description: "5-minute CPU load average."
+
+      - name: cpu_load_15m
+        description: "15-minute CPU load average."
+
+      - name: cpu_status
+        description: "'ok' / 'warning' (>1.5) / 'critical' (>3.0) based on cpu_load_5m."
+        data_tests:
+          - accepted_values:
+              values: ['ok', 'warning', 'critical']
+
+      - name: mem_total_mb
+        description: "Total physical memory in MB."
+
+      - name: mem_used_mb
+        description: "Used memory in MB."
+
+      - name: mem_available_mb
+        description: "Available memory in MB."
+
+      - name: mem_used_pct
+        description: "Memory used as % of total."
+
+      - name: mem_status
+        description: "'ok' / 'warning' (>75%) / 'critical' (>90%) based on mem_used_pct."
+        data_tests:
+          - accepted_values:
+              values: ['ok', 'warning', 'critical']
+
+      - name: uptime_days
+        description: "Host uptime in days, rounded to 1 dp."
+
+      - name: disk_root_used_pct
+        description: "Root filesystem (/) used %."
+
+      - name: disk_root_used_gb
+        description: "Root filesystem (/) used in GB."
+
+      - name: disk_root_size_gb
+        description: "Root filesystem (/) total in GB."
+
+      - name: disk_root_status
+        description: "'ok' / 'warning' (>70%) / 'critical' (>85%) based on disk_root_used_pct."
+        data_tests:
+          - accepted_values:
+              values: ['ok', 'warning', 'critical']
+
+      - name: disk_data_used_pct
+        description: "/srv/data used %."
+
+      - name: disk_data_used_gb
+        description: "/srv/data used in GB."
+
+      - name: disk_data_size_gb
+        description: "/srv/data total in GB."
+
+      - name: disk_data_status
+        description: "'ok' / 'warning' (>70%) / 'critical' (>85%) based on disk_data_used_pct."
+        data_tests:
+          - accepted_values:
+              values: ['ok', 'warning', 'critical']
+
+      - name: svc_k3s_active
+        description: "k3s service active at collection time."
+
+      - name: svc_sshd_active
+        description: "sshd active at collection time."
+
+      - name: svc_restic_timer_active
+        description: "restic-backup.timer active at collection time."
+
+      - name: services_status
+        description: "'ok' if all three active, 'warning' if only restic inactive, 'critical' if k3s or sshd inactive."
+        data_tests:
+          - accepted_values:
+              values: ['ok', 'warning', 'critical']
