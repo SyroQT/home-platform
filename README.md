@@ -1,101 +1,98 @@
 # Home Platform
 
-## Set up
+A self-hosted platform running on a single Hetzner VPS. Infrastructure is provisioned with Terraform and Ansible, the cluster runs k3s, and all workloads are managed through GitOps with Flux.
 
-## CLI for working in the project
+## Architecture overview
 
-`export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt`
+| Layer | Technology |
+|---|---|
+| Infrastructure | Hetzner Cloud, Terraform |
+| Server configuration | Ansible |
+| Kubernetes | k3s (single node, embedded etcd) |
+| GitOps | Flux v2 |
+| Ingress / TLS | Traefik (k3s built-in) + cert-manager + Let's Encrypt |
+| Secrets | SOPS + age |
+| Database | CloudNativePG (PostgreSQL 16) |
+| Backups | Restic (PVC data) + k3s etcd snapshots → Hetzner Object Storage |
+| Analytics | DuckDB + dbt + Plotly (`analytics/`) |
 
-### Minimal Set up
+## Repository layout
+
+```
+bootstrap/          Terraform and Ansible for infrastructure provisioning
+  terraform-hcloud/ Hetzner Cloud resources
+  ansible/          Server hardening and k3s installation
+clusters/           Flux entrypoint per environment
+  vps-prod/         Production cluster Kustomizations
+platform/           Cluster-level infrastructure (namespaces, cert-manager, etc.)
+apps/               Application workloads
+secrets/            SOPS-encrypted Kubernetes secrets
+analytics/          Analytical layer (dbt, DuckDB, dashboard)
+docs/               Runbooks and setup guides
+```
+
+## Environment setup
+
+Export the age key before running any SOPS or Flux commands:
 
 ```bash
-terraform -chdir=bootstrap/terraform-hcloud plan
-terraform -chdir=bootstrap/terraform-hcloud apply
-sh bootstrap/scripts/render-ansible-vars.sh
-ansible-playbook -i bootstrap/ansible/inventories/prod/hosts.ini bootstrap/ansible/playbooks/harden.yml
+export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
 ```
 
-### Step by step
+## Setup guides
 
-#### Prerequisites
+Follow these in order for a fresh deployment:
 
-#### Terraform
+1. [Terraform — provision infrastructure](docs/setup/01_terraform-setup.md)
+2. [Ansible — harden and configure the server](docs/setup/02_ansible-setup.md)
+3. [k3s — verify cluster and kubectl access](docs/setup/03_k3s-setup-and-verification.md)
+4. [Flux — bootstrap GitOps](docs/setup/04-flux-bootstart.md)
+5. [SOPS + ingress — secrets, cert-manager, TLS](docs/setup/05_sops-and-ingress-setup.md)
+6. [PostgreSQL — CloudNativePG cluster setup](docs/setup/06_postgresql-setup.md)
+7. [Apps — onboarding pattern for new applications](docs/setup/07_app-setup.md)
 
-- Inspect terraform plan
+## Day-to-day operations
 
-  ```bash
-  terraform -chdir=bootstrap/terraform-hcloud plan
-  ```
+### Check cluster and Flux health
 
-- Apply terraform plan. This will deploy the infrastructure
-
-  ```bash
-  terraform -chdir=bootstrap/terraform-hcloud apply
-  ```
-
-#### Ansible
-
-- Generate ansible variables from terraform
-
-  ```bash
-  sh bootstrap/scripts/render-ansible-vars.sh
-  ```
-
-- Cd into `bootstrap/ansible` and ensure that file `inventories/prod/hosts.ini` has `ansible_user=root`
-
-- Check if ansible sees the generated variables
-
-  ```bash
-  ansible-inventory -i inventories/prod/hosts.ini --host vps-prod
-  ```
-
-- Check if ansible can access the VPS
-
-  ```bash
-  ansible -i inventories/prod/hosts.ini vps -m ping -e ansible_user=root
-  ```
-
-  To remove an old key from local `known_hosts`, run:
-
-  ```bash
-  ssh-keygen -R <VPS_IP_ADDRESS>
-  ssh-keygen -R vps-prod
-  ```
-
-  Then `ssh` into the VPS once to add the new host key.
-
-- Run the playbook as root to set it up
-
-  ```bash
-  ansible-playbook -i inventories/prod/hosts.ini playbooks/harden.yml -e ansible_user=root
-  ```
-
-- Rerun with new user
-
-  ```bash
-  ansible-playbook -i inventories/prod/hosts.ini playbooks/harden.yml
-  ```
-
-- In a new terminal connect to VPS as `deployer`. Confirm the configuration:
-
-  ```bash
-  ssh deployer@<VPS_IP_ADDRESS>
-  whoami
-  timedatectl
-  mount | grep /srv/data
-  lsblk
-  sudo ufw status verbose
-  sudo sshd -t
-  ```
-
-### k3s Setup
-
-```
-ansible-playbook -i inventories/prod/hosts.ini playbooks/k3s.yml
+```bash
+kubectl get nodes
+flux check
+flux get kustomizations -A
 ```
 
-## Destroy infra
+### Force reconciliation
+
+```bash
+flux reconcile source git flux-system -n flux-system
+flux reconcile kustomization platform -n flux-system --with-source
+flux reconcile kustomization secrets -n flux-system --with-source
+flux reconcile kustomization apps -n flux-system --with-source
+```
+
+### Edit an encrypted secret
+
+```bash
+sops secrets/prod/<name>.sops.yaml
+```
+
+### Check application logs
+
+```bash
+kubectl logs -n <namespace> deploy/<app> --tail=200
+```
+
+### Destroy infrastructure
 
 ```bash
 terraform -chdir=bootstrap/terraform-hcloud destroy
 ```
+
+## Runbooks
+
+- [Backup and recovery](docs/drd/backup-and-recovery.md) — etcd restore, Restic PVC restore, recovery drill
+- [Object storage key rotation](docs/setup/object-storage-key-rotation.md) — rotating Hetzner S3 credentials across all consumers
+
+## Analytics
+
+See [`analytics/README.md`](analytics/README.md) for the analytical layer: data extraction, dbt models, and the dashboard.

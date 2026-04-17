@@ -357,7 +357,7 @@ Example from n8n:
 
 For the PostgreSQL side, follow:
 
-- `docs/06_postgresql-setup.md`
+- `docs/setup/06_postgresql-setup.md`
 
 ## Step 9. Register the app in the aggregate kustomization
 

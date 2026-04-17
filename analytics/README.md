@@ -1,49 +1,63 @@
 # Analytics
 
-This directory is the top-level home for the analytics project scaffold. It defines the canonical raw-zone folder conventions, the ownership boundaries for each sub-area, and the initial repository layout for collectors, modeling, dashboard work, and test fixtures.
+Analytics pipeline for the home platform. Collects VPS and cluster signals, models them with dbt + DuckDB, and exposes a dashboard.
 
-## Canonical Raw-Zone Layout
+## Pipeline
 
-The raw zone is append-only. Every collector run writes a new timestamped object and must not overwrite prior snapshots.
-
-Canonical paths:
-
-- `analytics/raw/host/{timestamp}.json`
-- `analytics/raw/k8s/cluster/{timestamp}.json`
-- `analytics/raw/k8s/workloads/{timestamp}.json`
-- `analytics/raw/k8s/events/{timestamp}.txt`
-- `analytics/raw/billing/{timestamp}.json`
-- `analytics/raw/meta/{collector}/{timestamp}.json`
-
-### Path Semantics
-
-- `{timestamp}` is a sortable UTC collection timestamp chosen by the collector implementation.
-- `host` stores raw VPS host snapshots.
-- `k8s/cluster` stores cluster-level Kubernetes state snapshots.
-- `k8s/workloads` stores raw workload snapshots such as pods and deployments.
-- `k8s/events` stores raw event output as text.
-- `billing` stores raw cost snapshot JSON documents.
-- `meta/{collector}` stores pipeline run metadata for a named collector, such as runtime, exit status, and record counts.
-
-## Initial Repository Layout
-
-```text
-analytics/
-├── collectors/
-│   ├── billing/
-│   ├── host/
-│   └── k8s/
-├── dashboard/
-├── dbt/
-└── tests/
-    └── fixtures/
+```
+[host collector]     systemd timer, every 15 min  ─┐
+[k8s collector]      Flux CronJob, every 15 min   ──┼─→  S3 raw zone  →  dbt/DuckDB  →  dashboard
+[billing collector]  systemd timer, monthly        ─┘
 ```
 
-## Ownership
+- Collectors write append-only timestamped JSON snapshots to the S3 raw zone.
+- dbt reads S3 directly via DuckDB `httpfs` and writes curated marts to `analytics.duckdb`.
+- Dashboard reads from DuckDB. (Phase 5 — not yet built.)
 
-- `collectors/` contains raw data extraction code and collector-specific documentation.
-- `dbt/` contains transformation and modeling assets built on top of the raw zone.
-- `dashboard/` contains presentation-layer code and dashboard assets.
-- `tests/fixtures/` contains stable offline fixtures used to test collectors, models, and dashboard behavior.
+## Raw Zone Layout
 
-Subdirectory READMEs define local ownership in more detail.
+Every collector run appends a new object. Nothing is overwritten.
+
+```
+analytics/raw/
+├── host/{timestamp}.json
+├── k8s/
+│   ├── cluster/{timestamp}.json
+│   ├── workloads/{timestamp}.json
+│   ├── ingress/{timestamp}.json
+│   ├── certs/{timestamp}.json
+│   ├── events/{timestamp}.json
+│   └── app-health/{timestamp}.json
+├── billing/{timestamp}.json
+└── meta/{collector}/{timestamp}.json
+```
+
+`{timestamp}` is a sortable UTC ISO-8601 string with `:` replaced by `-` (e.g. `2026-04-17T12-00-00-000000+00-00`).
+
+`meta/` records pipeline run metadata (exit code, field count, collector name) emitted after every run, even on failure.
+
+## Directory Ownership
+
+| Directory | Purpose |
+|-----------|---------|
+| `collectors/` | Raw extraction — one subdirectory per source domain |
+| `dbt/` | Transformations and curated models |
+| `dashboard/` | Presentation layer (Phase 5) |
+| `tests/` | Offline tests; `tests/fixtures/` holds golden-file snapshots |
+
+## Quick Commands
+
+```bash
+# Run all collector tests
+cd analytics && uv run pytest
+
+# Run dbt against local fixtures (no credentials needed)
+export ANALYTICS_RAW_BASE_PATH=/path/to/repo/analytics/tests/fixtures
+cd analytics/dbt && uv run dbt build --target dev
+
+# Run dbt against S3
+export ANALYTICS_RAW_BASE_PATH="s3://your-bucket/analytics/raw"
+export ANALYTICS_S3_ACCESS_KEY="..."
+export ANALYTICS_S3_SECRET_KEY="..."
+cd analytics/dbt && uv run dbt build --target dev-s3
+```

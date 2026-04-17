@@ -1,411 +1,171 @@
 # Project Status
 
-Last reviewed: 2026-04-12
+Last reviewed: 2026-04-17
 
-This document reflects the repository as it exists today. It is a repo-state summary, not a live-cluster health report.
+This document reflects the repository as it exists today. It is a repo-state summary, not a live-cluster health report. Current working branch: `analytics` (Phase 4 in progress, not yet merged to main).
 
 ## Current Summary
 
-- The project is a single-node home platform on Hetzner Cloud.
-- Infrastructure is defined in Terraform at `bootstrap/terraform-hcloud/`.
-- Host bootstrap, hardening, k3s install, and backup tooling are defined in Ansible under `bootstrap/ansible/`.
-- Kubernetes state is managed through Flux from `clusters/vps-prod/`.
-- Secrets are stored as SOPS-encrypted manifests under `secrets/prod/`.
-- cert-manager and CloudNativePG are managed through Flux Helm releases.
-- The repo defines four workloads today: `n8n`, `actual`, `whoami`, and `linkding`.
-- Repository guardrails now include pre-commit hooks for merge-conflict detection, large-file checks, secret scanning, and SOPS encryption validation.
-- A Renovate configuration is committed at the repo root for Flux, Kubernetes manifest, and Terraform dependency updates.
-- An analytical layer is in active development under `analytics/`. Phases 1, 2, and 3 (cluster collector) are complete. The billing collector code is written but not yet committed. Phase 4 (dbt modeling) is next.
+- Single-node home platform on Hetzner Cloud, GitOps-managed via Flux from `clusters/vps-prod/`.
+- Infrastructure: Terraform at `bootstrap/terraform-hcloud/`; host bootstrap + k3s via Ansible at `bootstrap/ansible/`.
+- Secrets: SOPS-encrypted manifests under `secrets/prod/`, decrypted by Flux.
+- Workloads: `n8n`, `actual`, `linkding`, `whoami` (test), `postgres`.
+- Analytics layer: Phases 1–3 complete (collectors running). Phase 4 dbt models committed on `analytics` branch, VPS systemd timer not yet wired (no Ansible role).
 
 ## Canonical Paths
 
-- Terraform: `bootstrap/terraform-hcloud/`
-- Ansible: `bootstrap/ansible/`
-- Flux root: `clusters/vps-prod/`
-- Platform manifests: `platform/`
-- App manifests: `apps/`
-- Secrets: `secrets/prod/`
-- Analytics: `analytics/`
-- Status doc: `docs/project-status.md`
+| Area | Path |
+|------|------|
+| Terraform | `bootstrap/terraform-hcloud/` |
+| Ansible | `bootstrap/ansible/` |
+| Flux root | `clusters/vps-prod/` |
+| Platform manifests | `platform/` |
+| App manifests | `apps/` |
+| Secrets | `secrets/prod/` |
+| Analytics | `analytics/` |
 
 ## Infrastructure and Host
 
-- Target provider: Hetzner Cloud
-- Host OS target: Debian 12
-- Data volume is mounted at `/srv/data`
-- k3s local-path storage is configured to use `/srv/data/k3s-local-path`
-- k3s is configured as a single-node cluster with embedded etcd
-- k3s config enables secrets encryption at rest
-- etcd snapshot scheduling and S3 upload configuration are templated into the k3s role
-
-Relevant files:
-
-- `bootstrap/terraform-hcloud/`
-- `bootstrap/ansible/playbooks/harden.yml`
-- `bootstrap/ansible/playbooks/k3s.yml`
-- `bootstrap/ansible/roles/k3s/templates/k3s-config.yml.j2`
-- `bootstrap/ansible/roles/k3s/templates/k3s-etcd-s3.yml.j2`
+- Hetzner Cloud, Debian 12, single-node k3s with embedded etcd
+- Data volume at `/srv/data`; k3s local-path storage uses `/srv/data/k3s-local-path`
+- Secrets encryption at rest enabled in k3s config
+- etcd snapshots scheduled and uploaded to S3 via Ansible
+- k3s image GC is configured (added Apr 2026)
+- k3s drive/etcd GC settings updated Apr 2026
 
 ## GitOps Layout
 
-Flux is structured around four top-level kustomizations in `clusters/vps-prod/kustomizations/`:
+Four top-level Flux kustomizations in `clusters/vps-prod/kustomizations/`:
 
-- `platform`
-- `cert-issuers`
-- `secrets`
-- `apps`
+1. `platform` — creates namespaces, installs operators
+2. `cert-issuers` and `secrets` — depend on platform (need CRDs)
+3. `apps` — depends on all of the above
 
-Current dependency order:
-
-1. `platform`
-2. `cert-issuers` and `secrets`
-3. `apps`
-
-That ordering is important because:
-
-- namespaces are created in `platform`
-- `cert-issuers` depends on cert-manager CRDs being present
-- `apps` depends on platform resources, issuers, and secrets
+Notable mismatch: `platform/cert-manager-issuers/clusterissuer-staging.yaml` defines a `ClusterIssuer` named `letsencrypt-production`.
 
 ## Platform Layer
 
-The platform layer currently contains:
-
-- `platform/namespaces/`
-- `platform/cert-manager/`
-- `platform/cloudnative-pg/`
-- `platform/ingress/`
-- `platform/analytics/`
-
-Current state by component:
-
-- Namespaces are defined for `apps-actual`, `apps-n8n`, `apps-linkding`, `cnpg-system`, `infra-postgres`, and `analytics`
-- cert-manager is installed from the Jetstack chart, version track `v1.18.*`
-- CloudNativePG operator is installed from the CNPG chart, version track `0.27.*`
-- The Barman Cloud CNPG plugin is installed from the CNPG chart repository, version track `0.5.*`
-- `platform/ingress/kustomization.yaml` is empty, so Traefik is not managed explicitly in this repo
-- In practice, the manifests assume the bundled k3s Traefik ingress controller exists
-- Analytics RBAC and CronJob are managed under `platform/analytics/`
-
-Notable mismatch:
-
-- `platform/cert-manager-issuers/clusterissuer-staging.yaml` defines a `ClusterIssuer` named `letsencrypt-production`
+- Namespaces: `apps-actual`, `apps-n8n`, `apps-linkding`, `cnpg-system`, `infra-postgres`, `analytics`
+- cert-manager: Jetstack chart, track `v1.18.*`
+- CloudNativePG operator: track `0.27.*`; Barman Cloud plugin: track `0.5.*`
+- Traefik: bundled k3s Traefik, not explicitly managed in `platform/ingress/` (empty kustomization)
+- Analytics RBAC + CronJob: `platform/analytics/`
 
 ## PostgreSQL
 
-PostgreSQL is defined as a CloudNativePG-managed cluster.
+- CloudNativePG-managed cluster `postgres-cluster` in namespace `infra-postgres`
+- PostgreSQL 16, 1 instance, `local-path` storage, 8Gi
+- WAL archiving and base backups via Barman Cloud plugin (not in-tree object store)
+- Application endpoint: `postgres-cluster-rw.infra-postgres.svc.cluster.local`
+- Key secrets: `postgres.sops.yaml`, `postgres-n8n-auth.sops.yaml`, `postgres-backup.sops.yaml`
 
-Current repo-defined model:
-
-- Operator namespace: `cnpg-system`
-- Database namespace: `infra-postgres`
-- Operator Helm release: `platform/cloudnative-pg/release.yaml`
-- Backup plugin Helm release: `platform/cloudnative-pg/plugin-release.yaml`
-- Cluster manifest: `apps/postgres/base/postgres-cluster.yaml`
-- Backup object store manifest: `apps/postgres/base/objectstore.yaml`
-- Scheduled backup manifest: `apps/postgres/base/scheduled-backup.yaml`
-- Additional database resource: `apps/postgres/base/database-n8n.yaml`
-
-Current cluster settings in Git:
-
-- Cluster name: `postgres-cluster`
-- PostgreSQL major version: `16`
-- Instances: `1`
-- Storage class: `local-path`
-- Storage size: `8Gi`
-- Bootstrap database: `n8n`
-- Bootstrap owner: `app_platform`
-- Managed application role: `n8n`
-- WAL archiving is delegated to the Barman Cloud plugin
-- Backup object store name: `postgres-backup`
-- Scheduled backup name: `daily-backup`
-- Scheduled backup cadence: `0 0 3 * * *`
-- `inheritedMetadata.labels` includes `home-platform/analytics-collect: "true"` so CNPG pods are included in app-health collection
-
-Current application-facing endpoint expected by the repo:
-
-- `postgres-cluster-rw.infra-postgres.svc.cluster.local`
-
-Secrets involved:
-
-- `secrets/prod/postgres.sops.yaml`
-- `secrets/prod/postgres-n8n-auth.sops.yaml`
-- `secrets/prod/postgres-backup.sops.yaml`
-
-Important status note:
-
-- PostgreSQL backup is now wired through the CNPG Barman Cloud plugin rather than the deprecated in-tree object store settings
-- The repo keeps PostgreSQL backup credentials in `postgres-backup.sops.yaml` and uses them through the `ObjectStore` resource
+Outstanding: restore drill procedure not yet exercised against plugin-based backup flow; `docs/drd/backup-and-recovery.md` predates the plugin-based setup.
 
 ## Applications
 
-The repo currently ships these app entries from `apps/kustomization.yaml`:
+| App | Namespace | Host | Notes |
+|-----|-----------|------|-------|
+| n8n | `apps-n8n` | `beta-n8n.titas.dev` | Custom GHCR image `ghcr.io/syroqt/home-platform/n8n:sha-ff70fd8`, `imagePullPolicy: IfNotPresent`; uses PostgreSQL |
+| actual | `apps-actual` | `beta-budget.titas.dev` | OpenID secret from `actual.sops.yaml` |
+| linkding | `apps-linkding` | `links.titas.dev` | OpenID secret from `linkding.sops.yaml` |
+| whoami | `apps-test` | `whoami.titas.dev` | Test workload; creates own namespace (not via `platform/namespaces/`) |
 
-- `whoami`
-- `postgres`
-- `n8n`
-- `actual`
-- `linkding`
-
-### n8n
-
-- Namespace: `apps-n8n`
-- Ingress host: `beta-n8n.titas.dev`
-- PVC: `n8n-data`
-- Image: `docker.n8n.io/n8nio/n8n:2.12.3`
-- Uses PostgreSQL through CNPG
-- Explicitly sets `enableServiceLinks: false`
-- Pod template carries label `home-platform/analytics-collect: "true"`
-
-### actual
-
-- Namespace: `apps-actual`
-- Ingress host: `beta-budget.titas.dev`
-- PVC: `actual-data`
-- Image: `actualbudget/actual-server:26.3.0`
-- Uses an OpenID secret from `secrets/prod/actual.sops.yaml`
-- Pod template carries label `home-platform/analytics-collect: "true"`
-
-### whoami
-
-- Namespace: `apps-test`
-- Ingress host: `whoami.titas.dev`
-- Image: `traefik/whoami:v1.10.4`
-- Pod template carries label `home-platform/analytics-collect: "true"`
-
-### linkding
-
-- Namespace: `apps-linkding`
-- Ingress host: `links.titas.dev`
-- PVC: `linkding-data`
-- Image: `sissbruecker/linkding:1.45.0`
-- Uses an OpenID secret from `secrets/prod/linkding.sops.yaml`
-- Pod template carries label `home-platform/analytics-collect: "true"`
-
-Important status note:
-
-- `whoami` still creates its namespace from `apps/whoami/base/namespace.yaml`
-- That differs from the newer repo convention where namespaces are owned in `platform/namespaces/`
-- So `whoami` is still present as a test workload, but it does not follow the same namespace ownership model as `n8n` and `actual`
+All app pods carry label `home-platform/analytics-collect: "true"` for app-health collection.
 
 ## Analytical Layer
 
-The analytical layer is under active development at `analytics/`. It follows a phased implementation plan documented in `docs/todo/analytical-layer.md`.
-
-### Phase completion status
-
-| Phase | Description                       | Status                                                             |
-| ----- | --------------------------------- | ------------------------------------------------------------------ |
-| 1     | Storage and project scaffolding   | ✅ Done                                                            |
-| 2     | Host collector                    | ✅ Done                                                            |
-| 3     | Cluster and billing collectors    | ✅ Done — billing collector deferred (code written, not committed) |
-| 4     | DuckDB and dbt modeling           | ⬜ Not started                                                     |
-| 5     | Python dashboard                  | ⬜ Not started                                                     |
-| 6     | Transform job and pipeline wiring | ⬜ Not started                                                     |
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1 | Storage and project scaffolding | ✅ Done |
+| 2 | Host collector | ✅ Done |
+| 3 | Cluster collector | ✅ Done |
+| 3.5 | Billing collector | 🔄 Deferred — billing dir committed (README only), collect.py pending |
+| 4 | DuckDB and dbt modeling | 🔄 In progress — models committed on `analytics` branch, VPS timer not yet wired |
+| 5 | Python dashboard | ⬜ Not started |
+| 6 | Transform job, pipeline wiring, retention | ⬜ Not started |
 
 ### Architecture
 
-| Layer                | Owner      | Runtime         | Output                         |
-| -------------------- | ---------- | --------------- | ------------------------------ |
-| Collectors – Host    | Ansible    | systemd timer   | Raw snapshots → Object Storage |
-| Collectors – Cluster | Flux       | CronJob         | Raw snapshots → Object Storage |
-| Collectors – Billing | Ansible    | systemd timer   | Raw snapshots → Object Storage |
-| Modeling             | dbt-duckdb | systemd timer   | Curated marts in DuckDB        |
-| Presentation         | Python app | Flux Deployment | Dashboard HTML + Plotly charts |
+| Layer | Owner | Runtime | Output |
+|-------|-------|---------|--------|
+| Host collector | Ansible | systemd timer (15 min) | Raw snapshots → S3 |
+| Cluster collector | Flux | CronJob (offset 5 min, every 15 min) | Raw snapshots → S3 |
+| Billing collector | Ansible | systemd timer (monthly) | Raw snapshots → S3 |
+| Modeling (dbt-duckdb) | Ansible | systemd timer | Curated marts in DuckDB |
+| Presentation | Python app | Flux Deployment | Dashboard HTML + Plotly |
 
-### Host collector (Phase 2 — complete)
+### Collectors (complete)
 
-- Script: `analytics/collectors/host/collect.py`
-- Reads `/proc/loadavg`, `/proc/meminfo`, `/proc/uptime`, `df`, `systemctl is-active`
-- Writes snapshots to `analytics/raw/host/{timestamp}.json`
-- Writes metadata to `analytics/raw/meta/host/{timestamp}.json`
-- Ansible role: `bootstrap/ansible/roles/analytics-host-collector/`
-- Playbook: `bootstrap/ansible/playbooks/analytics.yml`
-- Timer schedule: every 15 minutes (`OnCalendar=*:0/15`)
-- Golden-file tests: `analytics/tests/test_host_collector.py`
-- Fixture: `analytics/tests/fixtures/host/sample.json`
+- **Host** (`analytics/collectors/host/collect.py`): reads `/proc/loadavg`, `/proc/meminfo`, `df`, systemd status → `analytics/raw/host/`
+- **Cluster** (`analytics/collectors/k8s/collect.py`): collectors `cluster`, `workloads`, `ingress`, `certs`, `events`, `app-health` → `analytics/raw/k8s/{collector}/`; container image `ghcr.io/syroqt/home-platform/analytics-collector:sha-a7dbc93`
+- **Billing** (`analytics/collectors/billing/`): monthly, static pricing for CX23/Object Storage/block volume/IPv4 — collect.py not yet committed
 
-### Cluster collector (Phase 3 — complete)
+### dbt / DuckDB (Phase 4)
 
-- Script: `analytics/collectors/k8s/collect.py`
-- Collectors: `cluster`, `workloads`, `ingress`, `certs`, `events`, `app-health`
-- App-health uses label-based pod discovery: `home-platform/analytics-collect=true`
-- Writes snapshots to `analytics/raw/k8s/{collector}/{timestamp}.json`
-- Writes metadata to `analytics/raw/meta/k8s/{collector}/{timestamp}.json`
-- Container image: `ghcr.io/syroqt/home-platform/analytics-collector:sha-a7dbc93`
-- Image built by: `.github/workflows/analytics-collector-image.yml`
-- Dockerfile: `analytics/collectors/k8s/Dockerfile`
-- Base image: `python:3.12-slim` with `kubectl v1.34.5` and `boto3`
-- CronJob manifest: `platform/analytics/cronjob.yaml`
-- Schedule: `5,20,35,50 * * * *` (offset 5 minutes from host collector)
-- RBAC: `platform/analytics/clusterrole.yaml`, `clusterrolebinding.yaml`, `serviceaccount.yaml`
-- Namespace: `analytics`
-- S3 secret: `secrets/prod/analytics-s3-k8s.sops.yaml` (namespace: `analytics`)
-- Fixture tests: `analytics/tests/test_k8s_collectors.py` (38 tests, all passing)
-- Fixtures: `analytics/tests/fixtures/k8s/{cluster,workloads,ingress,certs,events,app-health}.json`
+Committed models (all on `analytics` branch):
 
-### Billing collector (Phase 3.5 — deferred, code not yet committed)
+- **Staging**: `stg_host_snapshots`, `stg_k8s_cluster`, `stg_k8s_workloads`, `stg_k8s_app_health`, `stg_k8s_certs`, `stg_k8s_events`, `stg_k8s_ingress`, `stg_meta_pipeline_runs`
+- **Intermediate**: `int_host_snapshots_enriched`
+- **Marts**: `mart_host_status_latest`, `mart_host_status_history`, `mart_k8s_status_latest`, `mart_k8s_status_history`, `mart_app_health_latest`, `mart_pipeline_runs`
 
-- Code written but intentionally not committed to the repo — to be done after Phase 4
-- Script: `analytics/collectors/billing/collect.py` (pending commit)
-- Ansible role: `bootstrap/ansible/roles/analytics-billing-collector/` (pending commit)
-- Timer: monthly, first of month at 06:00 (`OnCalendar=*-*-01 06:00:00`)
-- Static pricing: CX23 €4.83/month, Object Storage €7.85/month, 50 GB block volume €0.0572/GB/month, IPv4 €0.50/month
-- No billing snapshots exist in S3 yet
-- `mart_billing_daily` in Phase 4 should be stubbed until billing data exists
+Production runner script: `analytics/dbt/run_dbt.sh` (atomic `.tmp` → `.duckdb` swap on success).
 
-### Object Storage conventions
+Key decisions:
+- DuckDB reads S3 via `httpfs`; requires `SET s3_url_style='path'` for Hetzner Object Storage (nbg1)
+- DuckDB file at `/srv/data/analytics/analytics.duckdb` (50 GB block volume)
+- dbt runs as VPS systemd timer (Ansible-managed), not a Flux CronJob
+- `mart_billing_daily` should be stubbed until billing snapshots exist in S3
 
-- Bucket: dedicated analytics bucket in Hetzner Object Storage (nbg1)
-- Raw zone layout:
-  - `analytics/raw/host/`
-  - `analytics/raw/k8s/cluster/`
-  - `analytics/raw/k8s/workloads/`
-  - `analytics/raw/k8s/ingress/`
-  - `analytics/raw/k8s/certs/`
-  - `analytics/raw/k8s/events/`
-  - `analytics/raw/k8s/app-health/`
-  - `analytics/raw/billing/`
-  - `analytics/raw/meta/`
-- Retention policy: not yet implemented — planned for Phase 6 (90-day target)
-- Estimated storage growth: ~200 KB per cluster collector run, ~1 KB per host run
+Still needed for Phase 4 completion: Ansible role + systemd timer for `run_dbt.sh` on the VPS.
 
-### Remaining analytical layer tasks
+### Object Storage
 
-- 3.5 — billing collector: commit code and run Ansible playbook against VPS (after Phase 4)
-- Phase 4 — DuckDB and dbt modeling (next)
-- Phase 5 — Python dashboard
-- Phase 6 — transform job, pipeline wiring, retention policy
-
-### Phase 4 pre-work completed
-
-The following decisions and validations were made in preparation for Phase 4:
-
-- dbt will run as a VPS systemd timer (Ansible-managed), not a Flux CronJob
-- DuckDB will read S3 directly via `httpfs` extension — confirmed working against Hetzner Object Storage (nbg1) using path-style URLs (`SET s3_url_style='path'` required)
-- DuckDB file will live at `/srv/data/analytics/analytics.duckdb` (on the 50 GB block volume)
-- Crash safety pattern: write to `analytics.duckdb.tmp`, atomically `mv` on success only
-- Workloads staging: split into `stg_k8s_deployments` and `stg_k8s_pods` at the staging layer
-- Certs staging: keep all certs (including internal Barman certs) in staging; filter to app certs in marts
-
-### Secrets
-
-- `secrets/prod/analytics-s3.sops.yaml` — used by Ansible host collector
-- `secrets/prod/analytics-s3-k8s.sops.yaml` — used by Flux CronJob in `analytics` namespace
+- Bucket: dedicated analytics bucket in Hetzner nbg1
+- Raw path layout: `analytics/raw/{host,k8s/{cluster,workloads,ingress,certs,events,app-health},billing,meta}/`
+- Secrets: `analytics-s3.sops.yaml` (Ansible), `analytics-s3-k8s.sops.yaml` (Flux, namespace `analytics`)
+- Retention: not implemented — planned Phase 6 (90-day target)
 
 ## Secrets
 
-Current secret management model:
+- SOPS config in `.sops.yaml`; only `data`/`stringData` encrypted
+- Flux decrypts via `flux-system/sops-age`
+- Pre-commit enforces SOPS encryption check for `secrets/**/*.sops.yaml`
 
-- SOPS config lives in `.sops.yaml`
-- Only `data` and `stringData` are encrypted
-- Flux decrypts `secrets/prod/` using the `flux-system/sops-age` secret
-- Pre-commit enforces a local SOPS encryption check for files under `secrets/**/*.sops.yaml`
-- Secret scanning baseline and pre-commit integration are committed in `.secrets.baseline` and `.pre-commit-config.yaml`
-
-Secret files currently committed:
-
-- `secrets/prod/demo-secret.sops.yaml`
-- `secrets/prod/n8n.sops.yaml`
-- `secrets/prod/postgres.sops.yaml`
-- `secrets/prod/postgres-backup.sops.yaml`
-- `secrets/prod/postgres-n8n-auth.sops.yaml`
-- `secrets/prod/actual.sops.yaml`
-- `secrets/prod/analytics-s3.sops.yaml`
-- `secrets/prod/analytics-s3-k8s.sops.yaml`
-- `secrets/prod/linkding.sops.yaml`
-
-Relevant repo guardrail files:
-
-- `.pre-commit-config.yaml`
-- `.secrets.baseline`
-- `scripts/check-sops-encrypted.sh`
+Current secret files: `demo-secret`, `n8n`, `postgres`, `postgres-backup`, `postgres-n8n-auth`, `actual`, `analytics-s3`, `analytics-s3-k8s`, `linkding`.
 
 ## Backup and Recovery
 
-The backup story is implemented in two layers.
-
-Implemented in the repo:
-
-- k3s etcd snapshot scheduling and S3 upload configuration via Ansible
-- Restic install and systemd timer via `bootstrap/ansible/roles/restic/`
-- Restic excludes the PostgreSQL PVC path, so PostgreSQL is not backed up through host-level file snapshots
-- PostgreSQL base backups and WAL archiving are configured through CloudNativePG plus the Barman Cloud plugin
-- PostgreSQL scheduled backups target Hetzner Object Storage via `apps/postgres/base/objectstore.yaml`
-- backup playbook at `bootstrap/ansible/playbooks/backup.yml`
-- disaster recovery runbook at `docs/drd/backup-and-recovery.md`
-
-Still incomplete or not fully wired:
-
-- PostgreSQL restore drill procedure should be exercised and documented against the plugin-based backup flow
-- `docs/drd/backup-and-recovery.md` still contains older assumptions that predate the current CNPG plugin-based backup wiring and should be revised
+- k3s etcd snapshots: Ansible, uploaded to S3
+- Host-level: Restic via `bootstrap/ansible/roles/restic/` (excludes PostgreSQL PVC)
+- PostgreSQL: CNPG + Barman Cloud plugin, scheduled backups to Hetzner Object Storage
+- Runbook: `docs/drd/backup-and-recovery.md` (predates plugin-based backup — needs revision)
 
 ## Renovation / Update Automation
 
-Automated dependency update configuration is now committed in `renovate.json5`.
-
-Current status:
-
-- Renovate is configured with `config:recommended`
-- Updates are scheduled for weekends
-- Flux, Kubernetes manifest, and Terraform managers are enabled in config
-- Major updates are labeled for manual review
-- The repo config does not enable automerge
-- Renovate tracks `kubectl` version in `analytics/collectors/k8s/Dockerfile` via inline comment datasource annotation
-- Renovate tracks the analytics-collector image tag in `platform/analytics/cronjob.yaml`
-
-Important scope note:
-
-- This document reflects committed repo config only; whether Renovate is actively running still depends on repository-side app/install enablement outside this repo
+- `renovate.json5`: `config:recommended`, weekend schedule, no automerge
+- Managers enabled: Flux, Kubernetes manifest, Terraform, Dockerfile
+- Tracks `kubectl` version in `analytics/collectors/k8s/Dockerfile` via inline annotation
+- Tracks analytics-collector image tag in `platform/analytics/cronjob.yaml`
+- Whether Renovate is actively running depends on repo-host app enablement (outside this repo)
 
 ## Repo Guardrails
 
-Current repo hygiene controls committed in Git:
-
-- Pre-commit hooks check for large added files and merge conflicts
-- `detect-secrets` is configured with `.secrets.baseline`
-- SOPS-encrypted secret files are validated by `scripts/check-sops-encrypted.sh`
-- The secret-scanning config explicitly excludes encrypted SOPS payload files from false positives
+- Pre-commit: large-file check, merge-conflict detection, `detect-secrets` (`.secrets.baseline`), SOPS encryption validation (`scripts/check-sops-encrypted.sh`)
 
 ## What Is Stable vs. What Is Still In Flight
 
-Stable repo patterns:
+**Stable:**
+- Terraform, Ansible, Flux, SOPS, pre-commit guardrails
+- CNPG for PostgreSQL with Barman Cloud backup
+- Host and cluster analytics collectors writing to S3
+- dbt model layer (committed, pending deployment)
 
-- Terraform for infrastructure
-- Ansible for host bootstrap and k3s setup
-- Flux for GitOps reconciliation
-- SOPS for secret storage
-- pre-commit secret and encryption guardrails
-- CNPG for PostgreSQL
-- `base` plus `prod` app layout
-- Host and cluster analytics collectors running and writing to Object Storage
-
-Still in flight:
-
-- explicit ingress platform management in Git
-- PostgreSQL restore drill and recovery documentation polish
-- cleanup or normalization of the legacy `whoami` test workload layout
-- validation that Renovate is enabled and operating against the repository host
-- billing collector commit and Ansible wiring (deferred until after Phase 4)
-- analytics Phases 4–6 (dbt modeling, dashboard, pipeline wiring)
-
-## Practical Bottom Line
-
-The repository is past initial bootstrap and now defines a working GitOps-shaped platform with:
-
-- infrastructure provisioning
-- host hardening
-- k3s bootstrap
-- Flux reconciliation
-- encrypted secrets
-- pre-commit repo guardrails
-- cert-manager
-- CloudNativePG
-- a PostgreSQL-backed `n8n` app
-- an `actual` deployment
-- a `linkding` bookmarks app
-- a retained `whoami` test app
-- a host analytics collector running every 15 minutes via systemd
-- a cluster analytics collector running every 15 minutes via Flux CronJob
-
-The main unfinished areas are restore validation for PostgreSQL, explicit ingress ownership in Git, documentation drift cleanup, confirming Renovate is active at the repository host level, committing the billing collector, and completing the analytical layer through Phases 4–6.
+**In flight:**
+- Ansible role for dbt systemd timer (Phase 4 completion)
+- Merging `analytics` branch to `main`
+- Billing collector `collect.py` and Ansible wiring (after Phase 4)
+- Analytics Phases 5–6 (dashboard, pipeline wiring, retention)
+- PostgreSQL restore drill + `docs/drd/backup-and-recovery.md` revision
+- Explicit ingress management in Git (`platform/ingress/` is empty)
+- `whoami` namespace convention cleanup
+- Confirming Renovate is active at repository host level

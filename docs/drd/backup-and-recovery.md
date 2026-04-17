@@ -192,9 +192,8 @@ If the cluster appears to return to the same state after an etcd restore, that c
 
    ```bash
    restic ls <snapshot-id> /srv/data/k3s-local-path
+   sudo find /srv/data/k3s-local-path -maxdepth 2 -type d | sort
    ```
-
-sudo find /srv/data/k3s-local-path -maxdepth 2 -type d | sort
 
 4. **Restore to a temporary directory first:**
 
@@ -256,7 +255,6 @@ sudo find /srv/data/k3s-local-path -maxdepth 2 -type d | sort
    ```
 
 10. **Verify the application is healthy.**
-    clear the cache chrome://settings/content/all?searchSubpage=titas
 
 ---
 
