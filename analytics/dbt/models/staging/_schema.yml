@@ -2,6 +2,23 @@ version: 2
 
 models:
 
+  - name: stg_meta_pipeline_runs
+    description: "Collector pipeline run metadata — one row per run. Exit code and timestamp cast to typed columns."
+    columns:
+      - name: snapshot_id
+        data_tests:
+          - unique
+          - not_null
+      - name: collected_at
+        data_tests:
+          - not_null
+      - name: collector
+        data_tests:
+          - not_null
+      - name: exit_code
+        data_tests:
+          - not_null
+
   - name: stg_host_snapshots
     description: "Normalised host collector snapshots — one row per 15-minute run. CPU, memory, disk, uptime, and service status cast to typed columns."
     columns:

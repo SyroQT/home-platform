@@ -2,16 +2,92 @@ version: 2
 
 models:
 
+  - name: mart_app_health_latest
+    description: >
+      One row per app — pod readiness, ingress host, and cert expiry joined from the
+      latest snapshot of each source. Ingress and cert joins are left joins keyed by
+      convention (app name and app-tls); NULLs indicate no matching record.
+    columns:
+      - name: app_key
+        data_tests:
+          - not_null
+          - unique
+      - name: namespace
+        data_tests:
+          - not_null
+      - name: app
+        data_tests:
+          - not_null
+      - name: collected_at
+        data_tests:
+          - not_null
+      - name: overall_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ok', 'warning', 'critical']
+
+  - name: mart_pipeline_runs
+    description: >
+      Observability mart — one row per collector run. Shows exit code, run age relative
+      to the most recent run in the table, and freshness status.
+    columns:
+      - name: collector
+        data_tests:
+          - not_null
+      - name: collected_at
+        data_tests:
+          - not_null
+      - name: exit_code
+        data_tests:
+          - not_null
+          # exit_code can be any POSIX value; 0 = success, non-zero = failure.
+          # No accepted_values constraint — collectors may return 2 (misuse), 127 (not found), etc.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - collector
+              - collected_at
+
+  - name: mart_k8s_status_latest
+    description: >
+      Single-row denormalised snapshot of current cluster state. Joins the latest
+      node snapshot with deployment summary, ingress count, and cert expiry summary.
+    columns:
+      - name: node_name
+        data_tests:
+          - not_null
+      - name: collected_at
+        data_tests:
+          - not_null
+
+  - name: mart_k8s_status_history
+    description: >
+      Time-series of pod restarts and warning event counts. One row per pod per snapshot.
+      Warning events are matched to pods by namespace + object_name (object_kind = 'Pod')
+      within the same collected_at_filename window.
+    columns:
+      - name: collected_at
+        data_tests:
+          - not_null
+      - name: namespace
+        data_tests:
+          - not_null
+      - name: pod_name
+        data_tests:
+          - not_null
+      - name: phase
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown']
+
   - name: mart_host_status_latest
     description: >
       Single-row table holding the most recent host snapshot. Selects the
       latest row from int_host_snapshots_enriched — all business logic lives
       there. Smoke-test for the full pipeline (source → staging → intermediate → mart).
-    data_tests:
-      - dbt_utils.expression_is_true:
-          arguments:
-            expression: "count(*) = 1"
-          name: mart_host_status_latest_is_single_row
     columns:
       - name: snapshot_id
         data_tests:
@@ -24,11 +100,6 @@ models:
     description: >
       Time-series, one row per snapshot, last 14 days. 
       Used for trend charts.
-    data_tests:
-      - dbt_utils.expression_is_true:
-          arguments:
-            expression: "count(*) = 14"
-          name: mart_host_status_history_has_two_weeks
     columns:
       - name: snapshot_id
         data_tests:

@@ -15,7 +15,12 @@ FIXTURE_DIR = pathlib.Path(__file__).parent / "fixtures" / "k8s"
 
 
 def load(name: str) -> object:
-    return json.loads((FIXTURE_DIR / name / "sample.json").read_text())
+    fixture_dir = FIXTURE_DIR / name
+    # Support both timestamp-named files (dbt dev fixtures) and legacy sample.json
+    candidates = sorted(fixture_dir.glob("*.json"))
+    if not candidates:
+        raise FileNotFoundError(f"No fixture files found in {fixture_dir}")
+    return json.loads(candidates[0].read_text())
 
 
 # ---------------------------------------------------------------------------
