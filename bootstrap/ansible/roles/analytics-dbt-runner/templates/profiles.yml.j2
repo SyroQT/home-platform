@@ -1,0 +1,25 @@
+home_platform:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /tmp/analytics_dev.duckdb
+      extensions:
+        - httpfs
+        - json
+      settings:
+      threads: 2
+
+    prod:
+      type: duckdb
+      path: "{% raw %}{{ env_var('DBT_DUCKDB_PATH', '/srv/data/analytics/analytics.duckdb') }}{% endraw %}"
+      extensions:
+        - httpfs
+        - json
+      settings:
+        s3_endpoint: "{{ analytics_s3_endpoint }}"
+        s3_url_style: path
+        s3_access_key_id: "{{ analytics_s3_access_key }}"
+        s3_secret_access_key: "{{ analytics_s3_secret_key }}"
+        s3_region: "us-east-1"
+      threads: 2
