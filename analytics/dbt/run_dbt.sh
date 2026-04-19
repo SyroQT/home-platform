@@ -25,8 +25,8 @@ fi
 source "$ENV_FILE"
 
 # Export vars dbt_project.yml reads via env_var()
-export ANALYTICS_S3_ACCESS_KEY="${S3_ACCESS_KEY_ID:?S3_ACCESS_KEY_ID not set in env file}"
-export ANALYTICS_S3_SECRET_KEY="${S3_SECRET_ACCESS_KEY:?S3_SECRET_ACCESS_KEY not set in env file}"
+export ANALYTICS_S3_ACCESS_KEY="${AWS_ACCESS_KEY_ID:?AWS_ACCESS_KEY_ID not set in env file}"
+export ANALYTICS_S3_SECRET_KEY="${AWS_SECRET_ACCESS_KEY:?AWS_SECRET_ACCESS_KEY not set in env file}"
 export ANALYTICS_S3_BUCKET="${S3_BUCKET:?S3_BUCKET not set in env file}"
 export ANALYTICS_S3_ENDPOINT="${S3_ENDPOINT:-https://nbg1.your-objectstorage.com}"
 export ANALYTICS_RAW_BASE_PATH="${ANALYTICS_RAW_BASE_PATH:-s3://${ANALYTICS_S3_BUCKET}/analytics/raw}"
