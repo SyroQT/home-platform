@@ -1,0 +1,89 @@
+---
+- name: Check uv
+  ansible.builtin.command: uv --version
+  failed_when: false
+  changed_when: false
+  register: uv_check
+
+- name: Install uv
+  ansible.builtin.shell: curl -LsSf https://astral.sh/uv/install.sh | sh
+  environment:
+    UV_INSTALL_DIR: /usr/local/bin
+  when: uv_check.rc != 0
+
+- name: Create dbt install dir
+  ansible.builtin.file:
+    path: "{{ analytics_dbt_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create virtualenv
+  ansible.builtin.command: uv venv {{ analytics_dbt_venv_dir }}
+  args:
+    creates: "{{ analytics_dbt_venv_dir }}"
+
+- name: Install dbt-duckdb
+  ansible.builtin.command: >
+    uv pip install --python {{ analytics_dbt_venv_dir }}
+    dbt-duckdb=={{ analytics_dbt_version }}
+
+- name: Sync dbt project files
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../../../analytics/dbt/"
+    dest: "{{ analytics_dbt_install_dir }}/"
+    rsync_opts:
+      - "--exclude=profiles.yml"
+      - "--exclude=.user.yml"
+      - "--exclude=target/"
+      - "--exclude=dbt_packages/"
+    delete: true
+
+- name: Set run_dbt.sh permissions
+  ansible.builtin.file:
+    path: "{{ analytics_dbt_install_dir }}/run_dbt.sh"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Template profiles.yml
+  ansible.builtin.template:
+    src: profiles.yml.j2
+    dest: "{{ analytics_dbt_install_dir }}/profiles.yml"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Run dbt deps
+  ansible.builtin.command: >
+    uv run dbt deps --profiles-dir {{ analytics_dbt_install_dir }}
+  args:
+    chdir: "{{ analytics_dbt_install_dir }}"
+  environment:
+    UV_PROJECT_ENVIRONMENT: "{{ analytics_dbt_venv_dir }}"
+  changed_when: false
+
+- name: Install systemd service
+  ansible.builtin.template:
+    src: dbt-runner.service.j2
+    dest: /etc/systemd/system/analytics-dbt-runner.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Install systemd timer
+  ansible.builtin.template:
+    src: dbt-runner.timer.j2
+    dest: /etc/systemd/system/analytics-dbt-runner.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Enable and start timer
+  ansible.builtin.systemd:
+    name: analytics-dbt-runner.timer
+    enabled: true
+    state: started
