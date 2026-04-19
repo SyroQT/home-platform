@@ -45,7 +45,7 @@ echo "${LOG_PREFIX} Starting dbt build (tmp: ${DB_TMP})"
 
 # ── Run dbt ───────────────────────────────────────────────────────────────────
 cd "$SCRIPT_DIR"
-if dbt build --profiles-dir . --target prod "$@"; then
+if uv run dbt build --profiles-dir . --target prod "$@"; then
   echo "${LOG_PREFIX} dbt build succeeded — swapping into place"
   mv "$DB_TMP" "$DB_PATH"
   echo "${LOG_PREFIX} Done. DB updated at ${DB_PATH}"

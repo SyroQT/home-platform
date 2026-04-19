@@ -32,13 +32,13 @@ models:
       - name: cpu_status
         description: >
           CPU pressure relative to core count (var: cpu_cores, default 2).
-          'ok' if cpu_load_5m/cores ≤ 1.5;
+          'healthy' if cpu_load_5m/cores ≤ 1.5;
           'warning' if > 1.5;
           'critical' if > 3.0.
         data_tests:
           - accepted_values:
               arguments:
-                values: ['ok', 'warning', 'critical']
+                values: ['healthy', 'warning', 'critical']
 
       - name: mem_total_mb
         description: "Total physical memory in MB."
@@ -79,11 +79,11 @@ models:
         description: "Root filesystem (/) total in GB."
 
       - name: disk_root_status
-        description: "'ok' / 'warning' (>70%) / 'critical' (>85%) based on disk_root_used_pct."
+        description: "'healthy' / 'warning' (>70%) / 'critical' (>85%) based on disk_root_used_pct."
         data_tests:
           - accepted_values:
               arguments:
-                values: ['ok', 'warning', 'critical']
+                values: ['healthy', 'warning', 'critical']
 
       - name: disk_data_used_pct
         description: "/srv/data used %. NULL if mount not present."
@@ -95,11 +95,11 @@ models:
         description: "/srv/data total in GB. NULL if mount not present."
 
       - name: disk_data_status
-        description: "'ok' / 'warning' (>70%) / 'critical' (>85%) based on disk_data_used_pct."
+        description: "'healthy' / 'warning' (>70%) / 'critical' (>85%) based on disk_data_used_pct."
         data_tests:
           - accepted_values:
               arguments:
-                values: ['ok', 'warning', 'critical']
+                values: ['healthy', 'warning', 'critical']
 
       - name: svc_k3s_active
         description: "k3s service active at collection time."
@@ -111,8 +111,8 @@ models:
         description: "restic-backup.timer active at collection time."
 
       - name: services_status
-        description: "'ok' if all three active, 'warning' if only restic inactive, 'critical' if k3s or sshd inactive."
+        description: "'healthy' if all three active, 'warning' if only restic inactive, 'critical' if k3s or sshd inactive."
         data_tests:
           - accepted_values:
               arguments:
-                values: ['ok', 'warning', 'critical']
+                values: ['healthy', 'warning', 'critical']
