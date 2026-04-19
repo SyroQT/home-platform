@@ -1,6 +1,6 @@
 # Project Status
 
-Last reviewed: 2026-04-17
+Last reviewed: 2026-04-19
 
 This document reflects the repository as it exists today. It is a repo-state summary, not a live-cluster health report. Current working branch: `analytics` (Phase 4 in progress, not yet merged to main).
 
@@ -10,7 +10,7 @@ This document reflects the repository as it exists today. It is a repo-state sum
 - Infrastructure: Terraform at `bootstrap/terraform-hcloud/`; host bootstrap + k3s via Ansible at `bootstrap/ansible/`.
 - Secrets: SOPS-encrypted manifests under `secrets/prod/`, decrypted by Flux.
 - Workloads: `n8n`, `actual`, `linkding`, `whoami` (test), `postgres`.
-- Analytics layer: Phases 1–3 complete (collectors running). Phase 4 dbt models committed on `analytics` branch, VPS systemd timer not yet wired (no Ansible role).
+- Analytics layer: Phases 1–4 complete on `analytics` branch. Collectors running, dbt models committed, Ansible role + systemd timer wired. Pending merge to main.
 
 ## Canonical Paths
 
@@ -80,7 +80,7 @@ All app pods carry label `home-platform/analytics-collect: "true"` for app-healt
 | 2 | Host collector | ✅ Done |
 | 3 | Cluster collector | ✅ Done |
 | 3.5 | Billing collector | 🔄 Deferred — billing dir committed (README only), collect.py pending |
-| 4 | DuckDB and dbt modeling | 🔄 In progress — models committed on `analytics` branch, VPS timer not yet wired |
+| 4 | DuckDB and dbt modeling | ✅ Done — models committed, `analytics-dbt-runner` Ansible role + systemd timer wired |
 | 5 | Python dashboard | ⬜ Not started |
 | 6 | Transform job, pipeline wiring, retention | ⬜ Not started |
 
@@ -91,7 +91,7 @@ All app pods carry label `home-platform/analytics-collect: "true"` for app-healt
 | Host collector | Ansible | systemd timer (15 min) | Raw snapshots → S3 |
 | Cluster collector | Flux | CronJob (offset 5 min, every 15 min) | Raw snapshots → S3 |
 | Billing collector | Ansible | systemd timer (monthly) | Raw snapshots → S3 |
-| Modeling (dbt-duckdb) | Ansible | systemd timer | Curated marts in DuckDB |
+| Modeling (dbt-duckdb) | Ansible (`analytics-dbt-runner`) | systemd timer `:10/:25/:40/:55` | Curated marts in DuckDB |
 | Presentation | Python app | Flux Deployment | Dashboard HTML + Plotly |
 
 ### Collectors (complete)
@@ -116,7 +116,7 @@ Key decisions:
 - dbt runs as VPS systemd timer (Ansible-managed), not a Flux CronJob
 - `mart_billing_daily` should be stubbed until billing snapshots exist in S3
 
-Still needed for Phase 4 completion: Ansible role + systemd timer for `run_dbt.sh` on the VPS.
+Phase 4 is complete. See `docs/setup/08_analytics-dbt-runner.md` for deployment and verification.
 
 ### Object Storage
 
@@ -161,8 +161,7 @@ Current secret files: `demo-secret`, `n8n`, `postgres`, `postgres-backup`, `post
 - dbt model layer (committed, pending deployment)
 
 **In flight:**
-- Ansible role for dbt systemd timer (Phase 4 completion)
-- Merging `analytics` branch to `main`
+- Merging `analytics` branch to `main` (Phase 4 complete, pending review)
 - Billing collector `collect.py` and Ansible wiring (after Phase 4)
 - Analytics Phases 5–6 (dashboard, pipeline wiring, retention)
 - PostgreSQL restore drill + `docs/drd/backup-and-recovery.md` revision
