@@ -132,14 +132,14 @@ Description=Analytics dbt runner timer
 Requires=analytics-dbt-runner.service
 
 [Timer]
-OnCalendar=*:10/25/40/55
+OnCalendar=*:10,25,40,55
 Persistent=true
 
 [Install]
 WantedBy=timers.target
 ```
 
-Schedule offset from host collectors (`*:0/15`) to avoid resource contention: fires at :10, :35 past each hour (25-minute cadence).
+Schedule offset from host collectors (`*:0/15`) to avoid resource contention: fires at :10, :25, :40, :55 (every 15 minutes, 10-minute offset). Comma-list syntax avoids ambiguity with systemd's `/` step operator.
 
 ---
 
