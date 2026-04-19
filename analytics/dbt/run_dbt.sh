@@ -12,7 +12,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DB_PATH="/srv/data/analytics/analytics.duckdb"
-DB_TMP="${DB_PATH}.tmp"
+DB_TMP="/srv/data/analytics/analytics_build.duckdb"
 ENV_FILE="/etc/analytics/host-collector.env"
 LOG_PREFIX="[run_dbt]"
 
