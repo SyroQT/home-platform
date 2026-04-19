@@ -28,6 +28,7 @@
   ansible.builtin.command: >
     uv pip install --python {{ analytics_dbt_venv_dir }}
     dbt-duckdb=={{ analytics_dbt_version }}
+  changed_when: false
 
 - name: Sync dbt project files
   ansible.posix.synchronize:
