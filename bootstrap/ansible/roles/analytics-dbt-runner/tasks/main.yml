@@ -11,6 +11,14 @@
     UV_INSTALL_DIR: /usr/local/bin
   when: uv_check.rc != 0
 
+- name: Create analytics data dir
+  ansible.builtin.file:
+    path: /srv/data/analytics
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Create dbt install dir
   ansible.builtin.file:
     path: "{{ analytics_dbt_install_dir }}"
