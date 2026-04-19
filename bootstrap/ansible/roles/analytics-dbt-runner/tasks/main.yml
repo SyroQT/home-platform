@@ -41,6 +41,14 @@
       - "--exclude=dbt_packages/"
     delete: true
 
+- name: Deploy pyproject.toml
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../analytics/pyproject.toml"
+    dest: "{{ analytics_dbt_install_dir }}/pyproject.toml"
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Set run_dbt.sh permissions
   ansible.builtin.file:
     path: "{{ analytics_dbt_install_dir }}/run_dbt.sh"
