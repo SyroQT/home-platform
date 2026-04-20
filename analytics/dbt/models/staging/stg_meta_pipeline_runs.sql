@@ -1,4 +1,6 @@
 {{ config(
+    materialized = 'incremental',
+    unique_key = 'snapshot_id',
     tags = ['staging', 'meta']
 ) }}
 -- stg_meta_pipeline_runs
@@ -19,6 +21,16 @@ WITH raw AS (
             'source_meta',
             'snapshots'
         ) }}
+
+{% if is_incremental() %}
+WHERE
+    filename NOT IN (
+        SELECT
+            DISTINCT filename
+        FROM
+            {{ this }}
+    )
+{% endif %}
 )
 SELECT
     {{ dbt_utils.generate_surrogate_key(['filename']) }} AS snapshot_id,

@@ -1,4 +1,6 @@
 {{ config(
+    materialized = 'incremental',
+    unique_key = 'snapshot_id',
     tags = ['staging', 'k8s']
 ) }}
 -- stg_k8s_certs
@@ -19,12 +21,25 @@
 --     conditions[]  [{type, status, reason, message, lastTransitionTime, observedGeneration}]
 WITH raw AS (
 
-    SELECT *
-    FROM {{ source('source_k8s_certs', 'snapshots') }}
+    SELECT
+        *
+    FROM
+        {{ source(
+            'source_k8s_certs',
+            'snapshots'
+        ) }}
+
+{% if is_incremental() %}
+WHERE
+    filename NOT IN (
+        SELECT
+            DISTINCT filename
+        FROM
+            {{ this }}
+    )
+{% endif %}
 ),
-
 unpacked AS (
-
     SELECT
         filename,
         try_strptime(
@@ -36,11 +51,10 @@ unpacked AS (
             '%Y-%m-%dT%H-%M-%S.%f%z'
         ) AS collected_at_filename,
         unnest(items) AS item
-    FROM raw
+    FROM
+        raw
 ),
-
 temp AS (
-
     SELECT
         filename,
         collected_at_filename,
@@ -48,22 +62,36 @@ temp AS (
         item.namespace :: VARCHAR AS namespace,
         item.common_name :: VARCHAR AS common_name,
         -- Primary DNS name is the first in the list; keep full list for reference
-        list_extract(item.dns_names, 1) :: VARCHAR AS primary_dns_name,
-        len(item.dns_names) AS dns_name_count,
+        list_extract(
+            item.dns_names,
+            1
+        ) :: VARCHAR AS primary_dns_name,
+        len(
+            item.dns_names
+        ) AS dns_name_count,
         -- Issuer
         item.issuer_ref.kind :: VARCHAR AS issuer_kind,
         item.issuer_ref.name :: VARCHAR AS issuer_name,
         -- Validity window
-        item.not_before :: TIMESTAMPTZ AS not_before,
-        item.not_after :: TIMESTAMPTZ AS not_after,
-        item.renewal_time :: TIMESTAMPTZ AS renewal_time,
+        item.not_before :: timestamptz AS not_before,
+        item.not_after :: timestamptz AS not_after,
+        item.renewal_time :: timestamptz AS renewal_time,
         -- Ready condition
-        list_filter(item.conditions, x -> x.type = 'Ready')[1].status :: VARCHAR AS condition_ready_status,
-        list_filter(item.conditions, x -> x.type = 'Ready')[1].lastTransitionTime :: TIMESTAMPTZ AS ready_since,
-        list_filter(item.conditions, x -> x.type = 'Ready')[1].message :: VARCHAR AS ready_message,
-    FROM unpacked
+        list_filter(
+            item.conditions,
+            x -> x.type = 'Ready'
+        ) [1].status :: VARCHAR AS condition_ready_status,
+        list_filter(
+            item.conditions,
+            x -> x.type = 'Ready'
+        ) [1].lastTransitionTime :: timestamptz AS ready_since,
+        list_filter(
+            item.conditions,
+            x -> x.type = 'Ready'
+        ) [1].message :: VARCHAR AS ready_message,
+    FROM
+        unpacked
 )
-
 SELECT
     {{ dbt_utils.generate_surrogate_key(['filename', 'namespace', 'cert_name']) }} AS snapshot_id,
     collected_at_filename,
@@ -77,7 +105,10 @@ SELECT
     not_before,
     not_after,
     renewal_time,
-    COALESCE(condition_ready_status = 'True', FALSE) AS cert_ready,
+    COALESCE(
+        condition_ready_status = 'True',
+        FALSE
+    ) AS cert_ready,
     ready_since,
     ready_message,
     -- Days remaining until expiry at collection time (NULL if collected_at_filename is NULL)
@@ -88,5 +119,6 @@ SELECT
     ) AS days_until_expiry,
     -- Whether the cert is within its renewal window
     collected_at_filename IS NOT NULL
-        AND collected_at_filename >= renewal_time AS renewal_due,
-FROM temp
+    AND collected_at_filename >= renewal_time AS renewal_due,
+FROM
+    temp
