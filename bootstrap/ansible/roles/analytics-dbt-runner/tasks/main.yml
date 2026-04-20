@@ -81,7 +81,7 @@
     UV_PROJECT_ENVIRONMENT: "{{ analytics_dbt_venv_dir }}"
   changed_when: false
 
-- name: Install systemd service
+- name: Install systemd service runner
   ansible.builtin.template:
     src: dbt-runner.service.j2
     dest: /etc/systemd/system/analytics-dbt-runner.service
@@ -102,5 +102,29 @@
 - name: Enable and start timer
   ansible.builtin.systemd:
     name: analytics-dbt-runner.timer
+    enabled: true
+    state: started
+
+- name: Install systemd service metadata
+  ansible.builtin.template:
+    src: dbt-runner-meta.service.j2
+    dest: /etc/systemd/system/analytics-dbt-runner-meta.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Install systemd timer metadata
+  ansible.builtin.template:
+    src: dbt-runner-meta.timer.j2
+    dest: /etc/systemd/system/analytics-dbt-runner-meta.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Enable and start timer metadata
+  ansible.builtin.systemd:
+    name: analytics-dbt-runner-meta.timer
     enabled: true
     state: started
