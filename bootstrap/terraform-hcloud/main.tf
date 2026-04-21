@@ -36,12 +36,6 @@ resource "hcloud_firewall" "vps" {
     source_ips = ["0.0.0.0/0", "::/0"]
   }
 
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "6443"
-    source_ips = var.kube_api_allowed_cidrs
-  }
 }
 
 resource "hcloud_server" "vps" {
