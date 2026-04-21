@@ -1,4 +1,6 @@
 {{ config(
+    materialized = 'incremental',
+    unique_key = 'snapshot_id',
     tags = ['staging', 'host']
 ) }}
 -- stg_host_snapshots
@@ -52,6 +54,16 @@ WITH raw AS (
             'source_host',
             'snapshots'
         ) }}
+
+{% if is_incremental() %}
+WHERE
+    filename NOT IN (
+        SELECT
+            DISTINCT filename
+        FROM
+            {{ this }}
+    )
+{% endif %}
 )
 SELECT
     {{ dbt_utils.generate_surrogate_key(['filename']) }} AS snapshot_id,

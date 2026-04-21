@@ -15,10 +15,10 @@ One Hetzner Object Storage access key pair is currently used in four places.
 
 | Consumer | Source file | Delivery path | Verification |
 | --- | --- | --- | --- |
-| Terraform bucket access | [`bootstrap/terraform-hcloud/terraform.tfvars`](/Users/syro/Documents/Work/personal/home-platform/bootstrap/terraform-hcloud/terraform.tfvars) | Local Terraform CLI | `aws s3api get-bucket-versioning ...` |
-| Restic on VPS | [`bootstrap/ansible/inventories/prod/group_vars/vps/secrets.yml`](/Users/syro/Documents/Work/personal/home-platform/bootstrap/ansible/inventories/prod/group_vars/vps/secrets.yml) | Ansible renders `/etc/restic/env` | `restic snapshots` on VPS |
-| K3s etcd snapshots on VPS | [`bootstrap/ansible/inventories/prod/group_vars/vps/secrets.yml`](/Users/syro/Documents/Work/personal/home-platform/bootstrap/ansible/inventories/prod/group_vars/vps/secrets.yml) | Ansible renders `/etc/rancher/k3s/config.yaml.d/etcd-s3.yaml` | inspect rendered file and K3s logs |
-| PostgreSQL backup in cluster | [`secrets/prod/postgres-backup.sops.yaml`](/Users/syro/Documents/Work/personal/home-platform/secrets/prod/postgres-backup.sops.yaml) | Flux decrypts and applies Kubernetes Secret | `kubectl get secret ...` |
+| Terraform bucket access | `bootstrap/terraform-hcloud/terraform.tfvars` | Local Terraform CLI | `aws s3api get-bucket-versioning ...` |
+| Restic on VPS | `bootstrap/ansible/inventories/prod/group_vars/vps/secrets.yml` | Ansible renders `/etc/restic/env` | `restic snapshots` on VPS |
+| K3s etcd snapshots on VPS | `bootstrap/ansible/inventories/prod/group_vars/vps/secrets.yml` | Ansible renders `/etc/rancher/k3s/config.yaml.d/etcd-s3.yaml` | inspect rendered file and K3s logs |
+| PostgreSQL backup in cluster | `secrets/prod/postgres-backup.sops.yaml` | Flux decrypts and applies Kubernetes Secret | `kubectl get secret ...` |
 
 ## Preconditions
 
@@ -41,7 +41,7 @@ The examples below use:
 
 ## Step 1: Update Terraform Credentials
 
-Edit [`bootstrap/terraform-hcloud/terraform.tfvars`](/Users/syro/Documents/Work/personal/home-platform/bootstrap/terraform-hcloud/terraform.tfvars) and replace:
+Edit `bootstrap/terraform-hcloud/terraform.tfvars` and replace:
 
 - `object_storage_access_key`
 - `object_storage_secret_key`
@@ -67,7 +67,7 @@ Expected output:
 
 ## Step 2: Update VPS Backup Credentials for Restic and K3s
 
-Edit [`bootstrap/ansible/inventories/prod/group_vars/vps/secrets.yml`](/Users/syro/Documents/Work/personal/home-platform/bootstrap/ansible/inventories/prod/group_vars/vps/secrets.yml) and replace:
+Edit `bootstrap/ansible/inventories/prod/group_vars/vps/secrets.yml` and replace:
 
 - `backup_s3_access_key`
 - `backup_s3_secret_key`
@@ -84,7 +84,7 @@ ansible-playbook \
   bootstrap/ansible/playbooks/backup.yml
 ```
 
-This rewrites `/etc/restic/env` from [`restic-env.j2`](/Users/syro/Documents/Work/personal/home-platform/bootstrap/ansible/roles/restic/templates/restic-env.j2).
+This rewrites `/etc/restic/env` from `bootstrap/ansible/roles/restic/templates/restic-env.j2`.
 
 Verify the rendered environment file:
 
@@ -124,7 +124,7 @@ ansible-playbook \
   bootstrap/ansible/playbooks/k3s.yml
 ```
 
-This rewrites `/etc/rancher/k3s/config.yaml.d/etcd-s3.yaml` from [`k3s-etcd-s3.yml.j2`](/Users/syro/Documents/Work/personal/home-platform/bootstrap/ansible/roles/k3s/templates/k3s-etcd-s3.yml.j2) and notifies a K3s restart.
+This rewrites `/etc/rancher/k3s/config.yaml.d/etcd-s3.yaml` from `bootstrap/ansible/roles/k3s/templates/k3s-etcd-s3.yml.j2` and notifies a K3s restart.
 
 Verify the rendered K3s S3 config:
 
@@ -169,7 +169,7 @@ Replace:
 - `stringData.ACCESS_KEY_ID`
 - `stringData.ACCESS_SECRET_KEY`
 
-This secret is consumed by [`apps/postgres/base/objectstore.yaml`](/Users/syro/Documents/Work/personal/home-platform/apps/postgres/base/objectstore.yaml) through the `postgres-backup-s3` Secret in namespace `infra-postgres`.
+This secret is consumed by `apps/postgres/base/objectstore.yaml` through the `postgres-backup-s3` Secret in namespace `infra-postgres`.
 
 ## Step 6: Reconcile Flux Secrets
 
@@ -179,7 +179,7 @@ Apply the updated SOPS secret through Flux:
 flux reconcile kustomization secrets -n flux-system
 ```
 
-This uses the Flux `Kustomization` named `secrets` from [`clusters/vps-prod/kustomizations/secrets.yaml`](/Users/syro/Documents/Work/personal/home-platform/clusters/vps-prod/kustomizations/secrets.yaml).
+This uses the Flux `Kustomization` named `secrets` from `clusters/vps-prod/kustomizations/secrets.yaml`.
 
 Verify the Secret exists:
 

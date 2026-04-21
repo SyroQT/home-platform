@@ -10,3 +10,22 @@
 
   roles:
     - analytics-host-collector
+
+# This play must run after analytics-host-collector: run_dbt.sh sources
+# /etc/analytics/host-collector.env for S3 credentials at runtime.
+- name: Deploy analytics dbt runner
+  hosts: vps
+  become: true
+  pre_tasks:
+    - name: Load analytics S3 credentials
+      community.sops.load_vars:
+        file: "{{ playbook_dir }}/../../../secrets/prod/analytics-s3.sops.yaml"
+        name: analytics_s3_creds
+
+    - name: Set S3 credential vars
+      ansible.builtin.set_fact:
+        analytics_s3_access_key: "{{ analytics_s3_creds.stringData.analytics_s3_access_key_id }}"
+        analytics_s3_secret_key: "{{ analytics_s3_creds.stringData.analytics_s3_secret_access_key }}"
+
+  roles:
+    - analytics-dbt-runner

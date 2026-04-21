@@ -197,10 +197,20 @@ spec:
 The current n8n deployment adds:
 
 - `enableServiceLinks: false`
+- an immutable custom image tag such as `ghcr.io/syroqt/home-platform/n8n:sha-ff70fd8`
+- `imagePullPolicy: IfNotPresent`
 - PostgreSQL env vars
 - app secret references
 - mounted PVC at `/home/node/.n8n`
 - `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true`
+
+For custom app images such as n8n, use manual promotion in Git:
+
+1. update the image source, for example via Renovate in the Dockerfile
+2. build and push a new immutable image tag such as `sha-ff70fd8`
+3. update the deployment manifest to that exact tag
+
+Do not deploy `:latest` for long-lived workloads reconciled by Flux.
 
 ## Step 4. Add the service
 
@@ -347,7 +357,7 @@ Example from n8n:
 
 For the PostgreSQL side, follow:
 
-- `docs/06_postgresql-setup.md`
+- `docs/setup/06_postgresql-setup.md`
 
 ## Step 9. Register the app in the aggregate kustomization
 

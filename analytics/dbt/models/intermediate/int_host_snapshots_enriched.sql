@@ -69,7 +69,7 @@ SELECT
     CASE
         WHEN cpu_load_5m / {{ cpu_cores }} > {{ cpu_load_critical }} THEN 'critical'
         WHEN cpu_load_5m / {{ cpu_cores }} > {{ cpu_load_warning }} THEN 'warning'
-        ELSE 'ok'
+        ELSE 'healthy'
     END AS cpu_status,
     -- Memory (KB → MB)
     CAST(
@@ -109,7 +109,7 @@ SELECT
     CASE
         WHEN disk_root_used_pct > {{ disk_critical_pct }} THEN 'critical'
         WHEN disk_root_used_pct > {{ disk_warning_pct }} THEN 'warning'
-        ELSE 'ok'
+        ELSE 'healthy'
     END AS disk_root_status,
     -- Disk data (KB → GB)
     disk_data_used_pct,
@@ -124,7 +124,7 @@ SELECT
     CASE
         WHEN disk_data_used_pct > {{ disk_critical_pct }} THEN 'critical'
         WHEN disk_data_used_pct > {{ disk_warning_pct }} THEN 'warning'
-        ELSE 'ok'
+        ELSE 'healthy'
     END AS disk_data_status,
     -- Services
     svc_k3s_active,
@@ -134,7 +134,7 @@ SELECT
         WHEN NOT svc_k3s_active
         OR NOT svc_sshd_active THEN 'critical'
         WHEN NOT svc_restic_timer_active THEN 'warning'
-        ELSE 'ok'
+        ELSE 'healthy'
     END AS services_status
 FROM
     enriched

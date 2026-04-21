@@ -1,4 +1,6 @@
 {{ config(
+    materialized = 'incremental',
+    unique_key = 'snapshot_id',
     tags = ['staging', 'k8s']
 ) }}
 -- stg_k8s_events
@@ -21,12 +23,25 @@
 --     reporting_component   string
 WITH raw AS (
 
-    SELECT *
-    FROM {{ source('source_k8s_events', 'snapshots') }}
+    SELECT
+        *
+    FROM
+        {{ source(
+            'source_k8s_events',
+            'snapshots'
+        ) }}
+
+{% if is_incremental() %}
+WHERE
+    filename NOT IN (
+        SELECT
+            DISTINCT filename
+        FROM
+            {{ this }}
+    )
+{% endif %}
 ),
-
 unpacked AS (
-
     SELECT
         filename,
         try_strptime(
@@ -38,11 +53,10 @@ unpacked AS (
             '%Y-%m-%dT%H-%M-%S.%f%z'
         ) AS collected_at_filename,
         unnest(items) AS item
-    FROM raw
+    FROM
+        raw
 ),
-
 temp AS (
-
     SELECT
         filename,
         collected_at_filename,
@@ -55,16 +69,16 @@ temp AS (
         item.involved_object.name :: VARCHAR AS object_name,
         item.involved_object.namespace :: VARCHAR AS object_namespace,
         -- Timestamps: new-style events use event_time; legacy events use first/last_timestamp
-        item.event_time :: TIMESTAMPTZ AS event_time,
-        item.first_timestamp :: TIMESTAMPTZ AS first_timestamp,
-        item.last_timestamp :: TIMESTAMPTZ AS last_timestamp,
+        item.event_time :: timestamptz AS event_time,
+        item.first_timestamp :: timestamptz AS first_timestamp,
+        item.last_timestamp :: timestamptz AS last_timestamp,
         item.count :: INTEGER AS event_count,
         item.reporting_component :: VARCHAR AS reporting_component,
-    FROM unpacked
+    FROM
+        unpacked
 )
-
 SELECT
-    {{ dbt_utils.generate_surrogate_key(['filename', 'event_name']) }} AS snapshot_id,
+    {{ dbt_utils.generate_surrogate_key(['filename', 'namespace', 'event_name']) }} AS snapshot_id,
     collected_at_filename,
     event_name,
     namespace,
@@ -76,11 +90,19 @@ SELECT
     object_name,
     object_namespace,
     -- Unified timestamp: prefer event_time (new-style), fall back to last_timestamp (legacy)
-    COALESCE(event_time, last_timestamp, first_timestamp) AS occurred_at,
+    COALESCE(
+        event_time,
+        last_timestamp,
+        first_timestamp
+    ) AS occurred_at,
     event_time,
     first_timestamp,
     last_timestamp,
     -- For legacy events, count tracks how many times the event fired; new-style is always 1
-    COALESCE(event_count, 1) AS event_count,
+    COALESCE(
+        event_count,
+        1
+    ) AS event_count,
     reporting_component,
-FROM temp
+FROM
+    temp

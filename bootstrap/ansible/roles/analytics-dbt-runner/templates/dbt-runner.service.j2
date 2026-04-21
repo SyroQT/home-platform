@@ -1,0 +1,11 @@
+[Unit]
+Description=Analytics dbt runner
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart={{ analytics_dbt_install_dir }}/run_dbt.sh
+Environment=UV_PROJECT_ENVIRONMENT={{ analytics_dbt_venv_dir }}
+Environment=HOME=/root
+StandardOutput=journal
+StandardError=journal

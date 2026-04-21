@@ -7,12 +7,12 @@ write-kubeconfig-group: "deployer"
 default-local-storage-path: "{{ data_mount_point }}/k3s-local-path"
 
 etcd-snapshot-schedule-cron: "0 2 * * *"
-etcd-snapshot-retention: 7
+etcd-snapshot-retention: 3
 etcd-snapshot-compress: true
 
 kubelet-arg:
-  - image-gc-high-threshold=80
-  - image-gc-low-threshold=70
+  - image-gc-high-threshold=65
+  - image-gc-low-threshold=55
 
 tls-san:
   - "{{ ansible_host }}"

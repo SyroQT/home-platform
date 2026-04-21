@@ -1,4 +1,6 @@
 {{ config(
+    materialized = 'incremental',
+    unique_key = 'snapshot_id',
     tags = ['staging', 'k8s']
 ) }}
 -- stg_k8s_workloads
@@ -21,12 +23,25 @@
 --       conditions[]        [{type, status, reason, message, lastTransitionTime, lastUpdateTime}]
 WITH raw AS (
 
-    SELECT *
-    FROM {{ source('source_k8s_workloads', 'snapshots') }}
+    SELECT
+        *
+    FROM
+        {{ source(
+            'source_k8s_workloads',
+            'snapshots'
+        ) }}
+
+{% if is_incremental() %}
+WHERE
+    filename NOT IN (
+        SELECT
+            DISTINCT filename
+        FROM
+            {{ this }}
+    )
+{% endif %}
 ),
-
 unpacked AS (
-
     SELECT
         filename,
         try_strptime(
@@ -38,11 +53,10 @@ unpacked AS (
             '%Y-%m-%dT%H-%M-%S.%f%z'
         ) AS collected_at_filename,
         unnest(items) AS item
-    FROM raw
+    FROM
+        raw
 ),
-
 temp AS (
-
     SELECT
         filename,
         collected_at_filename,
@@ -55,12 +69,21 @@ temp AS (
         item.status.ready_replicas :: INTEGER AS ready_replicas,
         item.status.available_replicas :: INTEGER AS available_replicas,
         -- Conditions
-        list_filter(item.status.conditions, x -> x.type = 'Available')[1].status :: VARCHAR AS condition_available_status,
-        list_filter(item.status.conditions, x -> x.type = 'Progressing')[1].status :: VARCHAR AS condition_progressing_status,
-        list_filter(item.status.conditions, x -> x.type = 'Available')[1].lastTransitionTime :: TIMESTAMPTZ AS available_since,
-    FROM unpacked
+        list_filter(
+            item.status.conditions,
+            x -> x.type = 'Available'
+        ) [1].status :: VARCHAR AS condition_available_status,
+        list_filter(
+            item.status.conditions,
+            x -> x.type = 'Progressing'
+        ) [1].status :: VARCHAR AS condition_progressing_status,
+        list_filter(
+            item.status.conditions,
+            x -> x.type = 'Available'
+        ) [1].lastTransitionTime :: timestamptz AS available_since,
+    FROM
+        unpacked
 )
-
 SELECT
     {{ dbt_utils.generate_surrogate_key(['filename', 'namespace', 'workload_kind', 'workload_name']) }} AS snapshot_id,
     collected_at_filename,
@@ -72,11 +95,18 @@ SELECT
     current_replicas,
     ready_replicas,
     available_replicas,
-    COALESCE(condition_available_status = 'True', FALSE) AS available,
-    COALESCE(condition_progressing_status = 'True', FALSE) AS progressing,
+    COALESCE(
+        condition_available_status = 'True',
+        FALSE
+    ) AS available,
+    COALESCE(
+        condition_progressing_status = 'True',
+        FALSE
+    ) AS progressing,
     available_since,
     -- Derived: fully healthy when all desired replicas are ready and available
     desired_replicas > 0
-        AND ready_replicas = desired_replicas
-        AND available_replicas = desired_replicas AS fully_available,
-FROM temp
+    AND ready_replicas = desired_replicas
+    AND available_replicas = desired_replicas AS fully_available,
+FROM
+    temp

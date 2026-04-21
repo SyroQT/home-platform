@@ -1,7 +1,11 @@
 # Collectors
 
-This directory owns raw data collection logic. Each subdirectory maps to one source domain and should contain only source-specific scripts, packaging, and documentation for writing raw snapshots to the canonical paths defined in [`analytics/README.md`](../README.md).
+Raw data extraction. Each subdirectory owns one source domain and writes immutable timestamped snapshots to the S3 raw zone defined in [`analytics/README.md`](../README.md).
 
-- `host/` owns VPS and operating-system level snapshots.
-- `k8s/` owns Kubernetes cluster and workload snapshot collection.
-- `billing/` owns infrastructure cost snapshot collection.
+| Directory | Source | Runtime |
+|-----------|--------|---------|
+| `host/` | VPS OS signals (`/proc`, `df`, systemd) | systemd timer on VPS |
+| `k8s/` | Kubernetes cluster state via `kubectl` | Flux CronJob in cluster |
+| `billing/` | Hetzner static pricing | systemd timer on VPS |
+
+All collectors emit a metadata record to `analytics/raw/meta/{collector}/{timestamp}.json` after each run, regardless of success or failure.

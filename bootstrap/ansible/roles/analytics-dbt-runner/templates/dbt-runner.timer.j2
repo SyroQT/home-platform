@@ -1,0 +1,10 @@
+[Unit]
+Description=Analytics dbt runner timer
+Requires=analytics-dbt-runner.service
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

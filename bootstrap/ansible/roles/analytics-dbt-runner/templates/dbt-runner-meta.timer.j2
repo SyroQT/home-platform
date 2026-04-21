@@ -1,0 +1,10 @@
+[Unit]
+Description=Analytics dbt runner timer for metadata
+Requires=analytics-dbt-runner-meta.service
+
+[Timer]
+OnCalendar=*-*-* 05:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
