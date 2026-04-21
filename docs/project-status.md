@@ -1,6 +1,6 @@
 # Project Status
 
-Last reviewed: 2026-04-19
+Last reviewed: 2026-04-20
 
 This document reflects the repository as it exists today. It is a repo-state summary, not a live-cluster health report. Current working branch: `analytics` (Phase 4 in progress, not yet merged to main).
 
@@ -10,7 +10,7 @@ This document reflects the repository as it exists today. It is a repo-state sum
 - Infrastructure: Terraform at `bootstrap/terraform-hcloud/`; host bootstrap + k3s via Ansible at `bootstrap/ansible/`.
 - Secrets: SOPS-encrypted manifests under `secrets/prod/`, decrypted by Flux.
 - Workloads: `n8n`, `actual`, `linkding`, `whoami` (test), `postgres`.
-- Analytics layer: Phases 1–4 complete on `analytics` branch. Collectors running, dbt models committed, Ansible role + systemd timer wired. Pending merge to main.
+- Analytics layer: Phases 1–4 complete and deployed. Collectors running, dbt models committed, `analytics-dbt-runner` Ansible role deployed with two systemd timers (daily main + meta runs). `analytics` branch pending merge to main.
 
 ## Canonical Paths
 
@@ -80,7 +80,7 @@ All app pods carry label `home-platform/analytics-collect: "true"` for app-healt
 | 2 | Host collector | ✅ Done |
 | 3 | Cluster collector | ✅ Done |
 | 3.5 | Billing collector | 🔄 Deferred — billing dir committed (README only), collect.py pending |
-| 4 | DuckDB and dbt modeling | ✅ Done — models committed, `analytics-dbt-runner` Ansible role + systemd timer wired |
+| 4 | DuckDB and dbt modeling | ✅ Done and deployed — incremental staging tables, two systemd timers running daily |
 | 5 | Python dashboard | ⬜ Not started |
 | 6 | Transform job, pipeline wiring, retention | ⬜ Not started |
 
@@ -88,10 +88,11 @@ All app pods carry label `home-platform/analytics-collect: "true"` for app-healt
 
 | Layer | Owner | Runtime | Output |
 |-------|-------|---------|--------|
-| Host collector | Ansible | systemd timer (15 min) | Raw snapshots → S3 |
-| Cluster collector | Flux | CronJob (offset 5 min, every 15 min) | Raw snapshots → S3 |
+| Host collector | Ansible | systemd timer (every 15 min) | Raw snapshots → S3 |
+| Cluster collector | Flux | CronJob (every 15 min, 5-min offset) | Raw snapshots → S3 |
 | Billing collector | Ansible | systemd timer (monthly) | Raw snapshots → S3 |
-| Modeling (dbt-duckdb) | Ansible (`analytics-dbt-runner`) | systemd timer `:10/:25/:40/:55` | Curated marts in DuckDB |
+| Meta modeling (dbt-duckdb) | Ansible (`analytics-dbt-runner-meta`) | systemd timer daily 05:00 | Meta models in DuckDB |
+| Main modeling (dbt-duckdb) | Ansible (`analytics-dbt-runner`) | systemd timer daily 06:00 | Curated marts in DuckDB |
 | Presentation | Python app | Flux Deployment | Dashboard HTML + Plotly |
 
 ### Collectors (complete)
@@ -108,15 +109,17 @@ Committed models (all on `analytics` branch):
 - **Intermediate**: `int_host_snapshots_enriched`
 - **Marts**: `mart_host_status_latest`, `mart_host_status_history`, `mart_k8s_status_latest`, `mart_k8s_status_history`, `mart_app_health_latest`, `mart_pipeline_runs`
 
-Production runner script: `analytics/dbt/run_dbt.sh` (atomic `.tmp` → `.duckdb` swap on success).
+Production runner script: `analytics/dbt/run_dbt.sh`. Crash safety via DuckDB WAL — no tmp-file swap needed.
 
 Key decisions:
 - DuckDB reads S3 via `httpfs`; requires `SET s3_url_style='path'` for Hetzner Object Storage (nbg1)
 - DuckDB file at `/srv/data/analytics/analytics.duckdb` (50 GB block volume)
-- dbt runs as VPS systemd timer (Ansible-managed), not a Flux CronJob
-- `mart_billing_daily` should be stubbed until billing snapshots exist in S3
+- Staging tables are **incremental** — each daily run appends only new S3 files; intermediate and marts rebuild from local DuckDB tables (no S3 reads, fast)
+- Meta pipeline (`stg_meta_pipeline_runs` + `tag:meta` models) runs separately at 05:00, decoupled from the main daily run at 06:00
+- dbt runs as VPS systemd timers (Ansible-managed), not Flux CronJobs
+- `mart_billing_daily` stubbed until billing snapshots exist in S3
 
-Phase 4 is complete. See `docs/setup/08_analytics-dbt-runner.md` for deployment and verification.
+Phase 4 is complete and deployed. See [docs/setup/08_analytics-dbt-runner.md](docs/setup/08_analytics-dbt-runner.md) for deployment and verification.
 
 ### Object Storage
 
@@ -158,13 +161,14 @@ Current secret files: `demo-secret`, `n8n`, `postgres`, `postgres-backup`, `post
 - Terraform, Ansible, Flux, SOPS, pre-commit guardrails
 - CNPG for PostgreSQL with Barman Cloud backup
 - Host and cluster analytics collectors writing to S3
-- dbt model layer (committed, pending deployment)
+- dbt model layer deployed and running (incremental staging + daily mart rebuild, meta pipeline decoupled)
 
 **In flight:**
-- Merging `analytics` branch to `main` (Phase 4 complete, pending review)
-- Billing collector `collect.py` and Ansible wiring (after Phase 4)
+- Merging `analytics` branch to `main`
+- Root disk growth investigation — K3s/containerd storage on `/` growing; see `docs/todo/root-disk-growth-investigation.md`
+- Billing collector `collect.py` and Ansible wiring
 - Analytics Phases 5–6 (dashboard, pipeline wiring, retention)
-- PostgreSQL restore drill + `docs/drd/backup-and-recovery.md` revision
+- PostgreSQL restore drill + `docs/drd/backup-and-recovery.md` revision (predates Barman Cloud plugin)
 - Explicit ingress management in Git (`platform/ingress/` is empty)
 - `whoami` namespace convention cleanup
 - Confirming Renovate is active at repository host level

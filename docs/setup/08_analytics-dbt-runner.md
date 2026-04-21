@@ -7,18 +7,26 @@ It covers:
 - what the role installs and where
 - how S3 credentials flow from SOPS to dbt
 - how to deploy it
-- how to verify the timer and the DuckDB output
+- how to verify the timers and the DuckDB output
 
 ## 1. Overview
 
-The `analytics-dbt-runner` role deploys a systemd timer on the VPS that runs `analytics/dbt/run_dbt.sh` every 15 minutes (offset 10 minutes from the host and cluster collectors). It produces the curated DuckDB file at `/srv/data/analytics/analytics.duckdb`.
+The `analytics-dbt-runner` role deploys two systemd timers on the VPS:
 
-It is the last piece of Phase 4 of the analytics layer.
+| Timer | Fires | What it runs |
+|-------|-------|-------------|
+| `analytics-dbt-runner.timer` | Daily at **06:00** | Staging (incremental) + intermediate + marts + tests |
+| `analytics-dbt-runner-meta.timer` | Daily at **05:00** | Meta models only (`tag:meta`) |
+
+Both run `analytics/dbt/run_dbt.sh` (the meta timer passes `--meta`). They write to the shared DuckDB file at `/srv/data/analytics/analytics.duckdb`.
+
+Staging tables are **incremental** — each daily run appends only new S3 files. Intermediate and mart tables are rebuilt from the local staging tables on every run (no S3 reads, fast).
+
+The meta run fires first (05:00) because it is heavier and decoupled from the main pipeline. The main run follows at 06:00 when meta data is already fresh.
 
 ```
-[host collector]   :00/:15/:30/:45  →  raw S3 snapshots
-[cluster collector] :05/:20/:35/:50  →  raw S3 snapshots
-[dbt runner]       :10/:25/:40/:55  →  analytics.duckdb (reads from S3)
+[meta timer]   05:00  →  tag:meta models only
+[main timer]   06:00  →  staging (incremental) → intermediate + marts → tests
 ```
 
 ## 2. What the Role Installs
@@ -28,8 +36,10 @@ It is the last piece of Phase 4 of the analytics layer.
 | `/opt/analytics/dbt/` | dbt project (synced from `analytics/dbt/`) |
 | `/opt/analytics/venv-dbt/` | Python virtualenv with `dbt-duckdb` |
 | `/opt/analytics/dbt/profiles.yml` | dbt connection config (Ansible-templated, mode `0600`) |
-| `/etc/systemd/system/analytics-dbt-runner.service` | oneshot service that runs `run_dbt.sh` |
-| `/etc/systemd/system/analytics-dbt-runner.timer` | timer that fires at `:10/:25/:40/:55` |
+| `/etc/systemd/system/analytics-dbt-runner.service` | oneshot service — runs `run_dbt.sh` |
+| `/etc/systemd/system/analytics-dbt-runner.timer` | daily timer at 06:00 |
+| `/etc/systemd/system/analytics-dbt-runner-meta.service` | oneshot service — runs `run_dbt.sh --meta` |
+| `/etc/systemd/system/analytics-dbt-runner-meta.timer` | daily timer at 05:00 |
 
 `dbt_packages/` and `target/` are excluded from the sync and generated on the VPS by `dbt deps` and `dbt build` respectively.
 
@@ -82,21 +92,9 @@ ansible-playbook playbooks/analytics.yml
 The playbook has two plays:
 
 1. **Deploy analytics collectors** — host collector (unchanged)
-2. **Deploy analytics dbt runner** — new role
+2. **Deploy analytics dbt runner** — this role
 
 Both plays load `secrets/prod/analytics-s3.sops.yaml` independently. Ansible play-scoped vars do not carry between plays.
-
-To deploy only the dbt runner play:
-
-```bash
-ansible-playbook playbooks/analytics.yml --tags '' --limit vps -e "ansible_play_name='Deploy analytics dbt runner'"
-```
-
-Or use `--start-at-task` to skip the collectors play during iteration:
-
-```bash
-ansible-playbook playbooks/analytics.yml --start-at-task "Load analytics S3 credentials" --skip-tags host-collector
-```
 
 For a dry run:
 
@@ -106,38 +104,52 @@ ansible-playbook playbooks/analytics.yml --check --diff
 
 ## 6. Verification
 
-### Verify the timer is active
+### Verify timers are active
 
 ```bash
-systemctl list-timers analytics-dbt-runner.timer
+systemctl list-timers analytics-dbt-runner.timer analytics-dbt-runner-meta.timer
 ```
 
-Expected: shows `Next` trigger at the next `:10`, `:25`, `:40`, or `:55` boundary.
+Expected: both show `Next` triggers at 05:00 and 06:00 respectively.
 
-### Verify the service runs without errors
+### Trigger a manual run
 
-Trigger a manual run:
+Main pipeline:
 
 ```bash
 systemctl start analytics-dbt-runner.service
-```
-
-Then inspect the journal:
-
-```bash
 journalctl -u analytics-dbt-runner.service -n 100
 ```
 
-Expected log sequence:
+Meta pipeline:
 
-```
-[run_dbt] Starting dbt build (tmp: /srv/data/analytics/analytics.duckdb.tmp)
-...dbt build output...
-[run_dbt] dbt build succeeded — swapping into place
-[run_dbt] Done. DB updated at /srv/data/analytics/analytics.duckdb
+```bash
+systemctl start analytics-dbt-runner-meta.service
+journalctl -u analytics-dbt-runner-meta.service -n 100
 ```
 
-On failure the last good `.duckdb` is left untouched. The `.tmp` file is removed.
+Expected log sequence for main run:
+
+```
+[run_dbt] Running staging (incremental)...
+[run_dbt] Staging completed in Xs.
+[run_dbt] Running intermediate + marts...
+[run_dbt] Intermediate + marts completed in Xs.
+[run_dbt] Running tests...
+[run_dbt] Tests completed in Xs.
+[run_dbt] Done. Total duration: Xs.
+```
+
+Expected log sequence for meta run:
+
+```
+[run_dbt] Meta-only mode — running only tag:meta models
+[run_dbt] Running meta models...
+[run_dbt] Running meta tests...
+[run_dbt] Meta run completed in Xs.
+```
+
+On failure the DuckDB WAL ensures the file is not corrupted and the last good state is preserved.
 
 ### Verify the DuckDB file
 
@@ -146,19 +158,16 @@ ls -lh /srv/data/analytics/analytics.duckdb
 stat /srv/data/analytics/analytics.duckdb
 ```
 
-The file's modification time should advance every 15 minutes after the timer fires.
+The file's modification time should advance after each successful timer run.
 
 ### Verify profiles.yml was templated
 
 ```bash
 cat /opt/analytics/dbt/profiles.yml
-```
-
-The `prod` target should show the actual S3 endpoint and key values (not placeholders). The file permissions should be `0600`:
-
-```bash
 stat /opt/analytics/dbt/profiles.yml
 ```
+
+The `prod` target should show actual S3 endpoint and key values (not placeholders). Permissions should be `0600`.
 
 ### Verify dbt packages are installed
 
@@ -168,7 +177,18 @@ ls /opt/analytics/dbt/dbt_packages/
 
 Expected: `dbt_utils/` directory (installed by `dbt deps` during the Ansible run).
 
-## 7. Updating dbt Version
+## 7. Full Refresh
+
+If staging tables need to be rebuilt from scratch (after a schema change or if the DuckDB file is lost):
+
+```bash
+cd /opt/analytics/dbt
+UV_PROJECT_ENVIRONMENT=/opt/analytics/venv-dbt ./run_dbt.sh --full-refresh
+```
+
+This drops and rebuilds all staging tables by reading all S3 history. It is slow — do not use on normal runs.
+
+## 8. Updating dbt Version
 
 The dbt version is pinned in two places:
 
@@ -177,14 +197,15 @@ The dbt version is pinned in two places:
 
 When bumping the version, update both. The `uv.lock` version governs what is installed locally via `uv sync`; the Ansible default governs what is installed on the VPS via `uv pip install`.
 
-## 8. Relationship to Other Analytics Components
+## 9. Relationship to Other Analytics Components
 
 | Component | Role | Timer |
 |-----------|------|-------|
-| `analytics-host-collector` | collects VPS host metrics | `:0/15` (every 15 min, on the hour) |
-| cluster collector | collects k8s metrics | `:5/15` (5-min offset) |
-| `analytics-dbt-runner` | transforms raw → DuckDB | `:10,25,40,55` (10-min offset) |
+| `analytics-host-collector` | collects VPS host metrics | every 15 min |
+| cluster collector | collects k8s metrics | every 15 min |
+| `analytics-dbt-runner-meta` | transforms meta pipeline runs | daily 05:00 |
+| `analytics-dbt-runner` | transforms raw → DuckDB (staging + marts) | daily 06:00 |
 
-The dbt runner reads from S3 (written by the collectors) and writes to the local DuckDB file. It does not depend on the collectors being healthy to run, but it will model whatever data is currently in S3.
+The dbt runners read from S3 (written by the collectors) and write to the shared local DuckDB file. They do not depend on the collectors being healthy to run, but will model whatever data is currently in S3.
 
 `run_dbt.sh` is kept in `analytics/dbt/` alongside the dbt project. The Ansible sync task deploys it to the VPS as part of the dbt project directory. Do not maintain a separate copy.

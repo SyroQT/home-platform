@@ -45,17 +45,21 @@ All backups are stored externally in **Hetzner Object Storage** (`nbg1.your-obje
 
 ### 3. PostgreSQL (CNPG) Data
 
-**Current state in this repository:** PostgreSQL is **not currently covered by a working backup path**.
+**What is backed up:** Continuous WAL archiving plus a daily base backup via the [barman-cloud CNPG plugin](https://cloudnative-pg.io/documentation/current/barman-cloud/). Covers the `infra-postgres/postgres-cluster` CNPG cluster.
 
-The `infra-postgres/postgres` CNPG cluster PVC is excluded from Restic, but the CNPG `HelmRelease` does not currently define S3 backups, WAL archiving, or recovery configuration. The encrypted secret `secrets/prod/postgres-backup.sops.yaml` exists, but it is not wired into the PostgreSQL `HelmRelease` yet.
+| Property      | Value                                                        |
+| ------------- | ------------------------------------------------------------ |
+| Schedule      | Daily base backup at **03:00 UTC** (`ScheduledBackup`)       |
+| WAL archiving | Continuous (every completed WAL segment is shipped to S3)    |
+| Retention     | 7 days (`retentionPolicy: 7d` on the `ObjectStore`)          |
+| Compression   | gzip (both data and WAL)                                     |
+| S3 path       | `s3://k3s-prod-backups/cnpg/`                                |
+| S3 endpoint   | `nbg1.your-objectstorage.com`                                |
+| Secret        | `infra-postgres/postgres-backup-s3` (from `secrets/prod/postgres-backup.sops.yaml`) |
 
-This means:
+The `Cluster` references the `ObjectStore` via the barman-cloud plugin (`barmanObjectName: postgres-backup`). WAL archiving is enabled automatically because `isWALArchiver: true` is set on the plugin.
 
-- Restic restores do not recover PostgreSQL data
-- etcd restores do not recover PostgreSQL data
-- there is no repo-defined CNPG restore procedure to run today
-
-Until CNPG backup configuration is added and verified, treat PostgreSQL recovery as a documented gap.
+**What is NOT covered:** Restic and etcd backups do not include PostgreSQL data — the Restic job explicitly excludes the `infra-postgres` PVC path.
 
 ---
 
@@ -160,6 +164,58 @@ If the cluster appears to return to the same state after an etcd restore, that c
 
 - Flux will reconcile the current Git state back onto the cluster after it comes up
 - application data stored in PVCs is outside etcd and remains unchanged unless restored separately
+
+---
+
+### Restore: PostgreSQL (CNPG) from Barman Cloud
+
+> Use this when PostgreSQL data is corrupted or lost and you need to restore from a base backup + WAL replay.
+
+> CNPG point-in-time recovery (PITR) lets you restore to any timestamp covered by the WAL archive.
+
+1. **Identify the target recovery time** (or use `latest` to get the most recent consistent state).
+
+2. **Edit `apps/postgres/base/postgres-cluster.yaml`** to add a `recovery` bootstrap block, replacing the `initdb` block:
+
+   ```yaml
+   bootstrap:
+     recovery:
+       source: postgres-backup
+   externalClusters:
+     - name: postgres-backup
+       plugin:
+         name: barman-cloud.cloudnative-pg.io
+         parameters:
+           barmanObjectName: postgres-backup
+           # Optional: point-in-time recovery
+           # recoveryTarget:
+           #   targetTime: "2026-01-15 03:00:00"
+   ```
+
+3. **Apply the change via Flux** (commit and push, or force-reconcile):
+
+   ```bash
+   sudo k3s kubectl -n flux-system annotate kustomization/apps \
+     reconcile.fluxcd.io/requestedAt="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --overwrite
+   ```
+
+4. **Monitor recovery progress:**
+
+   ```bash
+   sudo k3s kubectl -n infra-postgres get cluster postgres-cluster -w
+   sudo k3s kubectl -n infra-postgres logs -l cnpg.io/cluster=postgres-cluster -f
+   ```
+
+   CNPG will create a new primary by restoring the base backup and replaying WAL segments.
+
+5. **Verify the cluster is healthy:**
+
+   ```bash
+   sudo k3s kubectl -n infra-postgres get cluster postgres-cluster
+   # Expected: READY=1, STATUS=Cluster in healthy state
+   ```
+
+6. **Revert the `bootstrap` change** back to `initdb` in Git once recovery is confirmed, to prevent re-triggering recovery on the next reconcile.
 
 ---
 
@@ -268,7 +324,7 @@ Before assuming the backup is bad, verify all of the following:
 - `rsync -a --delete` was used instead of `cp`
 - file ownership is correct for the container runtime user
 - the application is actually reading from that PVC path
-- the data is not stored in PostgreSQL, which is outside Restic coverage in the current repo state
+- the data is not stored in PostgreSQL, which is outside Restic coverage (restore PostgreSQL via CNPG barman-cloud recovery instead)
 - browser-local cache is not masking the server restore result (test in incognito if relevant)
 
 ---
@@ -386,6 +442,29 @@ rm /tmp/etcd-drill.db.gz
 
 ---
 
+### Step 6 — Confirm PostgreSQL (CNPG) Backups are Active
+
+Check WAL archiving status and most recent base backup:
+
+```bash
+# Check cluster WAL archiving status
+sudo k3s kubectl -n infra-postgres get cluster postgres-cluster \
+  -o jsonpath='{.status.conditions}' | jq .
+
+# List recent backups
+sudo k3s kubectl -n infra-postgres get backup
+
+# Confirm S3 objects exist in the cnpg path
+AWS_ACCESS_KEY_ID=<key> AWS_SECRET_ACCESS_KEY=<secret> \
+  aws s3 ls s3://k3s-prod-backups/cnpg/ \
+  --endpoint-url https://nbg1.your-objectstorage.com \
+  --region nbg1 --recursive | tail -10
+```
+
+**Pass criteria:** At least one `Backup` object with `STATUS=completed` and S3 objects visible under `cnpg/`.
+
+---
+
 ### Drill Result Checklist
 
 | Check                                           | Result         |
@@ -395,7 +474,8 @@ rm /tmp/etcd-drill.db.gz
 | Restic snapshot within 48h                      | pass / fail    |
 | Restic file restore produces readable files     | pass / fail    |
 | etcd snapshot file is valid gzip                | pass / fail    |
-| PostgreSQL backup path is configured and tested | currently fail |
+| CNPG WAL archiving is active (check cluster status) | pass / fail    |
+| CNPG base backup exists in S3 within 48h            | pass / fail    |
 
 Record the date and results. If any check fails, investigate before treating the backup layer as reliable.
 
@@ -413,4 +493,7 @@ Record the date and results. If any check fails, investigate before treating the
 | `/etc/systemd/system/restic-backup.timer`     | Restic systemd timer                                                                                      |
 | `bootstrap/ansible/roles/restic/`             | Ansible role that configures Restic                                                                       |
 | `bootstrap/ansible/roles/k3s/`                | Ansible role that configures k3s and etcd snapshots                                                       |
-| `secrets/prod/postgres-backup.sops.yaml`      | SOPS-encrypted S3 credentials staged for CNPG, but not currently consumed by the PostgreSQL `HelmRelease` |
+| `secrets/prod/postgres-backup.sops.yaml`      | SOPS-encrypted S3 credentials for CNPG barman-cloud (`postgres-backup-s3` Secret in `infra-postgres`)     |
+| `apps/postgres/base/objectstore.yaml`         | CNPG `ObjectStore` CR — S3 destination, credentials ref, retention policy                                  |
+| `apps/postgres/base/scheduled-backup.yaml`    | CNPG `ScheduledBackup` CR — daily base backup at 03:00 UTC                                                 |
+| `apps/postgres/base/postgres-cluster.yaml`    | CNPG `Cluster` — references `ObjectStore` via barman-cloud plugin for WAL archiving                        |
