@@ -1,0 +1,4 @@
+---
+tailscale_auth_key: ""         # injected from sops secret at play time
+tailscale_accept_routes: false
+tailscale_ssh_only: true

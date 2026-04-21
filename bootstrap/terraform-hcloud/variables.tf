@@ -39,12 +39,6 @@ variable "allowed_ssh_cidr" {
   type        = string
 }
 
-variable "kube_api_allowed_cidrs" {
-  description = "CIDRs allowed to access the Kubernetes API on 6443"
-  type        = list(string)
-  default     = []
-}
-
 variable "volume_size_gb" {
   description = "Attached data volume size in GB"
   type        = number

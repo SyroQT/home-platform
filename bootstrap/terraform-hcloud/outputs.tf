@@ -30,10 +30,6 @@ output "ssh_allowed_cidrs" {
   value = [var.allowed_ssh_cidr]
 }
 
-output "kube_api_allowed_cidrs" {
-  value = var.kube_api_allowed_cidrs
-}
-
 output "backup_bucket_name" {
   value = aws_s3_bucket.backups.bucket
 }
