@@ -1,5 +1,9 @@
 ---
-- name: Allow SSH from trusted CIDRs in UFW
+- name: Reset UFW rules
+  community.general.ufw:
+    state: reset
+
+- name: Allow SSH from trusted CIDRs in UFW (public fallback)
   community.general.ufw:
     rule: allow
     direction: in
@@ -7,6 +11,21 @@
     from_ip: "{{ item }}"
     to_port: "22"
   loop: "{{ ssh_allowed_cidrs }}"
+  when: not (tailscale_ssh_only | default(false))
+
+- name: Allow all traffic on tailscale0 interface
+  community.general.ufw:
+    rule: allow
+    interface: tailscale0
+    direction: in
+
+- name: Allow SSH from Tailscale CGNAT range
+  community.general.ufw:
+    rule: allow
+    direction: in
+    proto: tcp
+    from_ip: "100.64.0.0/10"
+    to_port: "22"
 
 - name: Allow configured TCP ports in UFW
   community.general.ufw:
@@ -15,16 +34,6 @@
     proto: tcp
     to_port: "{{ item }}"
   loop: "{{ ufw_allowed_tcp_ports }}"
-
-- name: Allow Kubernetes API from trusted CIDRs
-  community.general.ufw:
-    rule: allow
-    direction: in
-    proto: tcp
-    from_ip: "{{ item }}"
-    to_port: "6443"
-  loop: "{{ kube_api_allowed_cidrs | default([]) }}"
-  when: (kube_api_allowed_cidrs | default([])) | length > 0
 
 - name: Set default incoming policy to deny
   community.general.ufw:

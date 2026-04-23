@@ -2,8 +2,15 @@
 - name: Harden and prepare VPS
   hosts: vps
   become: true
+  pre_tasks:
+    - name: Load Tailscale auth key
+      community.sops.load_vars:
+        file: "{{ playbook_dir }}/../../../secrets/prod/tailscale.sops.yaml"
+        name: tailscale_secret
   roles:
     - common
     - ssh_hardening
+    - tailscale
     - firewall
     - mount_data_volume
+
