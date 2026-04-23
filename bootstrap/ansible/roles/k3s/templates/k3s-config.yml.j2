@@ -16,3 +16,6 @@ kubelet-arg:
 
 tls-san:
   - "{{ ansible_host }}"
+{% if tailscale_ip is defined %}
+  - "{{ tailscale_ip }}"
+{% endif %}

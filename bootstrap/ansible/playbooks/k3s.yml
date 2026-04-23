@@ -2,5 +2,16 @@
 - name: Install and configure K3s
   hosts: vps
   become: true
+  pre_tasks:
+    - name: Get Tailscale IP
+      ansible.builtin.command: tailscale ip -4
+      register: tailscale_ip_raw
+      changed_when: false
+      failed_when: false
+
+    - name: Set Tailscale IP fact
+      ansible.builtin.set_fact:
+        tailscale_ip: "{{ tailscale_ip_raw.stdout | trim }}"
+      when: tailscale_ip_raw.rc == 0 and tailscale_ip_raw.stdout | trim != ""
   roles:
     - k3s
