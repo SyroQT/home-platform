@@ -12,15 +12,7 @@ resource "hcloud_ssh_key" "default" {
 }
 
 resource "hcloud_firewall" "vps" {
-  # allow only the needed ports
   name = "${var.server_name}-fw"
-
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "22"
-    source_ips = [var.allowed_ssh_cidr]
-  }
 
   rule {
     direction  = "in"

@@ -6,6 +6,14 @@ OUT_FILE="bootstrap/ansible/inventories/prod/group_vars/vps/generated.yml"
 PUBKEY_FILE="${PUBKEY_FILE:-$HOME/.ssh/id_ed25519.pub}"
 TF_JSON="/tmp/tf_outputs.json"
 
+# Prefer Tailscale IP for ansible_host; auto-detect from tailscale status if not set
+if [[ -z "${TAILSCALE_IP:-}" ]]; then
+  SERVER_NAME=$(terraform -chdir="$TF_DIR" output -raw server_name 2>/dev/null || true)
+  TAILSCALE_IP=$(tailscale status --json 2>/dev/null \
+    | jq -r --arg name "$SERVER_NAME" \
+        '.Peer[] | select(.HostName == $name) | .TailscaleIPs[0]' 2>/dev/null || true)
+fi
+
 mkdir -p "$(dirname "$OUT_FILE")"
 
 if [[ ! -f "$PUBKEY_FILE" ]]; then
@@ -20,7 +28,8 @@ PUBKEY_YAML="$(printf '%s' "$PUBKEY_CONTENT" | jq -R .)"
 
 cat > "$OUT_FILE" <<EOF
 ---
-ansible_host: $(jq -r '.server_ipv4.value' "$TF_JSON")
+ansible_host: ${TAILSCALE_IP:-$(jq -r '.server_ipv4.value' "$TF_JSON")}
+ansible_host_public: $(jq -r '.server_ipv4.value' "$TF_JSON")
 
 data_device: $(jq -r '.volume_linux_device.value' "$TF_JSON")
 data_mount_point: $(jq -r '.data_mount_point.value' "$TF_JSON")
