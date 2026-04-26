@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+
+{% if host %}
+  <p>CPU: {{ host.cpu }} | Memory: {{ host.memory }}% | Disk: {{ host.disk }}%</p>
+  {% if cpu_sparkline %}
+    <div id="sparkline"></div>
+    <script>
+      var fig = {{ cpu_sparkline | safe }};
+      Plotly.newPlot('sparkline', fig.data, fig.layout);
+    </script>
+  {% endif %}
+{% else %}
+  <p>No host data available</p>
+{% endif %}
+
+</body>
+</html>
