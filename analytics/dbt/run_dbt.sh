@@ -45,14 +45,14 @@ META_ONLY=false
 
 for arg in "$@"; do
   case "$arg" in
-    --full-refresh)
-      FULL_REFRESH="--full-refresh"
-      echo "${LOG_PREFIX} WARNING: full-refresh requested — all staging history will be rebuilt from S3"
-      ;;
-    --meta)
-      META_ONLY=true
-      echo "${LOG_PREFIX} Meta-only mode — running only tag:meta models"
-      ;;
+  --full-refresh)
+    FULL_REFRESH="--full-refresh"
+    echo "${LOG_PREFIX} WARNING: full-refresh requested — all staging history will be rebuilt from S3"
+    ;;
+  --meta)
+    META_ONLY=true
+    echo "${LOG_PREFIX} Meta-only mode — running only tag:meta models"
+    ;;
   esac
 done
 
@@ -61,10 +61,10 @@ done
 # Capture a checkpoint, run a phase, then subtract to get elapsed seconds.
 fmt_duration() {
   local secs=$1
-  if (( secs < 60 )); then
+  if ((secs < 60)); then
     echo "${secs}s"
   else
-    echo "$(( secs / 60 ))m $(( secs % 60 ))s"
+    echo "$((secs / 60))m $((secs % 60))s"
   fi
 }
 
@@ -85,8 +85,8 @@ if [[ "$META_ONLY" == true ]]; then
     --target prod \
     --select tag:meta
 
-  echo "${LOG_PREFIX} Meta run completed in $(fmt_duration $(( SECONDS - PHASE_START )))."
-  echo "${LOG_PREFIX} Total duration: $(fmt_duration $(( SECONDS - TOTAL_START )))."
+  echo "${LOG_PREFIX} Meta run completed in $(fmt_duration $((SECONDS - PHASE_START)))."
+  echo "${LOG_PREFIX} Total duration: $(fmt_duration $((SECONDS - TOTAL_START)))."
   exit 0
 fi
 
@@ -101,7 +101,7 @@ uv run dbt run \
   --select tag:staging \
   --exclude tag:meta \
   $FULL_REFRESH
-echo "${LOG_PREFIX} Staging completed in $(fmt_duration $(( SECONDS - PHASE_START )))."
+echo "${LOG_PREFIX} Staging completed in $(fmt_duration $((SECONDS - PHASE_START)))."
 
 # ── Step 2: rebuild intermediate + marts from staging tables ──────────────────
 # No S3 reads here — intermediate and marts read from local DuckDB staging tables.
@@ -113,7 +113,7 @@ uv run dbt run \
   --target prod \
   --select tag:intermediate tag:mart \
   --exclude tag:meta
-echo "${LOG_PREFIX} Intermediate + marts completed in $(fmt_duration $(( SECONDS - PHASE_START )))."
+echo "${LOG_PREFIX} Intermediate + marts completed in $(fmt_duration $((SECONDS - PHASE_START)))."
 
 # ── Step 3: tests ─────────────────────────────────────────────────────────────
 PHASE_START=$SECONDS
@@ -122,6 +122,6 @@ uv run dbt test \
   --profiles-dir . \
   --target prod \
   --exclude tag:meta
-echo "${LOG_PREFIX} Tests completed in $(fmt_duration $(( SECONDS - PHASE_START )))."
+echo "${LOG_PREFIX} Tests completed in $(fmt_duration $((SECONDS - PHASE_START)))."
 
-echo "${LOG_PREFIX} Done. Total duration: $(fmt_duration $(( SECONDS - TOTAL_START )))."
+echo "${LOG_PREFIX} Done. Total duration: $(fmt_duration $((SECONDS - TOTAL_START)))."
