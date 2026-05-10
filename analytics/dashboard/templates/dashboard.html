@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home Platform</title>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e0e0e0; padding: 24px; }
+    h1 { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; color: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+    .card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 8px; padding: 16px; }
+    .card-title { font-size: 0.8rem; font-weight: 500; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .no-data { color: #6b7280; font-size: 0.9rem; padding: 40px 0; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Home Platform</h1>
+
+  {% if panels %}
+    <div class="grid">
+      {% for panel in panels %}
+        <div class="card">
+          <div class="card-title">{{ panel.title }}</div>
+          <div id="chart-{{ loop.index }}"></div>
+          <script>
+            (function() {
+              var fig = {{ panel.chart | safe }};
+              Plotly.newPlot('chart-{{ loop.index }}', fig.data, fig.layout, {responsive: true, displayModeBar: false});
+            })();
+          </script>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="no-data">No data available.</p>
+  {% endif %}
+
+</body>
+</html>
