@@ -17,7 +17,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: collector
-              image: ghcr.io/syroqt/home-platform/analytics-collector:sha-983faec
+              image: ghcr.io/syroqt/home-platform/analytics-collector:sha-2dd5d5a
               imagePullPolicy: IfNotPresent
               resources:
                 requests:
