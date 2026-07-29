@@ -8,49 +8,56 @@ sources:
       - name: snapshots
         description: "One JSON file per 15-minute collection run"
         config:
-          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/host/*.json', filename=true)"
+          external_location: >-
+            read_json_auto([{%- set _base = env_var('ANALYTICS_RAW_BASE_PATH') -%}{%- set _days = var('analytics_history_days', 16) -%}{%- set _paths = [] -%}{%- for _i in range(_days) -%}{%- set _d = modules.datetime.date.today() - modules.datetime.timedelta(days=_i) -%}{%- do _paths.append("'" ~ _base ~ '/host/' ~ _d.strftime('%Y') ~ '/' ~ _d.strftime('%m') ~ '/' ~ _d.strftime('%d') ~ "/*.json'") -%}{%- endfor -%}{{ _paths | join(', ') }}], filename=true)
 
   - name: source_k8s_cluster
     description: "Kubernetes node state snapshots"
     tables:
       - name: snapshots
         config:
-          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/cluster/*.json', filename=true)"
+          external_location: >-
+            read_json_auto([{%- set _base = env_var('ANALYTICS_RAW_BASE_PATH') -%}{%- set _days = var('analytics_history_days', 16) -%}{%- set _paths = [] -%}{%- for _i in range(_days) -%}{%- set _d = modules.datetime.date.today() - modules.datetime.timedelta(days=_i) -%}{%- do _paths.append("'" ~ _base ~ '/k8s/cluster/' ~ _d.strftime('%Y') ~ '/' ~ _d.strftime('%m') ~ '/' ~ _d.strftime('%d') ~ "/*.json'") -%}{%- endfor -%}{{ _paths | join(', ') }}], filename=true)
 
   - name: source_k8s_workloads
     description: "Kubernetes Deployment and Pod snapshots"
     tables:
       - name: snapshots
         config:
-          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/workloads/*.json', filename=true)"
+          external_location: >-
+            read_json_auto([{%- set _base = env_var('ANALYTICS_RAW_BASE_PATH') -%}{%- set _days = var('analytics_history_days', 16) -%}{%- set _paths = [] -%}{%- for _i in range(_days) -%}{%- set _d = modules.datetime.date.today() - modules.datetime.timedelta(days=_i) -%}{%- do _paths.append("'" ~ _base ~ '/k8s/workloads/' ~ _d.strftime('%Y') ~ '/' ~ _d.strftime('%m') ~ '/' ~ _d.strftime('%d') ~ "/*.json'") -%}{%- endfor -%}{{ _paths | join(', ') }}], filename=true)
 
   - name: source_k8s_ingress
     description: "Kubernetes Ingress snapshots"
     tables:
       - name: snapshots
         config:
-          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/ingress/*.json', filename=true)"
+          external_location: >-
+            read_json_auto([{%- set _base = env_var('ANALYTICS_RAW_BASE_PATH') -%}{%- set _days = var('analytics_history_days', 16) -%}{%- set _paths = [] -%}{%- for _i in range(_days) -%}{%- set _d = modules.datetime.date.today() - modules.datetime.timedelta(days=_i) -%}{%- do _paths.append("'" ~ _base ~ '/k8s/ingress/' ~ _d.strftime('%Y') ~ '/' ~ _d.strftime('%m') ~ '/' ~ _d.strftime('%d') ~ "/*.json'") -%}{%- endfor -%}{{ _paths | join(', ') }}], filename=true)
 
   - name: source_k8s_certs
     description: "cert-manager Certificate snapshots"
     tables:
       - name: snapshots
         config:
-          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/certs/*.json', filename=true)"
+          external_location: >-
+            read_json_auto([{%- set _base = env_var('ANALYTICS_RAW_BASE_PATH') -%}{%- set _days = var('analytics_history_days', 16) -%}{%- set _paths = [] -%}{%- for _i in range(_days) -%}{%- set _d = modules.datetime.date.today() - modules.datetime.timedelta(days=_i) -%}{%- do _paths.append("'" ~ _base ~ '/k8s/certs/' ~ _d.strftime('%Y') ~ '/' ~ _d.strftime('%m') ~ '/' ~ _d.strftime('%d') ~ "/*.json'") -%}{%- endfor -%}{{ _paths | join(', ') }}], filename=true)
 
   - name: source_k8s_events
     description: "Kubernetes Event snapshots"
     tables:
       - name: snapshots
         config:
-          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/events/*.json', filename=true)"
+          external_location: >-
+            read_json_auto([{%- set _base = env_var('ANALYTICS_RAW_BASE_PATH') -%}{%- set _days = var('analytics_history_days', 16) -%}{%- set _paths = [] -%}{%- for _i in range(_days) -%}{%- set _d = modules.datetime.date.today() - modules.datetime.timedelta(days=_i) -%}{%- do _paths.append("'" ~ _base ~ '/k8s/events/' ~ _d.strftime('%Y') ~ '/' ~ _d.strftime('%m') ~ '/' ~ _d.strftime('%d') ~ "/*.json'") -%}{%- endfor -%}{{ _paths | join(', ') }}], filename=true)
 
   - name: source_k8s_app_health
     description: "Per-app pod readiness snapshots (dict-of-lists keyed by namespace/app)"
     tables:
       - name: snapshots
         config:
-          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/k8s/app-health/*.json', filename=true)"
+          external_location: >-
+            read_json_auto([{%- set _base = env_var('ANALYTICS_RAW_BASE_PATH') -%}{%- set _days = var('analytics_history_days', 16) -%}{%- set _paths = [] -%}{%- for _i in range(_days) -%}{%- set _d = modules.datetime.date.today() - modules.datetime.timedelta(days=_i) -%}{%- do _paths.append("'" ~ _base ~ '/k8s/app-health/' ~ _d.strftime('%Y') ~ '/' ~ _d.strftime('%m') ~ '/' ~ _d.strftime('%d') ~ "/*.json'") -%}{%- endfor -%}{{ _paths | join(', ') }}], filename=true)
 
   - name: source_meta
     description: "Collector pipeline run metadata — one record per collector per run"

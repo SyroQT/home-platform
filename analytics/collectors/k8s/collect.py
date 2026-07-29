@@ -311,9 +311,9 @@ def run_collector(name: str, fn, bucket: str, client, s3_key_prefix: str) -> int
 
     try:
         result = fn()
-        timestamp = (
-            datetime.now(timezone.utc).isoformat().replace(":", "-").replace("+", "-")
-        )
+        now = datetime.now(timezone.utc)
+        timestamp = now.isoformat().replace(":", "-").replace("+", "-")
+        date_path = now.strftime("%Y/%m/%d")
 
         body = json.dumps(result, indent=2)
         if isinstance(result, list):
@@ -323,7 +323,7 @@ def run_collector(name: str, fn, bucket: str, client, s3_key_prefix: str) -> int
         else:
             field_count = len(result)
 
-        key = f"{s3_key_prefix}/{timestamp}.json"
+        key = f"{s3_key_prefix}/{date_path}/{timestamp}.json"
         upload(client, bucket, key, body)
         print(f"OK: {name} uploaded to {key}")
 
@@ -333,19 +333,16 @@ def run_collector(name: str, fn, bucket: str, client, s3_key_prefix: str) -> int
 
     finally:
         try:
-            meta_ts = (
-                datetime.now(timezone.utc)
-                .isoformat()
-                .replace(":", "-")
-                .replace("+", "-")
-            )
+            meta_now = datetime.now(timezone.utc)
+            meta_ts = meta_now.isoformat().replace(":", "-").replace("+", "-")
+            meta_date_path = meta_now.strftime("%Y/%m/%d")
             meta = {
                 "collected_at": datetime.now(timezone.utc).isoformat(),
                 "collector": f"k8s/{name}",
                 "exit_code": exit_code,
                 "field_count": field_count,
             }
-            meta_key = f"analytics/raw/meta/k8s/{name}/{meta_ts}.json"
+            meta_key = f"analytics/raw/meta/k8s/{name}/{meta_date_path}/{meta_ts}.json"
             upload(client, bucket, meta_key, json.dumps(meta, indent=2))
         except Exception as meta_exc:
             print(

@@ -191,7 +191,8 @@ def main() -> None:
         field_count = len(snapshot)
 
         timestamp = snapshot["collected_at"].replace(":", "-").replace("+", "-")
-        snapshot_key = f"analytics/raw/host/{timestamp}.json"
+        date_path = snapshot["collected_at"][:10].replace("-", "/")
+        snapshot_key = f"analytics/raw/host/{date_path}/{timestamp}.json"
         snapshot_body = json.dumps(snapshot, indent=2)
 
         client = get_s3_client()
@@ -206,13 +207,10 @@ def main() -> None:
     finally:
         # Always attempt to write the metadata record
         try:
-            meta_ts = (
-                datetime.now(timezone.utc)
-                .isoformat()
-                .replace(":", "-")
-                .replace("+", "-")
-            )
-            meta_key = f"analytics/raw/meta/host/{meta_ts}.json"
+            meta_now = datetime.now(timezone.utc)
+            meta_ts = meta_now.isoformat().replace(":", "-").replace("+", "-")
+            meta_date_path = meta_now.strftime("%Y/%m/%d")
+            meta_key = f"analytics/raw/meta/host/{meta_date_path}/{meta_ts}.json"
             meta = {
                 "collected_at": datetime.now(timezone.utc).isoformat(),
                 "collector": "host",
