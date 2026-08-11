@@ -1,3 +1,4 @@
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -11,6 +12,9 @@ spec:
     - hosts:
         - whoami.titas.dev
       secretName: whoami-tls
+    - hosts:
+        - whoami.tirami.lt
+      secretName: whoami-tirami-tls
   rules:
     - host: whoami.titas.dev
       http:
@@ -22,3 +26,14 @@ spec:
                 name: whoami
                 port:
                   number: 80
+    - host: whoami.tirami.lt
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: whoami
+                port:
+                  number: 80
+
