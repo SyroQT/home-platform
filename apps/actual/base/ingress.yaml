@@ -1,3 +1,4 @@
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -11,6 +12,9 @@ spec:
     - hosts:
         - budget.titas.dev
       secretName: actual-tls
+    - hosts:
+        - budget.tirami.lt
+      secretName: budget-tirami-tls
   rules:
     - host: budget.titas.dev
       http:
@@ -22,3 +26,14 @@ spec:
                 name: actual
                 port:
                   number: 80
+    - host: budget.tirami.lt
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: budget
+                port:
+                  number: 80
+
