@@ -6,13 +6,16 @@ Before: analytics/raw/host/2026-05-22T10-30-45.000000-00-00.json
 After:  analytics/raw/host/2026/05/22/2026-05-22T10-30-45.000000-00-00.json
 
 Usage:
-    python migrate_to_partitioned.py          # dry run (default)
-    python migrate_to_partitioned.py --apply  # execute changes
+    python migrate_to_partitioned.py                     # dry run (default)
+    python migrate_to_partitioned.py --apply              # execute changes, throttled to 10/sec
+    python migrate_to_partitioned.py --apply --rate 20     # execute changes, throttled to 20/sec
+    python migrate_to_partitioned.py --apply --rate 0      # execute changes, unthrottled
 """
 import argparse
 import os
 import re
 import sys
+import time
 
 FLAT_KEY_PATTERN = re.compile(r"/\d{4}-\d{2}-\d{2}T[^/]+\.json$")
 PARTITIONED_PATTERN = re.compile(r"/\d{4}/\d{2}/\d{2}/[^/]+\.json$")
@@ -64,6 +67,7 @@ def migrate(client, bucket: str, old_key: str, dry_run: bool) -> None:
 
 def get_s3_client():
     import boto3
+    from botocore.config import Config
 
     endpoint = os.environ.get("S3_ENDPOINT_URL")
     if not endpoint:
@@ -74,6 +78,7 @@ def get_s3_client():
         endpoint_url=endpoint,
         aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        config=Config(retries={"max_attempts": 10, "mode": "adaptive"}),
     )
 
 
@@ -84,8 +89,15 @@ def main() -> None:
     parser.add_argument(
         "--apply", action="store_true", help="Execute migration (default: dry run)"
     )
+    parser.add_argument(
+        "--rate",
+        type=float,
+        default=10.0,
+        help="max migrations/sec during --apply; 0 = unthrottled (default: 10)",
+    )
     args = parser.parse_args()
     dry_run = not args.apply
+    delay = 1.0 / args.rate if (not dry_run and args.rate > 0) else 0
 
     bucket = os.environ.get("S3_BUCKET")
     if not bucket:
@@ -103,8 +115,12 @@ def main() -> None:
         sys.exit(0)
 
     print(f"Found {len(flat_keys)} file(s) to migrate")
+    if delay:
+        print(f"Throttling to {args.rate}/sec (pass --rate 0 to disable)\n")
     for key in flat_keys:
         migrate(client, bucket, key, dry_run=dry_run)
+        if delay:
+            time.sleep(delay)
 
     if dry_run:
         print(f"\nRun with --apply to migrate {len(flat_keys)} file(s)")
