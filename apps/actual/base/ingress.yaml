@@ -33,7 +33,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: budget
+                name: actual
                 port:
                   number: 80
 
