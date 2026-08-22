@@ -63,5 +63,12 @@ sources:
     description: "Collector pipeline run metadata — one record per collector per run"
     tables:
       - name: snapshots
+        # Meta keys carry a collector segment between meta/ and the date
+        # (meta/host/YYYY/MM/DD, meta/k8s/<name>/YYYY/MM/DD). The prefixes are enumerated
+        # explicitly rather than globbed: DuckDB lists from the first wildcard, so a
+        # meta/**/ glob would LIST the full meta/ history on every run. Keep _collectors
+        # in sync with collectors/host/collect.py and COLLECTORS in
+        # collectors/k8s/collect.py — a missing entry silently drops that collector's runs.
         config:
-          external_location: "read_json_auto('{{ env_var('ANALYTICS_RAW_BASE_PATH') }}/meta/**/*.json', filename=true)"
+          external_location: >-
+            read_json_auto([{%- set _base = env_var('ANALYTICS_RAW_BASE_PATH') -%}{%- set _days = var('analytics_history_days', 16) -%}{%- set _collectors = ['host', 'k8s/cluster', 'k8s/workloads', 'k8s/ingress', 'k8s/certs', 'k8s/events', 'k8s/app-health'] -%}{%- set _paths = [] -%}{%- for _i in range(_days) -%}{%- set _d = modules.datetime.date.today() - modules.datetime.timedelta(days=_i) -%}{%- for _c in _collectors -%}{%- do _paths.append("'" ~ _base ~ '/meta/' ~ _c ~ '/' ~ _d.strftime('%Y') ~ '/' ~ _d.strftime('%m') ~ '/' ~ _d.strftime('%d') ~ "/*.json'") -%}{%- endfor -%}{%- endfor -%}{{ _paths | join(', ') }}], filename=true)

@@ -330,4 +330,4 @@ _Flux-managed CronJob that runs `dbt build` after collection windows close, publ
 | Collector CronJob fails silently                            | Metadata records + freshness checks surface failures in the dashboard                          |
 | DuckDB file corruption if transform job is killed mid-write | DuckDB WAL provides crash safety; consider a copy-on-success pattern for extra safety          |
 | Billing estimates drift from actual costs                   | Mark billing section clearly as estimated; revisit with API enrichment in v2                   |
-| Raw zone grows unbounded                                    | Add a retention policy (e.g. delete raw files older than 90 days) in Phase 6 or as a follow-up |
+| Raw zone grows unbounded                                    | Resolved: 90-day lifecycle expiration on `analytics/raw/` is active — see [raw-zone-retention.md](raw-zone-retention.md) |

@@ -126,7 +126,10 @@ Phase 4 is complete and deployed. See [docs/setup/08_analytics-dbt-runner.md](do
 - Bucket: dedicated analytics bucket in Hetzner nbg1
 - Raw path layout: `analytics/raw/{host,k8s/{cluster,workloads,ingress,certs,events,app-health},billing,meta}/`
 - Secrets: `analytics-s3.sops.yaml` (Ansible), `analytics-s3-k8s.sops.yaml` (Flux, namespace `analytics`)
-- Retention: not implemented — planned Phase 6 (90-day target)
+- Retention: 90-day expiration on `analytics/raw/` (`expire-raw-analytics-90d`), applied via
+  `aws s3api` — Terraform does not manage lifecycle rules (see `bootstrap/terraform-hcloud/bucket.tf`
+  comments). Versioning means objects are only reclaimed ~180 days after write.
+  Details: [docs/todo/raw-zone-retention.md](todo/raw-zone-retention.md)
 
 ## Secrets
 
