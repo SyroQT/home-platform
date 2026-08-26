@@ -37,6 +37,20 @@ export ANALYTICS_RAW_BASE_PATH="${ANALYTICS_RAW_BASE_PATH:-s3://${ANALYTICS_S3_B
 # a long-lived file; crash safety is provided by DuckDB's WAL)
 export DBT_DUCKDB_PATH="$DB_PATH"
 
+# Partial parsing MUST stay off. The rolling-window globs in _sources.yml render
+# modules.datetime.date.today() at parse time, and dbt's partial-parse cache does not
+# know the result changes daily — a cached manifest freezes the window at the date it
+# was parsed. This silently stopped all staging ingestion on 2026-07-30 (stale
+# partial_parse.msgpack served a Jul 15–30 window for weeks while runs reported OK).
+export DBT_PARTIAL_PARSE=false
+
+# Use the deployed venv and the deployed uv.lock exactly as-is. UV_FROZEN stops uv run
+# from re-resolving dependencies (a deploy-time re-resolve is how dbt-core silently
+# drifted to 1.12.0); the env default makes manual invocations match the systemd units,
+# which set UV_PROJECT_ENVIRONMENT in their unit files.
+export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-/opt/analytics/venv-dbt}"
+export UV_FROZEN=1
+
 cd "$SCRIPT_DIR"
 
 # ── Parse flags ───────────────────────────────────────────────────────────────

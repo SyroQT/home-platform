@@ -27,17 +27,6 @@
     group: root
     mode: "0755"
 
-- name: Create virtualenv
-  ansible.builtin.command: uv venv {{ analytics_dbt_venv_dir }}
-  args:
-    creates: "{{ analytics_dbt_venv_dir }}"
-
-- name: Install dbt-duckdb
-  ansible.builtin.command: >
-    uv pip install --python {{ analytics_dbt_venv_dir }}
-    dbt-duckdb=={{ analytics_dbt_version }}
-  changed_when: false
-
 - name: Sync dbt project files
   ansible.posix.synchronize:
     src: "{{ playbook_dir }}/../../../analytics/dbt/"
@@ -57,6 +46,25 @@
     group: root
     mode: "0644"
 
+# The lockfile pins the full dependency tree (dbt-core included — pyproject.toml alone
+# pins only dbt-duckdb). Without it, uv resolves dbt-core fresh on every deploy: a
+# deploy around 2026-07-30 silently upgraded dbt-core to 1.12.0 and broke ingestion.
+- name: Deploy uv.lock
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../analytics/uv.lock"
+    dest: "{{ analytics_dbt_install_dir }}/uv.lock"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Sync Python environment from lockfile
+  ansible.builtin.command: uv sync --frozen
+  args:
+    chdir: "{{ analytics_dbt_install_dir }}"
+  environment:
+    UV_PROJECT_ENVIRONMENT: "{{ analytics_dbt_venv_dir }}"
+  changed_when: false
+
 - name: Set run_dbt.sh permissions
   ansible.builtin.file:
     path: "{{ analytics_dbt_install_dir }}/run_dbt.sh"
@@ -74,7 +82,7 @@
 
 - name: Run dbt deps
   ansible.builtin.command: >
-    uv run dbt deps --profiles-dir {{ analytics_dbt_install_dir }}
+    uv run --frozen dbt deps --profiles-dir {{ analytics_dbt_install_dir }}
   args:
     chdir: "{{ analytics_dbt_install_dir }}"
   environment:
