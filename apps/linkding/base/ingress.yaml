@@ -9,10 +9,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - links.titas.dev
+        - links.tirami.lt
       secretName: linkding-tls
   rules:
-    - host: links.titas.dev
+    - host: links.tirami.lt
       http:
         paths:
           - path: /

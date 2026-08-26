@@ -24,7 +24,7 @@ spec:
               name: http
           env:
             - name: LD_CSRF_TRUSTED_ORIGINS
-              value: "https://links.titas.dev"
+              value: "https://links.tirami.lt"
             - name: LD_SUPERUSER_NAME
               valueFrom:
                 secretKeyRef:
