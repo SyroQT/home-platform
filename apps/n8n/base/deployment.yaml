@@ -17,7 +17,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: n8n
-          image: ghcr.io/syroqt/home-platform/n8n:sha-36ab0b2
+          image: ghcr.io/syroqt/home-platform/n8n:sha-7c964b3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5678
