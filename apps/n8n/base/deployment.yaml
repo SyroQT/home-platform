@@ -69,13 +69,14 @@ spec:
               value: "true"
             - name: N8N_COMMUNITY_PACKAGES_ENABLED
               value: "true"
+            - name: NODE_OPTIONS
+              value: --max-old-space-size=768
           resources:
             requests:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 250m
+              memory: 512Mi
             limits:
-              cpu: 500m
-              memory: 768Mi
+              memory: 1Gi
           volumeMounts:
             - name: data
               mountPath: /home/node/.n8n
