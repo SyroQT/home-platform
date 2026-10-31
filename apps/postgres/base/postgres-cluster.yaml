@@ -33,6 +33,11 @@ spec:
         login: true
         passwordSecret:
           name: postgres-n8n-auth
+      - name: miniflux
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-miniflux-auth
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true

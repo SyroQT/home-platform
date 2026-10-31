@@ -7,3 +7,4 @@ resources:
   - infra-postgres.yaml
   - apps-linkding.yaml
   - analytics.yaml
+  - apps-miniflux.yaml

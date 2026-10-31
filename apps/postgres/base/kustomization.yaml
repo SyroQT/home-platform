@@ -5,3 +5,4 @@ resources:
   - objectstore.yaml
   - scheduled-backup.yaml
   - database-n8n.yaml
+  - database-miniflux.yaml

@@ -6,3 +6,4 @@ resources:
   - n8n/prod
   - actual/prod
   - linkding/prod
+  - miniflux/prod
