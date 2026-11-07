@@ -24,6 +24,26 @@
     mode: "0600"
   notify: Restart k3s
 
+- name: Ensure k3s systemd drop-in directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/k3s.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+# The volume is mounted with nofail, so without this k3s could start on an
+# empty mount point and apps would write to the root disk.
+- name: Require data volume before starting k3s
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/k3s.service.d/10-require-data-volume.conf
+    content: |
+      [Unit]
+      RequiresMountsFor={{ data_mount_point }}
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Install K3s server
   ansible.builtin.shell: |
     curl -sfL https://get.k3s.io | sh -
@@ -37,6 +57,7 @@
     name: k3s
     enabled: true
     state: started
+    daemon_reload: true
 
 - name: Wait for node token file
   ansible.builtin.wait_for:
