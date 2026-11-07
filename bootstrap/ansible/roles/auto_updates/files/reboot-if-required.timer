@@ -1,0 +1,11 @@
+[Unit]
+Description=Monthly reboot window for updates (first Sunday)
+
+[Timer]
+# Clear of the nightly etcd (02:00), Postgres (03:00) and restic (04:00) backups.
+OnCalendar=Sun *-*-01..07 01:00:00
+# A missed window waits for next month rather than rebooting right after boot.
+Persistent=false
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,8 @@
+[Unit]
+Description=Reboot if updates require it
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/reboot-if-required
+StandardOutput=journal
+StandardError=journal
