@@ -153,6 +153,7 @@ Current secret files: `demo-secret`, `n8n`, `postgres`, `postgres-backup`, `post
 - Tracks `kubectl` version in `analytics/collectors/k8s/Dockerfile` via inline annotation
 - Tracks analytics-collector image tag in `platform/analytics/cronjob.yaml`
 - Whether Renovate is actively running depends on repo-host app enablement (outside this repo)
+- Host OS: `unattended-upgrades` via `bootstrap/ansible/roles/auto_updates/` (Debian and Tailscale repos); reboots only if needed, first Sunday of the month at 01:00 host time
 
 ## Repo Guardrails
 

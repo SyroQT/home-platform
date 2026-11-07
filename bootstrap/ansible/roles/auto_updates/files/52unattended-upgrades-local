@@ -1,0 +1,7 @@
+// Adds to the Debian origins set in the package's 50unattended-upgrades.
+Unattended-Upgrade::Origins-Pattern {
+        "origin=Tailscale,codename=${distro_codename},label=Tailscale";
+};
+
+// Reboots are handled by reboot-if-required.timer, on the first Sunday of each month.
+Unattended-Upgrade::Automatic-Reboot "false";
