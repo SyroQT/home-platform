@@ -28,6 +28,7 @@
 - name: Check current Tailscale status
   ansible.builtin.command: tailscale status --json
   register: tailscale_status_raw
+  check_mode: false
   changed_when: false
 
 - name: Parse Tailscale status
@@ -40,5 +41,5 @@
     --auth-key={{ tailscale_secret.stringData.tailscale_auth_key }}
     --accept-routes={{ tailscale_accept_routes | lower }}
   when: tailscale_status.BackendState != "Running"
-  no_log: false 
+  no_log: true
 

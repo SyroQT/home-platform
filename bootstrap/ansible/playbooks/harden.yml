@@ -13,4 +13,5 @@
     - tailscale
     - firewall
     - mount_data_volume
+    - auto_updates
 

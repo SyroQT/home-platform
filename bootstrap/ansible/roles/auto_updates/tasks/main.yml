@@ -1,0 +1,44 @@
+---
+- name: Install unattended-upgrades
+  ansible.builtin.apt:
+    name: unattended-upgrades
+    state: present
+    update_cache: true
+
+- name: Install apt configuration
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/apt/apt.conf.d/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - 20auto-upgrades
+    - 52unattended-upgrades-local
+
+- name: Install reboot-if-required script
+  ansible.builtin.copy:
+    src: reboot-if-required.sh
+    dest: /usr/local/sbin/reboot-if-required
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Install reboot-if-required systemd units
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - reboot-if-required.service
+    - reboot-if-required.timer
+
+- name: Enable and start reboot-if-required timer
+  ansible.builtin.systemd:
+    name: reboot-if-required.timer
+    enabled: true
+    state: started
+    daemon_reload: true
+  when: not ansible_check_mode
