@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: family-recipes
+  namespace: apps-family-recipes
+spec:
+  # SQLite: never run two pods against the same database.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: family-recipes
+  template:
+    metadata:
+      labels:
+        app: family-recipes
+        home-platform/analytics-collect: "true"
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        fsGroup: 1000
+      # local-path is hostPath-backed and ignores fsGroup, so fix ownership explicitly.
+      initContainers:
+        - name: fix-data-ownership
+          image: ghcr.io/ramintamisiunaite/family-recipes:master-a4a3006-1794472249
+          imagePullPolicy: IfNotPresent
+          command: ["chown", "-R", "1000:1000", "/data"]
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+        - name: family-recipes
+          image: ghcr.io/ramintamisiunaite/family-recipes:master-a4a3006-1794472249
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+          # Django rejects the pod IP as Host, so probes must send Host: localhost.
+          startupProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            periodSeconds: 20
+            failureThreshold: 3
+          env:
+            - name: APP_URL
+              value: "https://receptai.tirami.lt"
+            - name: ADMIN_EMAILS
+              value: "titas.januson@gmail.com,raminta.misiunaite@gmail.com"
+            - name: GUNICORN_WORKERS
+              value: "2"
+          envFrom:
+            - secretRef:
+                name: family-recipes-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: family-recipes-data
