@@ -41,6 +41,12 @@
       "automerge": false
     },
     {
+      "description": "family-recipes builds are tagged master-<shortsha>-<unixtime>; order by timestamp, ignore latest and sha-* tags",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/ramintamisiunaite/family-recipes"],
+      "versioning": "regex:^master-[a-f0-9]+-(?<patch>\\d+)$"
+    },
+    {
       "description": "Terraform provider/module updates",
       "matchManagers": ["terraform"],
       "matchUpdateTypes": ["minor", "patch"],

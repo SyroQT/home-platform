@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: family-recipes
+  namespace: apps-family-recipes
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - receptai.tirami.lt
+      secretName: family-recipes-tls
+  rules:
+    - host: receptai.tirami.lt
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: family-recipes
+                port:
+                  number: 80

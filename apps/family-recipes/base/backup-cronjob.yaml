@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: family-recipes-sqlite-backup
+  namespace: apps-family-recipes
+spec:
+  # Runs before the host restic backup (04:00, restic-backup.timer) so the PVC
+  # contains a consistent /data/backup.sqlite3 snapshot when restic copies it.
+  schedule: "45 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+          containers:
+            - name: sqlite-backup
+              image: ghcr.io/ramintamisiunaite/family-recipes:master-a4a3006-1794472249
+              imagePullPolicy: IfNotPresent
+              # Online backup API is safe while the app is writing. Write to a
+              # .tmp file (excluded by restic) and rename atomically.
+              command:
+                - python
+                - -c
+                - |
+                  import os, sqlite3
+                  src = sqlite3.connect("/data/db.sqlite3")
+                  dst = sqlite3.connect("/data/backup.sqlite3.tmp")
+                  src.backup(dst)
+                  dst.close()
+                  src.close()
+                  os.replace("/data/backup.sqlite3.tmp", "/data/backup.sqlite3")
+              securityContext:
+                allowPrivilegeEscalation: false
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 250m
+                  memory: 256Mi
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: family-recipes-data
