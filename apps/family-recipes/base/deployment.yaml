@@ -23,7 +23,7 @@ spec:
       # local-path is hostPath-backed and ignores fsGroup, so fix ownership explicitly.
       initContainers:
         - name: fix-data-ownership
-          image: ghcr.io/ramintamisiunaite/family-recipes:master-a4a3006-1794472249
+          image: ghcr.io/ramintamisiunaite/family-recipes:master-a5ffa92-1794646282
           imagePullPolicy: IfNotPresent
           command: ["chown", "-R", "1000:1000", "/data"]
           securityContext:
@@ -34,7 +34,7 @@ spec:
               mountPath: /data
       containers:
         - name: family-recipes
-          image: ghcr.io/ramintamisiunaite/family-recipes:master-a4a3006-1794472249
+          image: ghcr.io/ramintamisiunaite/family-recipes:master-a5ffa92-1794646282
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
