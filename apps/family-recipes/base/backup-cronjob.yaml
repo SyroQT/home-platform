@@ -22,7 +22,7 @@ spec:
             runAsNonRoot: true
           containers:
             - name: sqlite-backup
-              image: ghcr.io/ramintamisiunaite/family-recipes:master-a4a3006-1794472249
+              image: ghcr.io/ramintamisiunaite/family-recipes:master-a5ffa92-1794646282
               imagePullPolicy: IfNotPresent
               # Online backup API is safe while the app is writing. Write to a
               # .tmp file (excluded by restic) and rename atomically.
